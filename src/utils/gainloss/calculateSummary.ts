@@ -18,6 +18,7 @@ export function calculateGainLossSummary(records: GainLossRecord[]): GainLossSum
       const gainLossJPY = proceedsJPY - costJPY;
   
       return {
+        symbol: trade.symbol,  // symbolを追加
         purchaseDate: trade.purchaseDate,
         saleDate: trade.saleDate,
         quantity: trade.quantity,
@@ -29,9 +30,9 @@ export function calculateGainLossSummary(records: GainLossRecord[]): GainLossSum
         costJPY,
         proceedsJPY,
         gainLossJPY,
-        exchangeRate: saleRate // 後方互換性のため
+        exchangeRate: saleRate
       };
-    });  
+    });
 
     // 銘柄ごとの合計を計算
     const gainLossUSD = tradeDetails.reduce((sum, trade) => sum + trade.gainLoss, 0);

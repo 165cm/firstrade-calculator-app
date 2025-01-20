@@ -28,7 +28,7 @@ export default function GainLossPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="max-w-5xl mx-auto p-6 space-y-6"> {/* コンテナスタイルを統一 */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
           <p className="font-bold">エラーが発生しました</p>

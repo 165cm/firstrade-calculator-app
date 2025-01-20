@@ -112,25 +112,26 @@ export const GainLossFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
   });
 
   return (
-    <div className="space-y-4">
-      <Alert>
-        <AlertDescription>
-          Firstradeの損益計算書CSVをアップロードしてください。
-          <br />
-          ※ 単一年度のGain/Loss Reportのみ対応しています
-        </AlertDescription>
-      </Alert>
+    <div className="max-w-5xl mx-auto">
+      <div className="grid grid-cols-[3fr_2fr] gap-6">
+        <div
+          {...getRootProps()}
+          className={`border-2 border-dashed p-6 rounded-lg text-center cursor-pointer transition-colors h-32 flex flex-col justify-center
+            ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:bg-gray-50'}`}
+        >
+          <input {...getInputProps()} />
+          <p>Firstradeの損益計算書CSVをドロップ、<br />またはクリックしてファイルを選択</p>
+          <p className="text-sm text-gray-500 mt-2">
+            ※Gain/Loss Reportのみ対応
+          </p>
+        </div>
 
-      <div
-        {...getRootProps()}
-        className={`border-2 border-dashed p-8 rounded-lg text-center cursor-pointer transition-colors
-          ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:bg-gray-50'}`}
-      >
-        <input {...getInputProps()} />
-        <p>CSVファイルをドロップ、または<br />クリックしてファイルを選択</p>
-        <p className="text-sm text-gray-500 mt-2">
-          対応フォーマット: Firstrade Gain/Loss Report
-        </p>
+        <Alert className="h-32 flex items-center">
+          <AlertDescription>
+            損益計算書（Gain/Loss Report）のCSVファイルをアップロードしてください。
+            為替レートは取引日の実勢レートを使用します。
+          </AlertDescription>
+        </Alert>
       </div>
     </div>
   );

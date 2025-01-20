@@ -1,12 +1,42 @@
 // src/components/gainloss/GainLossSummary.tsx
 import React from 'react';
 import type { GainLossSummary, SymbolSummary, TradeDetail } from '@/types/gainloss';
+import { ExportButton } from '@/components/common/ExportButton';
+import { exportGainLossToCsv, downloadCsv } from '@/utils/export/csvExport';
 
 interface Props {
   summary: GainLossSummary;
 }
 
 const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
+
+  const handleExport = React.useCallback(() => {
+    try {
+      const timestamp = new Date().toISOString().split('T')[0];
+      // trades配列を正しく展開してsymbolを追加
+      const allTrades = summary.symbolSummary.flatMap(symbolData => 
+        symbolData.trades.map(trade => ({
+          ...trade,
+          symbol: symbolData.symbol  // 親オブジェクトからsymbolを取得
+        }))
+      ).sort((a, b) => 
+        new Date(a.saleDate).getTime() - new Date(b.saleDate).getTime()
+      );
+
+      console.log('Export data check:', {
+        tradeCount: allTrades.length,
+        firstTrade: allTrades[0]
+      });
+
+      const csvContent = exportGainLossToCsv(allTrades);
+      downloadCsv(csvContent, `損益計算書_${timestamp}.csv`);
+    } catch (error) {
+      console.error('Export error:', error);
+      // ここでエラーハンドリングを追加することもできます
+    }
+  }, [summary]);
+
+
   // 平均為替レートの計算
   const calculateWeightedAverageRate = (trades: TradeDetail[]): {
     purchaseRate: number;
@@ -48,7 +78,12 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
   const gainLossRateJPY = (summary.totalGainLossJPY / totalSalesJPY) * 100;
 
   return (
+
     <div className="space-y-8">
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-bold">年間損益サマリー</h2>
+        <ExportButton onClick={handleExport} />
+      </div>
       {/* 損益サマリー（変更なし） */}
       <div className="bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-bold mb-4">年間損益サマリー</h2>

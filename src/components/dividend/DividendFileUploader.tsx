@@ -40,24 +40,27 @@ export const DividendFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
   });
 
   return (
-    <div>
-      <div
-        {...getRootProps()}
-        className={`border-2 border-dashed p-8 rounded-lg text-center cursor-pointer transition-colors
-          ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:bg-gray-50'}`}
-      >
-        <input {...getInputProps()} />
-        <p>Firstradeの配当金明細CSVをドロップ、または<br />クリックしてファイルを選択</p>
-        <p className="text-sm text-gray-500 mt-2">
-          ※Dividend Reportのみ対応
-        </p>
+    <div className="max-w-5xl mx-auto">
+      <div className="grid grid-cols-[3fr_2fr] gap-6">
+        <div
+          {...getRootProps()}
+          className={`border-2 border-dashed p-6 rounded-lg text-center cursor-pointer transition-colors h-32 flex flex-col justify-center
+            ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:bg-gray-50'}`}
+        >
+          <input {...getInputProps()} />
+          <p>Firstradeの配当金明細CSVをドロップ、<br />またはクリックしてファイルを選択</p>
+          <p className="text-sm text-gray-500 mt-2">
+            ※Dividend Reportのみ対応
+          </p>
+        </div>
+
+        <Alert className="h-32 flex items-center">
+          <AlertDescription>
+            配当金明細（Dividend Report）のCSVファイルをアップロードしてください。
+            為替レートは各支払日の実勢レートを使用します。
+          </AlertDescription>
+        </Alert>
       </div>
-      <Alert className="mt-4">
-        <AlertDescription>
-          配当金明細（Dividend Report）のCSVファイルをアップロードしてください。
-          為替レートは各支払日の実勢レートを使用します。
-        </AlertDescription>
-      </Alert>
     </div>
   );
 };

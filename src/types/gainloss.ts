@@ -53,6 +53,7 @@ export interface SymbolSummary {
 
 // 追加: 取引詳細の型
 export interface TradeDetail {
+  symbol: string;  // anyからstringに変更
   purchaseDate: string;
   saleDate: string;
   quantity: number;

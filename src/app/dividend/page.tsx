@@ -44,7 +44,7 @@ export default function DividendPage() {
   };
 
   return (
-    <div className="p-6">
+    <div className="max-w-5xl mx-auto p-6 space-y-6"> {/* コンテナスタイルを統一 */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
           {error}
@@ -57,7 +57,7 @@ export default function DividendPage() {
       />
 
       {!isLoading && (dividendData.dividends.length > 0 || dividendData.interest.length > 0) && (
-        <div className="mt-6">
+        <div className="space-y-6"> {/* 内部のスペーシングも統一 */}
           <DividendSummary data={dividendData} />
         </div>
       )}

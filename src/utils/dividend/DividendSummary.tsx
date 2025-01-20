@@ -13,6 +13,8 @@ import type {
   ProcessedDividendData,
   ConvertedDividendRecord  // 追加
 } from '@/types/dividend';
+import { ExportButton } from '@/components/common/ExportButton';
+import { exportDividendToCsv, downloadCsv } from '@/utils/export/csvExport';
 
 interface Props {
   data: ProcessedDividendData;
@@ -69,6 +71,16 @@ const SummaryCard = ({ title, amountUSD, amountJPY, color }: {
 
 
   export function DividendSummary({ data }: Props) {
+    // handleExport関数をコンポーネントのトップレベルに移動
+    const handleExport = () => {
+      const timestamp = new Date().toISOString().split('T')[0];
+      const csvContent = exportDividendToCsv([
+        ...data.dividends,
+        ...data.interest,
+        ...data.other
+      ]);
+      downloadCsv(csvContent, `配当金明細_${timestamp}.csv`);
+    };
     // 年間・月間の集計
     const summary = useMemo(() => {
       const calculateTotal = (records: ConvertedDividendRecord[]) => records.reduce((sum, record) => {
@@ -186,6 +198,10 @@ const SummaryCard = ({ title, amountUSD, amountJPY, color }: {
 
 return (
     <div className="space-y-6 w-full">
+    <div className="flex justify-between items-center mb-4">
+      <h3 className="text-xl font-semibold">配当金明細</h3>
+      <ExportButton onClick={handleExport} />
+    </div>
     {/* サマリーカード */}
     <div className="flex flex-row gap-4 w-full">
       <SummaryCard
