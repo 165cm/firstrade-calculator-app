@@ -86,7 +86,6 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
       </div>
       {/* 損益サマリー（変更なし） */}
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold mb-4">年間損益サマリー</h2>
         <div className="grid grid-cols-3 gap-4">
           <div className="p-4 bg-gray-50 rounded">
             <p className="text-sm text-gray-600">米ドル建て損益</p>

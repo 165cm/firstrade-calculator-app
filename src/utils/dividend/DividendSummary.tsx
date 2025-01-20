@@ -224,40 +224,55 @@ return (
       />
     </div>
   
-      {/* 月次推移グラフ */}
+    {/* 月次推移グラフ */}
       <div className="bg-white rounded-lg shadow p-6 w-full">
         <div className="flex justify-between items-center mb-6">
             <h3 className="text-sm font-semibold text-gray-500">月次推移</h3>
             <div className="text-right">
-            <p className="text-sm text-gray-500">月平均配当金</p>
+            <p className="text-sm text-gray-500">月平均</p>
             <p className="text-lg font-semibold text-gray-700">
                 ¥{Math.floor(summary.monthly.jpy).toLocaleString()}
             </p>
             </div>
         </div>
-        <div className="h-64">
+        <div className="w-full" style={{ height: '300px' }}>
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthlyData}>
-              <XAxis dataKey="month" />
+            <BarChart 
+              data={monthlyData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
+              <XAxis 
+                dataKey="month"
+                axisLine={true}
+                tickLine={true}
+              />
               <YAxis 
                 tickFormatter={(value) => `¥${(value / 10000).toFixed(0)}万`}
+                axisLine={true}
+                tickLine={true}
               />
               <Tooltip 
                 formatter={(value: number) => `¥${Math.floor(value).toLocaleString()}`}
                 labelFormatter={(label) => `${label}月`}
+                contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
               />
-              <Legend />
+              <Legend 
+                verticalAlign="top" 
+                height={36}
+              />
               <Bar 
                 dataKey="dividend" 
                 name="配当金" 
                 stackId="a" 
-                fill="#3B82F6" 
+                fill="#3B82F6"
+                radius={[4, 4, 0, 0]}
               />
               <Bar 
                 dataKey="interest" 
                 name="利子" 
                 stackId="a" 
-                fill="#10B981" 
+                fill="#10B981"
+                radius={[4, 4, 0, 0]}
               />
             </BarChart>
           </ResponsiveContainer>
