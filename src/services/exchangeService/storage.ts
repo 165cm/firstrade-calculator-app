@@ -1,8 +1,8 @@
 // src/services/exchangeService/storage.ts
 import { createHash } from 'crypto';
 import { format, endOfQuarter } from 'date-fns';
-import path from 'path';
 import fs from 'fs/promises';
+import { join } from 'path';
 import type { QuarterData, ExchangeRate } from './types';
 
 // JSONデータの基本型定義
@@ -17,30 +17,32 @@ interface LastUpdateData extends JsonObject {
   lastUpdate: string;
 }
 
-interface ChecksumRecord {
-  [key: string]: string;  // 形式: "2024Q1": "hash..."
-}
-
 export class ExchangeStorageService {
-  private readonly CURRENT_PATH = 'src/data/current';
-  private readonly HISTORICAL_PATH = 'src/data/historical';
+  private readonly BASE_PATH: string;
+  private readonly CURRENT_PATH: string;
+  private readonly HISTORICAL_PATH: string;
 
-  private async ensureDirectory(dirPath: string): Promise<void> {
+  constructor() {
+    this.BASE_PATH = 'src/data';
+    this.CURRENT_PATH = join(this.BASE_PATH, 'current');
+    this.HISTORICAL_PATH = join(this.BASE_PATH, 'historical');
+  }
+
+  // ディレクトリ作成メソッド
+  private async ensureDirectories(): Promise<void> {
     try {
-      await fs.access(dirPath);
-    } catch {
-      await fs.mkdir(dirPath, { recursive: true });
+      for (const dir of [this.BASE_PATH, this.CURRENT_PATH, this.HISTORICAL_PATH]) {
+        await fs.mkdir(dir, { recursive: true });
+      }
+    } catch (error) {
+      console.error('Failed to create directories:', error);
+      throw new Error(`Failed to create directories: ${error}`);
     }
   }
 
-  private getCurrentQuarterFileName(): string {
-    const now = new Date();
-    const quarter = Math.floor((now.getMonth() / 3)) + 1;
-    return `${now.getFullYear()}Q${quarter}.json`;
-  }
-
+  // JSON読み書きのヘルパーメソッド
   private async writeJSON<T extends JsonObject>(filePath: string, data: T): Promise<void> {
-    await this.ensureDirectory(path.dirname(filePath));
+    await this.ensureDirectories();  // ensureDirectory から ensureDirectories に変更
     await fs.writeFile(filePath, JSON.stringify(data, null, 2));
   }
 
@@ -48,13 +50,14 @@ export class ExchangeStorageService {
     try {
       const content = await fs.readFile(filePath, 'utf-8');
       return JSON.parse(content) as T;
-    } catch {
+    } catch {  // error パラメータを削除
       return null;
     }
   }
 
+  // 四半期データの読み書き
   private async writeQuarterData(filePath: string, data: QuarterData): Promise<void> {
-    await this.ensureDirectory(path.dirname(filePath));
+    await this.ensureDirectories();  // ensureDirectory から ensureDirectories に変更
     await fs.writeFile(filePath, JSON.stringify(data, null, 2));
   }
 
@@ -67,84 +70,83 @@ export class ExchangeStorageService {
     }
   }
 
+  // 四半期ファイル名の取得
+  private getCurrentQuarterFileName(): string {
+    const now = new Date();
+    const quarter = Math.floor((now.getMonth() / 3)) + 1;
+    return `${now.getFullYear()}Q${quarter}.json`;
+  }
+
+  // ハッシュ計算
   private calculateHash(data: QuarterData): string {
     return createHash('sha256')
       .update(JSON.stringify(data))
       .digest('hex');
   }
 
-  private async updateChecksum(
-    quarter: string,
-    year: string,
-    hash: string
-  ): Promise<void> {
-    const checksumPath = path.join(this.HISTORICAL_PATH, 'checksum.json');
-    const current = await this.readJSON<ChecksumRecord>(checksumPath) || {};
-    current[`${year}Q${quarter}`] = hash;
-    await this.writeJSON(checksumPath, current);
-  }
-
-  private async moveToHistorical(
-    data: QuarterData,
-    quarter: string,
-    year: string,
-    hash: string
-  ): Promise<void> {
-    const yearDir = path.join(this.HISTORICAL_PATH, year);
-    await this.ensureDirectory(yearDir);
-    await this.writeQuarterData(
-      path.join(yearDir, `Q${quarter}.json`),
-      { ...data, hash }
-    );
-  }
-
+  // 公開メソッド
   async saveRate(rate: ExchangeRate): Promise<void> {
-    const currentData: QuarterData = await this.readCurrentQuarter() || {
-      startDate: format(new Date(), 'yyyy-MM-01'),
-      endDate: format(endOfQuarter(new Date()), 'yyyy-MM-dd'),
-      rates: {},
-      hash: ''
-    };
-    
-    currentData.rates[rate.date] = rate;
-    await this.saveCurrentQuarter(currentData);
-    
-    await this.writeJSON<LastUpdateData>(
-      path.join(this.CURRENT_PATH, 'last_update.json'),
-      { lastUpdate: new Date().toISOString() }
-    );
-  }
+    try {
+      await this.ensureDirectories();
 
-  async saveCurrentQuarter(data: QuarterData): Promise<void> {
-    const quarterFile = this.getCurrentQuarterFileName();
-    await this.writeQuarterData(path.join(this.CURRENT_PATH, quarterFile), data);
-  }
+      const currentData: QuarterData = await this.readCurrentQuarter() || {
+        startDate: format(new Date(), 'yyyy-MM-01'),
+        endDate: format(endOfQuarter(new Date()), 'yyyy-MM-dd'),
+        rates: {},
+        hash: ''
+      };
 
-  async readCurrentQuarter(): Promise<QuarterData | null> {
-    const quarterFile = this.getCurrentQuarterFileName();
-    return this.readQuarterData(path.join(this.CURRENT_PATH, quarterFile));
+      currentData.rates[rate.date] = rate;
+      
+      const quarterFile = this.getCurrentQuarterFileName();
+      const quarterPath = join(this.CURRENT_PATH, quarterFile);
+      await this.writeQuarterData(quarterPath, currentData);
+
+      const lastUpdatePath = join(this.CURRENT_PATH, 'last_update.json');
+      await this.writeJSON<LastUpdateData>(lastUpdatePath, {
+        lastUpdate: new Date().toISOString()
+      });
+
+      console.log('Data saved:', {
+        path: quarterPath,
+        date: rate.date,
+        rate: rate.rate
+      });
+
+    } catch (error) {
+      console.error('Failed to save rate:', error);
+      throw error;
+    }
   }
 
   async getLastUpdateDate(): Promise<Date> {
     const meta = await this.readJSON<LastUpdateData>(
-      path.join(this.CURRENT_PATH, 'last_update.json')
+      join(this.CURRENT_PATH, 'last_update.json')
     ) || { lastUpdate: new Date(0).toISOString() };
     return new Date(meta.lastUpdate);
   }
 
-  async finalizeQuarter(
-    quarter: string,
-    year: string
-  ): Promise<void> {
+  async readCurrentQuarter(): Promise<QuarterData | null> {
+    const quarterFile = this.getCurrentQuarterFileName();
+    return this.readQuarterData(join(this.CURRENT_PATH, quarterFile));
+  }
+
+  async finalizeQuarter(quarter: string, year: string): Promise<void> {
     const currentData = await this.readCurrentQuarter();
     if (!currentData) {
       throw new Error('No current quarter data found');
     }
-    
+
     const hash = this.calculateHash(currentData);
-    await this.moveToHistorical(currentData, quarter, year, hash);
-    await this.updateChecksum(quarter, year, hash);
     
+    // 履歴データに移動
+    const yearDir = join(this.HISTORICAL_PATH, year);
+    await this.ensureDirectories();
+    await this.writeQuarterData(
+      join(yearDir, `Q${quarter}.json`),
+      { ...currentData, hash }
+    );
+
     // 新しい四半期のデータを初期化
     const newQuarter: QuarterData = {
       startDate: format(new Date(), 'yyyy-MM-01'),
@@ -152,21 +154,8 @@ export class ExchangeStorageService {
       rates: {},
       hash: ''
     };
-    await this.saveCurrentQuarter(newQuarter);
-  }
-
-  // 整合性チェック用のメソッド
-  async verifyHistoricalData(year: string, quarter: string): Promise<boolean> {
-    const filePath = path.join(this.HISTORICAL_PATH, year, `Q${quarter}.json`);
-    const data = await this.readQuarterData(filePath);
-    if (!data) return false;
-
-    const calculatedHash = this.calculateHash(data);
-    const checksumPath = path.join(this.HISTORICAL_PATH, 'checksum.json');
-    const checksums = await this.readJSON<ChecksumRecord>(checksumPath);
-    if (!checksums) return false;
-
-    const storedHash = checksums[`${year}Q${quarter}`];
-    return calculatedHash === storedHash;
+    
+    const quarterFile = this.getCurrentQuarterFileName();
+    await this.writeQuarterData(join(this.CURRENT_PATH, quarterFile), newQuarter);
   }
 }

@@ -12,8 +12,10 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "check-rates": "NODE_OPTIONS='--loader ts-node/esm' ts-node --esm scripts/checkStoredRates.ts",
+    "update-rates": "NODE_OPTIONS='--loader ts-node/esm' ts-node --esm scripts/updateExchangeRates.ts",
     "process-rates": "NODE_OPTIONS='--loader ts-node/esm' ts-node --esm scripts/processRates.ts",
-    "fetch-rates": "node --loader ts-node/esm scripts/fetchHistoricalRates.ts",
+    "fetch-rates": "NODE_OPTIONS='--loader ts-node/esm' ts-node --esm scripts/fetchHistoricalRates.ts",
     "generate-rates": "NODE_OPTIONS='--loader ts-node/esm' ts-node --project tsconfig.scripts.json scripts/generateHistoricalRates.ts"
   },
   "dependencies": {
