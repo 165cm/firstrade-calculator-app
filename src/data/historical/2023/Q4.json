@@ -1,0 +1,511 @@
+{
+  "startDate": "2023-10-01",
+  "endDate": "2023-12-31",
+  "rates": {
+    "2023-10-02": {
+      "date": "2023-10-02",
+      "rate": {
+        "JPY": 149.73
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491080
+    },
+    "2023-10-03": {
+      "date": "2023-10-03",
+      "rate": {
+        "JPY": 149.98
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491084
+    },
+    "2023-10-04": {
+      "date": "2023-10-04",
+      "rate": {
+        "JPY": 149.07
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491089
+    },
+    "2023-10-05": {
+      "date": "2023-10-05",
+      "rate": {
+        "JPY": 148.88
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491094
+    },
+    "2023-10-06": {
+      "date": "2023-10-06",
+      "rate": {
+        "JPY": 149.08
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491098
+    },
+    "2023-10-09": {
+      "date": "2023-10-09",
+      "rate": {
+        "JPY": 149.14
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491103
+    },
+    "2023-10-10": {
+      "date": "2023-10-10",
+      "rate": {
+        "JPY": 149.04
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491108
+    },
+    "2023-10-11": {
+      "date": "2023-10-11",
+      "rate": {
+        "JPY": 148.88
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491112
+    },
+    "2023-10-12": {
+      "date": "2023-10-12",
+      "rate": {
+        "JPY": 149.12
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491117
+    },
+    "2023-10-13": {
+      "date": "2023-10-13",
+      "rate": {
+        "JPY": 149.6
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491121
+    },
+    "2023-10-16": {
+      "date": "2023-10-16",
+      "rate": {
+        "JPY": 149.5
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491127
+    },
+    "2023-10-17": {
+      "date": "2023-10-17",
+      "rate": {
+        "JPY": 149.52
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491134
+    },
+    "2023-10-18": {
+      "date": "2023-10-18",
+      "rate": {
+        "JPY": 149.65
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491138
+    },
+    "2023-10-19": {
+      "date": "2023-10-19",
+      "rate": {
+        "JPY": 149.85
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491142
+    },
+    "2023-10-20": {
+      "date": "2023-10-20",
+      "rate": {
+        "JPY": 149.94
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491146
+    },
+    "2023-10-23": {
+      "date": "2023-10-23",
+      "rate": {
+        "JPY": 149.96
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491150
+    },
+    "2023-10-24": {
+      "date": "2023-10-24",
+      "rate": {
+        "JPY": 149.79
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491154
+    },
+    "2023-10-25": {
+      "date": "2023-10-25",
+      "rate": {
+        "JPY": 149.91
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491158
+    },
+    "2023-10-26": {
+      "date": "2023-10-26",
+      "rate": {
+        "JPY": 150.36
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491162
+    },
+    "2023-10-27": {
+      "date": "2023-10-27",
+      "rate": {
+        "JPY": 149.97
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491166
+    },
+    "2023-10-30": {
+      "date": "2023-10-30",
+      "rate": {
+        "JPY": 149.74
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491169
+    },
+    "2023-10-31": {
+      "date": "2023-10-31",
+      "rate": {
+        "JPY": 150.96
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384491173
+    },
+    "2023-11-01": {
+      "date": "2023-11-01",
+      "rate": {
+        "JPY": 151.21
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492732
+    },
+    "2023-11-02": {
+      "date": "2023-11-02",
+      "rate": {
+        "JPY": 149.98
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492737
+    },
+    "2023-11-03": {
+      "date": "2023-11-03",
+      "rate": {
+        "JPY": 149.38
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492742
+    },
+    "2023-11-06": {
+      "date": "2023-11-06",
+      "rate": {
+        "JPY": 149.77
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492747
+    },
+    "2023-11-07": {
+      "date": "2023-11-07",
+      "rate": {
+        "JPY": 150.45
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492751
+    },
+    "2023-11-08": {
+      "date": "2023-11-08",
+      "rate": {
+        "JPY": 150.85
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492756
+    },
+    "2023-11-09": {
+      "date": "2023-11-09",
+      "rate": {
+        "JPY": 151.13
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492760
+    },
+    "2023-11-10": {
+      "date": "2023-11-10",
+      "rate": {
+        "JPY": 151.43
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492764
+    },
+    "2023-11-13": {
+      "date": "2023-11-13",
+      "rate": {
+        "JPY": 151.79
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492769
+    },
+    "2023-11-14": {
+      "date": "2023-11-14",
+      "rate": {
+        "JPY": 151.69
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492773
+    },
+    "2023-11-15": {
+      "date": "2023-11-15",
+      "rate": {
+        "JPY": 150.34
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492777
+    },
+    "2023-11-16": {
+      "date": "2023-11-16",
+      "rate": {
+        "JPY": 151.21
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492783
+    },
+    "2023-11-17": {
+      "date": "2023-11-17",
+      "rate": {
+        "JPY": 149.27
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492790
+    },
+    "2023-11-20": {
+      "date": "2023-11-20",
+      "rate": {
+        "JPY": 148.35
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492794
+    },
+    "2023-11-21": {
+      "date": "2023-11-21",
+      "rate": {
+        "JPY": 147.52
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492798
+    },
+    "2023-11-22": {
+      "date": "2023-11-22",
+      "rate": {
+        "JPY": 148.7
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492801
+    },
+    "2023-11-23": {
+      "date": "2023-11-23",
+      "rate": {
+        "JPY": 149.52
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492805
+    },
+    "2023-11-24": {
+      "date": "2023-11-24",
+      "rate": {
+        "JPY": 149.6
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492809
+    },
+    "2023-11-27": {
+      "date": "2023-11-27",
+      "rate": {
+        "JPY": 148.72
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492813
+    },
+    "2023-11-28": {
+      "date": "2023-11-28",
+      "rate": {
+        "JPY": 148.63
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492816
+    },
+    "2023-11-29": {
+      "date": "2023-11-29",
+      "rate": {
+        "JPY": 147.58
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492820
+    },
+    "2023-11-30": {
+      "date": "2023-11-30",
+      "rate": {
+        "JPY": 147.46
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384492824
+    },
+    "2023-12-01": {
+      "date": "2023-12-01",
+      "rate": {
+        "JPY": 148.17
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494712
+    },
+    "2023-12-04": {
+      "date": "2023-12-04",
+      "rate": {
+        "JPY": 146.73
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494718
+    },
+    "2023-12-05": {
+      "date": "2023-12-05",
+      "rate": {
+        "JPY": 147.11
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494722
+    },
+    "2023-12-06": {
+      "date": "2023-12-06",
+      "rate": {
+        "JPY": 147.24
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494727
+    },
+    "2023-12-07": {
+      "date": "2023-12-07",
+      "rate": {
+        "JPY": 145
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494732
+    },
+    "2023-12-08": {
+      "date": "2023-12-08",
+      "rate": {
+        "JPY": 144.32
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494736
+    },
+    "2023-12-11": {
+      "date": "2023-12-11",
+      "rate": {
+        "JPY": 146.45
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494742
+    },
+    "2023-12-12": {
+      "date": "2023-12-12",
+      "rate": {
+        "JPY": 145.17
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494747
+    },
+    "2023-12-13": {
+      "date": "2023-12-13",
+      "rate": {
+        "JPY": 145.67
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494752
+    },
+    "2023-12-14": {
+      "date": "2023-12-14",
+      "rate": {
+        "JPY": 141.77
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494757
+    },
+    "2023-12-15": {
+      "date": "2023-12-15",
+      "rate": {
+        "JPY": 141.74
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494762
+    },
+    "2023-12-18": {
+      "date": "2023-12-18",
+      "rate": {
+        "JPY": 142.84
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494767
+    },
+    "2023-12-19": {
+      "date": "2023-12-19",
+      "rate": {
+        "JPY": 144.32
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494773
+    },
+    "2023-12-20": {
+      "date": "2023-12-20",
+      "rate": {
+        "JPY": 143.57
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494781
+    },
+    "2023-12-21": {
+      "date": "2023-12-21",
+      "rate": {
+        "JPY": 142.76
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494786
+    },
+    "2023-12-22": {
+      "date": "2023-12-22",
+      "rate": {
+        "JPY": 142.12
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494791
+    },
+    "2023-12-27": {
+      "date": "2023-12-27",
+      "rate": {
+        "JPY": 142.62
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494795
+    },
+    "2023-12-28": {
+      "date": "2023-12-28",
+      "rate": {
+        "JPY": 140.88
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384494800
+    },
+    "2023-12-29": {
+      "date": "2023-12-29",
+      "rate": {
+        "JPY": 141.48
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384496649
+    }
+  },
+  "hash": "a8cd1e03299aa87ab21e98dda3bdc7c9012ace066a178c8d5f1d2e1e4495b88f"
+}

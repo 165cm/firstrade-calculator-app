@@ -1,0 +1,535 @@
+{
+  "startDate": "2021-10-01",
+  "endDate": "2021-12-31",
+  "rates": {
+    "2021-10-01": {
+      "date": "2021-10-01",
+      "rate": {
+        "JPY": 111.18
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447227
+    },
+    "2021-10-04": {
+      "date": "2021-10-04",
+      "rate": {
+        "JPY": 111.04
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447231
+    },
+    "2021-10-05": {
+      "date": "2021-10-05",
+      "rate": {
+        "JPY": 111.18
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447234
+    },
+    "2021-10-06": {
+      "date": "2021-10-06",
+      "rate": {
+        "JPY": 111.35
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447237
+    },
+    "2021-10-07": {
+      "date": "2021-10-07",
+      "rate": {
+        "JPY": 111.38
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447239
+    },
+    "2021-10-08": {
+      "date": "2021-10-08",
+      "rate": {
+        "JPY": 111.78
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447242
+    },
+    "2021-10-11": {
+      "date": "2021-10-11",
+      "rate": {
+        "JPY": 112.93
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447244
+    },
+    "2021-10-12": {
+      "date": "2021-10-12",
+      "rate": {
+        "JPY": 113.42
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447247
+    },
+    "2021-10-13": {
+      "date": "2021-10-13",
+      "rate": {
+        "JPY": 113.56
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447249
+    },
+    "2021-10-14": {
+      "date": "2021-10-14",
+      "rate": {
+        "JPY": 113.47
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447252
+    },
+    "2021-10-15": {
+      "date": "2021-10-15",
+      "rate": {
+        "JPY": 114.33
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447254
+    },
+    "2021-10-18": {
+      "date": "2021-10-18",
+      "rate": {
+        "JPY": 114.15
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447257
+    },
+    "2021-10-19": {
+      "date": "2021-10-19",
+      "rate": {
+        "JPY": 114.22
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447260
+    },
+    "2021-10-20": {
+      "date": "2021-10-20",
+      "rate": {
+        "JPY": 114.24
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447262
+    },
+    "2021-10-21": {
+      "date": "2021-10-21",
+      "rate": {
+        "JPY": 114.16
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447265
+    },
+    "2021-10-22": {
+      "date": "2021-10-22",
+      "rate": {
+        "JPY": 113.87
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447267
+    },
+    "2021-10-25": {
+      "date": "2021-10-25",
+      "rate": {
+        "JPY": 113.66
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447270
+    },
+    "2021-10-26": {
+      "date": "2021-10-26",
+      "rate": {
+        "JPY": 114.02
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447272
+    },
+    "2021-10-27": {
+      "date": "2021-10-27",
+      "rate": {
+        "JPY": 113.63
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447275
+    },
+    "2021-10-28": {
+      "date": "2021-10-28",
+      "rate": {
+        "JPY": 113.6
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447277
+    },
+    "2021-10-29": {
+      "date": "2021-10-29",
+      "rate": {
+        "JPY": 113.89
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384447280
+    },
+    "2021-11-01": {
+      "date": "2021-11-01",
+      "rate": {
+        "JPY": 114.17
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448942
+    },
+    "2021-11-02": {
+      "date": "2021-11-02",
+      "rate": {
+        "JPY": 113.79
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448946
+    },
+    "2021-11-03": {
+      "date": "2021-11-03",
+      "rate": {
+        "JPY": 113.92
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448950
+    },
+    "2021-11-04": {
+      "date": "2021-11-04",
+      "rate": {
+        "JPY": 113.9
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448952
+    },
+    "2021-11-05": {
+      "date": "2021-11-05",
+      "rate": {
+        "JPY": 113.71
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448955
+    },
+    "2021-11-08": {
+      "date": "2021-11-08",
+      "rate": {
+        "JPY": 113.39
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448957
+    },
+    "2021-11-09": {
+      "date": "2021-11-09",
+      "rate": {
+        "JPY": 113.07
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448960
+    },
+    "2021-11-10": {
+      "date": "2021-11-10",
+      "rate": {
+        "JPY": 113.25
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448962
+    },
+    "2021-11-11": {
+      "date": "2021-11-11",
+      "rate": {
+        "JPY": 113.95
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448965
+    },
+    "2021-11-12": {
+      "date": "2021-11-12",
+      "rate": {
+        "JPY": 113.99
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448967
+    },
+    "2021-11-15": {
+      "date": "2021-11-15",
+      "rate": {
+        "JPY": 113.88
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448970
+    },
+    "2021-11-16": {
+      "date": "2021-11-16",
+      "rate": {
+        "JPY": 114.26
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448973
+    },
+    "2021-11-17": {
+      "date": "2021-11-17",
+      "rate": {
+        "JPY": 114.69
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448975
+    },
+    "2021-11-18": {
+      "date": "2021-11-18",
+      "rate": {
+        "JPY": 114.22
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448978
+    },
+    "2021-11-19": {
+      "date": "2021-11-19",
+      "rate": {
+        "JPY": 113.76
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448980
+    },
+    "2021-11-22": {
+      "date": "2021-11-22",
+      "rate": {
+        "JPY": 114.11
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448983
+    },
+    "2021-11-23": {
+      "date": "2021-11-23",
+      "rate": {
+        "JPY": 114.89
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448985
+    },
+    "2021-11-24": {
+      "date": "2021-11-24",
+      "rate": {
+        "JPY": 115.17
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448988
+    },
+    "2021-11-25": {
+      "date": "2021-11-25",
+      "rate": {
+        "JPY": 115.31
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448990
+    },
+    "2021-11-26": {
+      "date": "2021-11-26",
+      "rate": {
+        "JPY": 114.09
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448993
+    },
+    "2021-11-29": {
+      "date": "2021-11-29",
+      "rate": {
+        "JPY": 113.7
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448996
+    },
+    "2021-11-30": {
+      "date": "2021-11-30",
+      "rate": {
+        "JPY": 112.82
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384448999
+    },
+    "2021-12-01": {
+      "date": "2021-12-01",
+      "rate": {
+        "JPY": 113.37
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450505
+    },
+    "2021-12-02": {
+      "date": "2021-12-02",
+      "rate": {
+        "JPY": 112.83
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450509
+    },
+    "2021-12-03": {
+      "date": "2021-12-03",
+      "rate": {
+        "JPY": 113.34
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450512
+    },
+    "2021-12-06": {
+      "date": "2021-12-06",
+      "rate": {
+        "JPY": 113.21
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450515
+    },
+    "2021-12-07": {
+      "date": "2021-12-07",
+      "rate": {
+        "JPY": 113.57
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450517
+    },
+    "2021-12-08": {
+      "date": "2021-12-08",
+      "rate": {
+        "JPY": 113.79
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450520
+    },
+    "2021-12-09": {
+      "date": "2021-12-09",
+      "rate": {
+        "JPY": 113.35
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450522
+    },
+    "2021-12-10": {
+      "date": "2021-12-10",
+      "rate": {
+        "JPY": 113.72
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450525
+    },
+    "2021-12-13": {
+      "date": "2021-12-13",
+      "rate": {
+        "JPY": 113.66
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450527
+    },
+    "2021-12-14": {
+      "date": "2021-12-14",
+      "rate": {
+        "JPY": 113.58
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450530
+    },
+    "2021-12-15": {
+      "date": "2021-12-15",
+      "rate": {
+        "JPY": 113.88
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450532
+    },
+    "2021-12-16": {
+      "date": "2021-12-16",
+      "rate": {
+        "JPY": 114.12
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450534
+    },
+    "2021-12-17": {
+      "date": "2021-12-17",
+      "rate": {
+        "JPY": 113.22
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450536
+    },
+    "2021-12-20": {
+      "date": "2021-12-20",
+      "rate": {
+        "JPY": 113.53
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450538
+    },
+    "2021-12-21": {
+      "date": "2021-12-21",
+      "rate": {
+        "JPY": 113.71
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450540
+    },
+    "2021-12-22": {
+      "date": "2021-12-22",
+      "rate": {
+        "JPY": 114.22
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450542
+    },
+    "2021-12-23": {
+      "date": "2021-12-23",
+      "rate": {
+        "JPY": 114.4
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450544
+    },
+    "2021-12-24": {
+      "date": "2021-12-24",
+      "rate": {
+        "JPY": 114.39
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450547
+    },
+    "2021-12-27": {
+      "date": "2021-12-27",
+      "rate": {
+        "JPY": 114.74
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450549
+    },
+    "2021-12-28": {
+      "date": "2021-12-28",
+      "rate": {
+        "JPY": 114.87
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450551
+    },
+    "2021-12-29": {
+      "date": "2021-12-29",
+      "rate": {
+        "JPY": 114.99
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450553
+    },
+    "2021-12-30": {
+      "date": "2021-12-30",
+      "rate": {
+        "JPY": 115.09
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384450555
+    },
+    "2021-12-31": {
+      "date": "2021-12-31",
+      "rate": {
+        "JPY": 115.12
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384452049
+    }
+  },
+  "hash": "82f979feb57df233ad53d57ef8cd8d6a650bc3d56ee92412ab2ed6f038ccbbb8"
+}

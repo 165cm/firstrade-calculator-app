@@ -33,6 +33,7 @@ yarn-error.log*
 # env files
 .env*
 !.env.example
+env.yaml
 
 # vercel
 .vercel
@@ -40,7 +41,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-# password config
-/src/config/exportConfig.ts
-+ !src/config/exportConfig.default.ts

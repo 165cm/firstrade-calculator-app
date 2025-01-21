@@ -12,7 +12,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "generate-rates": "tsup scripts/generateHistoricalRates.ts --format cjs --onSuccess \"node dist/generateHistoricalRates.cjs\""
+    "process-rates": "NODE_OPTIONS='--loader ts-node/esm' ts-node --esm scripts/processRates.ts",
+    "fetch-rates": "node --loader ts-node/esm scripts/fetchHistoricalRates.ts",
+    "generate-rates": "NODE_OPTIONS='--loader ts-node/esm' ts-node --project tsconfig.scripts.json scripts/generateHistoricalRates.ts"
   },
   "dependencies": {
     "@radix-ui/react-dialog": "^1.1.4",
@@ -47,7 +49,8 @@
     "jest-environment-jsdom": "^29.7.0",
     "postcss": "^8.5.1",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "tsup": "^8.3.5",
-    "typescript": "^5"
+    "typescript": "^5.7.3"
   }
 }

@@ -1,0 +1,503 @@
+{
+  "startDate": "2020-04-01",
+  "endDate": "2020-06-30",
+  "rates": {
+    "2020-04-01": {
+      "date": "2020-04-01",
+      "rate": {
+        "JPY": 107.49
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414070
+    },
+    "2020-04-02": {
+      "date": "2020-04-02",
+      "rate": {
+        "JPY": 107.34
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414072
+    },
+    "2020-04-03": {
+      "date": "2020-04-03",
+      "rate": {
+        "JPY": 108.58
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414075
+    },
+    "2020-04-06": {
+      "date": "2020-04-06",
+      "rate": {
+        "JPY": 108.92
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414077
+    },
+    "2020-04-07": {
+      "date": "2020-04-07",
+      "rate": {
+        "JPY": 108.91
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414078
+    },
+    "2020-04-08": {
+      "date": "2020-04-08",
+      "rate": {
+        "JPY": 108.88
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414080
+    },
+    "2020-04-09": {
+      "date": "2020-04-09",
+      "rate": {
+        "JPY": 108.89
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414082
+    },
+    "2020-04-14": {
+      "date": "2020-04-14",
+      "rate": {
+        "JPY": 107.32
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414083
+    },
+    "2020-04-15": {
+      "date": "2020-04-15",
+      "rate": {
+        "JPY": 107.42
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414085
+    },
+    "2020-04-16": {
+      "date": "2020-04-16",
+      "rate": {
+        "JPY": 107.57
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414087
+    },
+    "2020-04-17": {
+      "date": "2020-04-17",
+      "rate": {
+        "JPY": 107.61
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414089
+    },
+    "2020-04-20": {
+      "date": "2020-04-20",
+      "rate": {
+        "JPY": 107.84
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414090
+    },
+    "2020-04-21": {
+      "date": "2020-04-21",
+      "rate": {
+        "JPY": 107.4
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414092
+    },
+    "2020-04-22": {
+      "date": "2020-04-22",
+      "rate": {
+        "JPY": 107.67
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414094
+    },
+    "2020-04-23": {
+      "date": "2020-04-23",
+      "rate": {
+        "JPY": 107.45
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414095
+    },
+    "2020-04-24": {
+      "date": "2020-04-24",
+      "rate": {
+        "JPY": 107.61
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414097
+    },
+    "2020-04-27": {
+      "date": "2020-04-27",
+      "rate": {
+        "JPY": 107.1
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414098
+    },
+    "2020-04-28": {
+      "date": "2020-04-28",
+      "rate": {
+        "JPY": 106.7
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414100
+    },
+    "2020-04-29": {
+      "date": "2020-04-29",
+      "rate": {
+        "JPY": 106.55
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384414102
+    },
+    "2020-04-30": {
+      "date": "2020-04-30",
+      "rate": {
+        "JPY": 106.54
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415750
+    },
+    "2020-05-04": {
+      "date": "2020-05-04",
+      "rate": {
+        "JPY": 106.78
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415753
+    },
+    "2020-05-05": {
+      "date": "2020-05-05",
+      "rate": {
+        "JPY": 106.71
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415755
+    },
+    "2020-05-06": {
+      "date": "2020-05-06",
+      "rate": {
+        "JPY": 106.09
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415756
+    },
+    "2020-05-07": {
+      "date": "2020-05-07",
+      "rate": {
+        "JPY": 106.57
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415758
+    },
+    "2020-05-08": {
+      "date": "2020-05-08",
+      "rate": {
+        "JPY": 106.37
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415760
+    },
+    "2020-05-11": {
+      "date": "2020-05-11",
+      "rate": {
+        "JPY": 107.32
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415761
+    },
+    "2020-05-12": {
+      "date": "2020-05-12",
+      "rate": {
+        "JPY": 107.35
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415763
+    },
+    "2020-05-13": {
+      "date": "2020-05-13",
+      "rate": {
+        "JPY": 106.92
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415765
+    },
+    "2020-05-14": {
+      "date": "2020-05-14",
+      "rate": {
+        "JPY": 107.01
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415767
+    },
+    "2020-05-15": {
+      "date": "2020-05-15",
+      "rate": {
+        "JPY": 106.99
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415768
+    },
+    "2020-05-18": {
+      "date": "2020-05-18",
+      "rate": {
+        "JPY": 107.38
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415770
+    },
+    "2020-05-19": {
+      "date": "2020-05-19",
+      "rate": {
+        "JPY": 107.76
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415772
+    },
+    "2020-05-20": {
+      "date": "2020-05-20",
+      "rate": {
+        "JPY": 107.64
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415774
+    },
+    "2020-05-21": {
+      "date": "2020-05-21",
+      "rate": {
+        "JPY": 107.65
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415775
+    },
+    "2020-05-22": {
+      "date": "2020-05-22",
+      "rate": {
+        "JPY": 107.54
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415777
+    },
+    "2020-05-25": {
+      "date": "2020-05-25",
+      "rate": {
+        "JPY": 107.67
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415779
+    },
+    "2020-05-26": {
+      "date": "2020-05-26",
+      "rate": {
+        "JPY": 107.44
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415781
+    },
+    "2020-05-27": {
+      "date": "2020-05-27",
+      "rate": {
+        "JPY": 107.89
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415783
+    },
+    "2020-05-28": {
+      "date": "2020-05-28",
+      "rate": {
+        "JPY": 107.73
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415784
+    },
+    "2020-05-29": {
+      "date": "2020-05-29",
+      "rate": {
+        "JPY": 107.12
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384415786
+    },
+    "2020-06-01": {
+      "date": "2020-06-01",
+      "rate": {
+        "JPY": 107.73
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417462
+    },
+    "2020-06-02": {
+      "date": "2020-06-02",
+      "rate": {
+        "JPY": 108.13
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417465
+    },
+    "2020-06-03": {
+      "date": "2020-06-03",
+      "rate": {
+        "JPY": 108.58
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417467
+    },
+    "2020-06-04": {
+      "date": "2020-06-04",
+      "rate": {
+        "JPY": 108.87
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417469
+    },
+    "2020-06-05": {
+      "date": "2020-06-05",
+      "rate": {
+        "JPY": 109.24
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417471
+    },
+    "2020-06-08": {
+      "date": "2020-06-08",
+      "rate": {
+        "JPY": 109.36
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417473
+    },
+    "2020-06-09": {
+      "date": "2020-06-09",
+      "rate": {
+        "JPY": 108.15
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417475
+    },
+    "2020-06-10": {
+      "date": "2020-06-10",
+      "rate": {
+        "JPY": 107.39
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417477
+    },
+    "2020-06-11": {
+      "date": "2020-06-11",
+      "rate": {
+        "JPY": 107.08
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417478
+    },
+    "2020-06-12": {
+      "date": "2020-06-12",
+      "rate": {
+        "JPY": 107.27
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417480
+    },
+    "2020-06-15": {
+      "date": "2020-06-15",
+      "rate": {
+        "JPY": 107.38
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417482
+    },
+    "2020-06-16": {
+      "date": "2020-06-16",
+      "rate": {
+        "JPY": 107.35
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417483
+    },
+    "2020-06-17": {
+      "date": "2020-06-17",
+      "rate": {
+        "JPY": 107.42
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417485
+    },
+    "2020-06-18": {
+      "date": "2020-06-18",
+      "rate": {
+        "JPY": 106.93
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417487
+    },
+    "2020-06-19": {
+      "date": "2020-06-19",
+      "rate": {
+        "JPY": 106.84
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417489
+    },
+    "2020-06-22": {
+      "date": "2020-06-22",
+      "rate": {
+        "JPY": 106.92
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417491
+    },
+    "2020-06-23": {
+      "date": "2020-06-23",
+      "rate": {
+        "JPY": 106.95
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417493
+    },
+    "2020-06-24": {
+      "date": "2020-06-24",
+      "rate": {
+        "JPY": 106.65
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417494
+    },
+    "2020-06-25": {
+      "date": "2020-06-25",
+      "rate": {
+        "JPY": 107.37
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417496
+    },
+    "2020-06-26": {
+      "date": "2020-06-26",
+      "rate": {
+        "JPY": 106.96
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417498
+    },
+    "2020-06-29": {
+      "date": "2020-06-29",
+      "rate": {
+        "JPY": 107.29
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417499
+    },
+    "2020-06-30": {
+      "date": "2020-06-30",
+      "rate": {
+        "JPY": 107.75
+      },
+      "source": "Frankfurter",
+      "timestamp": 1737384417501
+    }
+  },
+  "hash": "cf773020f684e155f03a3465b965fb3d4881bcae5dfe526f112fdb1c4db9eb79"
+}
