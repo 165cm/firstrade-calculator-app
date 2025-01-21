@@ -1,19 +1,24 @@
 // src/app/api/exchange-rates/route.ts
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { FrankfurterAPI } from '@/services/exchangeService/api/frankfurter';
 import { ExchangeStorageService } from '@/services/exchangeService/storage';
 import { ExchangeRateUpdater } from '@/services/exchangeService/updater';
 
+// テスト用のGETエンドポイント
 export async function GET() {
-  // GETメソッドのテスト用レスポンス
-  return NextResponse.json({ message: 'Exchange rates API endpoint' });
+  return NextResponse.json({
+    message: 'Exchange rates endpoint is working',
+    timestamp: new Date().toISOString()
+  });
 }
 
-export async function POST() {
+// 更新用のPOSTエンドポイント
+export async function POST(request: NextRequest) {
   try {
-    // 処理開始のログ
-    console.log('為替レート更新: 開始', {
-      timestamp: new Date().toISOString()
+    // ログ出力
+    console.log('Exchange rate update started', {
+      timestamp: new Date().toISOString(),
+      userAgent: request.headers.get('user-agent')
     });
 
     const api = new FrankfurterAPI();
@@ -22,26 +27,24 @@ export async function POST() {
 
     await updater.updateDaily();
 
-    // 完了ログ
-    console.log('為替レート更新: 完了', {
+    console.log('Exchange rate update completed', {
       timestamp: new Date().toISOString()
     });
 
     return NextResponse.json({
       success: true,
-      message: '為替レート更新が完了しました',
+      message: 'Exchange rate update completed successfully',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    // エラーログ
-    console.error('為替レート更新: エラー', {
-      error: error instanceof Error ? error.message : '不明なエラー',
+    console.error('Exchange rate update failed', {
+      error: error instanceof Error ? error.message : 'Unknown error',
       timestamp: new Date().toISOString()
     });
 
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : '為替レート更新に失敗しました',
+      error: error instanceof Error ? error.message : 'Exchange rate update failed',
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
