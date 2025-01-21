@@ -41,6 +41,3 @@ env.yaml
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-
-
-.github/workflows/update-rates.yml

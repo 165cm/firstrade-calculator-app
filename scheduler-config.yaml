@@ -1,0 +1,13 @@
+# scheduler-config.yaml
+name: exchange-rate-update
+schedule: '0 8 * * *'  # 毎日午前8時
+timeZone: 'Asia/Tokyo'
+target:
+  type: httpTarget
+  uri: [YOUR_CLOUD_RUN_URL]/api/update-exchange-rates
+  httpMethod: POST
+  headers:
+    x-cloudscheduler: true
+retryConfig:
+  maxRetryAttempts: 3
+  minBackoffDuration: 1s

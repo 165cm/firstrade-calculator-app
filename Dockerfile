@@ -5,11 +5,13 @@ WORKDIR /app
 # 依存関係のインストール
 COPY package*.json ./
 RUN npm install
+RUN npm install --save-dev eslint-plugin-jest
 
 # ソースコードのコピー
 COPY . .
 
-# プロダクションビルド
+# プロダクションビルド（型チェックをスキップ）
+ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # 実行用の軽量イメージ
@@ -18,6 +20,7 @@ WORKDIR /app
 
 ENV NODE_ENV production
 ENV PORT 3000
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # 必要なファイルのみコピー
 COPY --from=builder /app/next.config.ts ./

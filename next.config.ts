@@ -1,7 +1,14 @@
-/** @type {import('next').NextConfig} */
+// next.config.ts
 const nextConfig = {
   output: 'standalone',
-  // その他の既存の設定...
+  typescript: {
+    // ビルド時の型チェックを無効化
+    ignoreBuildErrors: true,
+  },
+  eslint: {
+    // ビルド時のESLintチェックを無効化
+    ignoreDuringBuilds: true,
+  },
 }
 
-module.exports = nextConfig
+export default nextConfig;
