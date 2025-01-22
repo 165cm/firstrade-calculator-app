@@ -41,3 +41,21 @@ env.yaml
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# IDE - Visual Studio Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+
+# IDE - IntelliJ IDEA/WebStorm
+.idea/
+
+# Mac
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Local development
+*.log
+*.local

@@ -1,9 +1,8 @@
 // src/components/common/ExportButton.tsx
 import { useState } from 'react';
-import { getCurrentPassword } from '@/config/exportConfig';
+import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 
 interface Props {
   onClick: () => void;
@@ -13,20 +12,40 @@ export function ExportButton({ onClick }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isVerifying, setIsVerifying] = useState(false);
 
-  const handleExport = () => {
-    if (password === getCurrentPassword()) {
-      setIsOpen(false);
-      setPassword('');
+  const handleExport = async () => {
+    try {
+      setIsVerifying(true);
       setError('');
-      onClick();
-    } else {
-      setError('パスワードが正しくありません');
+
+      const response = await fetch('/api/auth/verify-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setIsOpen(false);
+        setPassword('');
+        onClick();
+      } else {
+        setError('パスワードが正しくありません');
+      }
+    } catch (error) {
+      console.error('Verification error:', error);
+      setError('認証処理中にエラーが発生しました');
+    } finally {
+      setIsVerifying(false);
     }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && !isVerifying) {
       handleExport();
     }
   };
@@ -54,6 +73,7 @@ export function ExportButton({ onClick }: Props) {
               onChange={(e) => setPassword(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="パスワードを入力"
+              disabled={isVerifying}
             />
             {error && (
               <p className="text-sm text-red-500">{error}</p>
@@ -63,11 +83,15 @@ export function ExportButton({ onClick }: Props) {
             <Button 
               variant="outline" 
               onClick={() => setIsOpen(false)}
+              disabled={isVerifying}
             >
               キャンセル
             </Button>
-            <Button onClick={handleExport}>
-              エクスポート
+            <Button 
+              onClick={handleExport}
+              disabled={isVerifying}
+            >
+              {isVerifying ? '確認中...' : 'エクスポート'}
             </Button>
           </div>
         </div>

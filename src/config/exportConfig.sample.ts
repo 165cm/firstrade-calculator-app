@@ -1,21 +1,30 @@
-// src/config/exportConfig.sample.ts
+// src/config/exportConfig.ts
 export const MONTHLY_PASSWORDS = {
-    '2024-01': 'password_january',
-    '2024-02': 'password_february',
-    '2024-03': 'password_march',
-    '2024-04': 'password_april',
-    '2024-05': 'password_may',
-    '2024-06': 'password_june',
-    '2024-07': 'password_july',
-    '2024-08': 'password_august',
-    '2024-09': 'password_september',
-    '2024-10': 'password_october',
-    '2024-11': 'password_november',
-    '2024-12': 'password_december',
-  } as const;
+  'jan': process.env.NEXT_PUBLIC_PASSWORD_JAN,
+  'feb': process.env.NEXT_PUBLIC_PASSWORD_FEB,
+  'mar': process.env.NEXT_PUBLIC_PASSWORD_MAR,
+  'apr': process.env.NEXT_PUBLIC_PASSWORD_APR,
+  'may': process.env.NEXT_PUBLIC_PASSWORD_MAY,
+  'jun': process.env.NEXT_PUBLIC_PASSWORD_JUN,
+  'jul': process.env.NEXT_PUBLIC_PASSWORD_JUL,
+  'aug': process.env.NEXT_PUBLIC_PASSWORD_AUG,
+  'sep': process.env.NEXT_PUBLIC_PASSWORD_SEP,
+  'oct': process.env.NEXT_PUBLIC_PASSWORD_OCT,
+  'nov': process.env.NEXT_PUBLIC_PASSWORD_NOV,
+  'dec': process.env.NEXT_PUBLIC_PASSWORD_DEC,
+} as const;
+
+export function getCurrentPassword(): string {
+  const now = new Date();
+  // 月を小文字の3文字に変換（例：January → jan）
+  const month = now.toLocaleString('en-US', { month: 'short' }).toLowerCase();
   
-  export function getCurrentPassword(): string {
-    const now = new Date();
-    const yearMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    return MONTHLY_PASSWORDS[yearMonth as keyof typeof MONTHLY_PASSWORDS] || MONTHLY_PASSWORDS['2024-01'];
+  const currentPassword = MONTHLY_PASSWORDS[month as keyof typeof MONTHLY_PASSWORDS];
+  
+  if (!currentPassword) {
+    console.warn(`Password not found for month: ${month}, check environment variables`);
+    return MONTHLY_PASSWORDS['jan'] || ''; // fallback to January
   }
+  
+  return currentPassword;
+}
