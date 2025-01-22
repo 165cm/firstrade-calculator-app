@@ -37,3 +37,15 @@ export type StorageData = {
     version: string;
   };
 };
+
+// 通知サービス用の型定義を追加
+export interface ErrorInfo {
+  severity: 'ERROR' | 'WARNING' | 'INFO';
+  message: string;
+  stack?: string;
+  timestamp: string;
+  service: string;
+  environment?: string;
+  errorType: string;
+  errorCode: string;
+}

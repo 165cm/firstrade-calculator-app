@@ -3,7 +3,7 @@ import { createHash } from 'crypto';
 import { format, endOfQuarter } from 'date-fns';
 import fs from 'fs/promises';
 import { join } from 'path';
-import type { QuarterData, ExchangeRate } from './types';
+import type { QuarterData, ExchangeRate } from './types.js';
 
 // JSONデータの基本型定義
 type JsonPrimitive = string | number | boolean | null;
@@ -23,7 +23,8 @@ export class ExchangeStorageService {
   private readonly HISTORICAL_PATH: string;
 
   constructor() {
-    this.BASE_PATH = 'src/data';
+    // パスを public/data に変更
+    this.BASE_PATH = 'public/data';
     this.CURRENT_PATH = join(this.BASE_PATH, 'current');
     this.HISTORICAL_PATH = join(this.BASE_PATH, 'historical');
   }
@@ -85,39 +86,47 @@ export class ExchangeStorageService {
   }
 
   // 公開メソッド
-  async saveRate(rate: ExchangeRate): Promise<void> {
-    try {
-      await this.ensureDirectories();
+// saveRate メソッドのログ出力を強化
+async saveRate(rate: ExchangeRate): Promise<void> {
+  try {
+    await this.ensureDirectories();
 
-      const currentData: QuarterData = await this.readCurrentQuarter() || {
-        startDate: format(new Date(), 'yyyy-MM-01'),
-        endDate: format(endOfQuarter(new Date()), 'yyyy-MM-dd'),
-        rates: {},
-        hash: ''
-      };
+    const currentData: QuarterData = await this.readCurrentQuarter() || {
+      startDate: format(new Date(), 'yyyy-MM-01'),
+      endDate: format(endOfQuarter(new Date()), 'yyyy-MM-dd'),
+      rates: {},
+      hash: ''
+    };
 
-      currentData.rates[rate.date] = rate;
-      
-      const quarterFile = this.getCurrentQuarterFileName();
-      const quarterPath = join(this.CURRENT_PATH, quarterFile);
-      await this.writeQuarterData(quarterPath, currentData);
+    currentData.rates[rate.date] = rate;
+    
+    const quarterFile = this.getCurrentQuarterFileName();
+    const quarterPath = join(this.CURRENT_PATH, quarterFile);
+    
+    // 保存前のデータ確認ログ
+    console.log('Saving data:', {
+      path: quarterPath,
+      date: rate.date,
+      rate: rate.rate,
+      existingDates: Object.keys(currentData.rates).length
+    });
 
-      const lastUpdatePath = join(this.CURRENT_PATH, 'last_update.json');
-      await this.writeJSON<LastUpdateData>(lastUpdatePath, {
-        lastUpdate: new Date().toISOString()
-      });
+    await this.writeQuarterData(quarterPath, currentData);
 
-      console.log('Data saved:', {
-        path: quarterPath,
-        date: rate.date,
-        rate: rate.rate
-      });
+    // 保存後の確認ログ
+    const savedData = await this.readQuarterData(quarterPath);
+    console.log('Verification after save:', {
+      path: quarterPath,
+      savedDate: rate.date,
+      dataExists: savedData?.rates[rate.date] !== undefined,
+      totalDates: savedData ? Object.keys(savedData.rates).length : 0
+    });
 
-    } catch (error) {
-      console.error('Failed to save rate:', error);
-      throw error;
-    }
+  } catch (error) {
+    console.error('Failed to save rate:', error);
+    throw error;
   }
+}
 
   async getLastUpdateDate(): Promise<Date> {
     const meta = await this.readJSON<LastUpdateData>(
@@ -157,5 +166,56 @@ export class ExchangeStorageService {
     
     const quarterFile = this.getCurrentQuarterFileName();
     await this.writeQuarterData(join(this.CURRENT_PATH, quarterFile), newQuarter);
+  }
+
+  async deleteDataAfter(date: string): Promise<void> {
+    console.log('データ削除処理開始:', {
+      基準日: date,
+      処理時刻: new Date().toISOString()
+    });
+    
+    const currentData = await this.readCurrentQuarter();
+    if (!currentData) {
+      console.log('現在のクォーターデータが見つかりません');
+      return;
+    }
+  
+    console.log('現在のデータ状態:', {
+      データ件数: Object.keys(currentData.rates).length,
+      日付一覧: Object.keys(currentData.rates).sort()
+    });
+  
+    const filteredRates = Object.entries(currentData.rates).reduce((acc, [key, value]) => {
+      if (key <= date) {
+        acc[key] = value;
+      }
+      return acc;
+    }, {} as { [key: string]: ExchangeRate });
+  
+    console.log('データ削除結果:', {
+      削除前件数: Object.keys(currentData.rates).length,
+      削除後件数: Object.keys(filteredRates).length,
+      削除件数: Object.keys(currentData.rates).length - Object.keys(filteredRates).length,
+      保持された最終日: Object.keys(filteredRates).sort().pop(),
+      削除された日付: Object.keys(currentData.rates)
+        .filter(key => key > date)
+        .sort()
+    });
+  
+    currentData.rates = filteredRates;
+    
+    const quarterFile = this.getCurrentQuarterFileName();
+    const quarterPath = join(this.CURRENT_PATH, quarterFile);
+    await this.writeQuarterData(quarterPath, currentData);
+  }
+
+  async getLatestDate(): Promise<string | null> {
+    const currentData = await this.readCurrentQuarter();
+    if (!currentData || Object.keys(currentData.rates).length === 0) {
+      return null;
+    }
+
+    const dates = Object.keys(currentData.rates).sort();
+    return dates[dates.length - 1];
   }
 }

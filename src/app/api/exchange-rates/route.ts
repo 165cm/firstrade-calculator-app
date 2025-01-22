@@ -1,50 +1,40 @@
-// src/app/api/exchange-rates/route.ts
+// src/app/api/exchange-rates/route.ts の修正
 import { NextRequest, NextResponse } from 'next/server';
-import { FrankfurterAPI } from '@/services/exchangeService/api/frankfurter';
-import { ExchangeStorageService } from '@/services/exchangeService/storage';
-import { ExchangeRateUpdater } from '@/services/exchangeService/updater';
+import { executeJob } from '@/services/exchangeService/job';
+import { NotificationService } from '@/services/exchangeService/notification';
 
-// テスト用のGETエンドポイント
 export async function GET() {
   return NextResponse.json({
-    message: 'Exchange rates endpoint is working',
+    message: '為替レート更新APIが正常に動作しています',
     timestamp: new Date().toISOString()
   });
 }
 
-// 更新用のPOSTエンドポイント
 export async function POST(request: NextRequest) {
+  const notificationService = new NotificationService();
+
   try {
-    // ログ出力
-    console.log('Exchange rate update started', {
-      timestamp: new Date().toISOString(),
-      userAgent: request.headers.get('user-agent')
-    });
+    // 実行元の検証
+    const userAgent = request.headers.get('user-agent') || '';
+    if (!userAgent.includes('Google-Cloud-Scheduler')) {
+      throw new Error('不正なアクセスです');
+    }
 
-    const api = new FrankfurterAPI();
-    const storage = new ExchangeStorageService();
-    const updater = new ExchangeRateUpdater(api, storage);
-
-    await updater.updateDaily();
-
-    console.log('Exchange rate update completed', {
-      timestamp: new Date().toISOString()
-    });
+    await executeJob();
 
     return NextResponse.json({
       success: true,
-      message: 'Exchange rate update completed successfully',
+      message: '為替レート更新が正常に完了しました',
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    console.error('Exchange rate update failed', {
-      error: error instanceof Error ? error.message : 'Unknown error',
-      timestamp: new Date().toISOString()
-    });
+    if (error instanceof Error) {
+      await notificationService.notifyError(error);
+    }
 
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : 'Exchange rate update failed',
+      error: error instanceof Error ? error.message : '更新処理に失敗しました',
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }

@@ -1,9 +1,9 @@
 // src/services/exchangeService/scheduler.ts
 import type { Request, Response } from 'express';
-import { FrankfurterAPI } from './api/frankfurter';
-import { ExchangeStorageService } from './storage';
-import { ExchangeRateUpdater } from './updater';
-import { NotificationService } from './notification';
+import { FrankfurterAPI } from './api/frankfurter.js';
+import { ExchangeStorageService } from './storage.js';
+import { ExchangeRateUpdater } from './updater.js';
+import { NotificationService } from './notification.js';
 
 export const handleScheduledUpdate = async (req: Request, res: Response) => {
   // Cloud Scheduler からのリクエストであることを確認

@@ -1,7 +1,7 @@
 // src/services/exchangeService/api/update-exchange-rates.ts
-import { FrankfurterAPI } from './frankfurter';
-import { ExchangeStorageService } from '../storage';
-import { ExchangeRateUpdater } from '../updater';
+import { FrankfurterAPI } from './frankfurter.js';
+import { ExchangeStorageService } from '../storage.js';
+import { ExchangeRateUpdater } from '../updater.js';
 
 export async function handleScheduledUpdate(req: Request): Promise<Response> {
   // POSTメソッドのみ許可
