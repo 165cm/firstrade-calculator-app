@@ -1,5 +1,5 @@
 // src/services/exchangeService/notification.ts
-import type { ErrorInfo } from './types.js';
+import type { ErrorInfo } from '@/types/exchange';
 
 export class NotificationService {
   async notifyError(error: Error): Promise<void> {

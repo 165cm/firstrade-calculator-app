@@ -1,5 +1,5 @@
 // src/services/exchangeService/api/frankfurter.ts
-import type { ExchangeRateAPI } from '../types.js';
+import type { ExchangeRateAPI } from '@/types/exchange';
 
 export class FrankfurterAPI implements ExchangeRateAPI {
   private readonly BASE_URL = 'https://api.frankfurter.app';

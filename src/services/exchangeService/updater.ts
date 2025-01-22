@@ -1,6 +1,6 @@
 // src/services/exchangeService/updater.ts
 import { format, differenceInDays, endOfQuarter, eachDayOfInterval } from 'date-fns';
-import type { ExchangeRateAPI } from './types';
+import type { ExchangeRateAPI } from '@/types/exchange';
 import { FrankfurterAPI } from './api/frankfurter';
 import { ExchangeStorageService } from './storage';
 
