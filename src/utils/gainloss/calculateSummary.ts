@@ -1,24 +1,24 @@
 // src/utils/gainloss/calculateSummary.ts
 import { getExchangeRate } from '@/data/exchangeRates';
-import type { GainLossRecord, GainLossSummary, MonthlyGainLoss, SymbolSummary, TradeDetail } from '@/types/gainloss';
+import type { GainLossRecord, GainLossSummary, MonthlyGainLoss　} from '@/types/gainloss';
 import { groupBy } from 'lodash';
 
-export function calculateGainLossSummary(records: GainLossRecord[]): GainLossSummary {
+export async function calculateGainLossSummary(records: GainLossRecord[]): Promise<GainLossSummary> {
   // 取引記録を銘柄ごとにグループ化
   const groupedBySymbol = groupBy(records, 'symbol');
 
   // 銘柄別サマリーの作成
-  const symbolSummary: SymbolSummary[] = Object.entries(groupedBySymbol).map(([symbol, trades]) => {
+  const symbolSummaryPromises = Object.entries(groupedBySymbol).map(async ([symbol, trades]) => {
     // 各銘柄の取引詳細を作成
-    const tradeDetails: TradeDetail[] = trades.map(trade => {
-      const purchaseRate = getExchangeRate(trade.purchaseDate);
-      const saleRate = getExchangeRate(trade.saleDate);
+    const tradeDetailsPromises = trades.map(async trade => {
+      const purchaseRate = await getExchangeRate(trade.purchaseDate);
+      const saleRate = await getExchangeRate(trade.saleDate);
       const costJPY = trade.cost * purchaseRate;
       const proceedsJPY = trade.proceeds * saleRate;
       const gainLossJPY = proceedsJPY - costJPY;
   
       return {
-        symbol: trade.symbol,  // symbolを追加
+        symbol: trade.symbol,
         purchaseDate: trade.purchaseDate,
         saleDate: trade.saleDate,
         quantity: trade.quantity,
@@ -34,6 +34,8 @@ export function calculateGainLossSummary(records: GainLossRecord[]): GainLossSum
       };
     });
 
+    const tradeDetails = await Promise.all(tradeDetailsPromises);
+
     // 銘柄ごとの合計を計算
     const gainLossUSD = tradeDetails.reduce((sum, trade) => sum + trade.gainLoss, 0);
     const gainLossJPY = tradeDetails.reduce((sum, trade) => sum + trade.gainLossJPY, 0);
@@ -46,12 +48,14 @@ export function calculateGainLossSummary(records: GainLossRecord[]): GainLossSum
     };
   });
 
+  const symbolSummary = await Promise.all(symbolSummaryPromises);
+
   // 総損益の計算
   const totalGainLossUSD = symbolSummary.reduce((sum, item) => sum + item.gainLossUSD, 0);
   const totalGainLossJPY = symbolSummary.reduce((sum, item) => sum + item.gainLossJPY, 0);
 
   // 月次データの集計を追加
-  const monthlyGainLoss = calculateMonthlyGainLoss(records);
+  const monthlyGainLoss = await calculateMonthlyGainLoss(records);
 
   return {
     totalGainLossUSD,
@@ -61,20 +65,21 @@ export function calculateGainLossSummary(records: GainLossRecord[]): GainLossSum
   };
 }
 
-function calculateMonthlyGainLoss(records: GainLossRecord[]): MonthlyGainLoss[] {
+async function calculateMonthlyGainLoss(records: GainLossRecord[]): Promise<MonthlyGainLoss[]> {
   const monthlyData = new Map<string, { usd: number; jpy: number }>();
 
-  records.forEach(record => {
+  for (const record of records) {
     const month = record.saleDate.substring(0, 7); // YYYY-MM
     const gainLossUSD = record.gainLoss;
-    const gainLossJPY = record.gainLoss * getExchangeRate(record.saleDate);
+    const rate = await getExchangeRate(record.saleDate);
+    const gainLossJPY = record.gainLoss * rate;
 
     const current = monthlyData.get(month) || { usd: 0, jpy: 0 };
     monthlyData.set(month, {
       usd: current.usd + gainLossUSD,
       jpy: current.jpy + gainLossJPY
     });
-  });
+  }
 
   return Array.from(monthlyData.entries())
     .map(([month, values]) => ({

@@ -1,36 +1,12 @@
 // src/data/exchangeRates.ts
 import { parse, format, isValid, isSunday, isSaturday } from 'date-fns';
-import { rates2024_01 } from './rates/2024-01';
-import { rates2024_02 } from './rates/2024-02';
-import { rates2024_03 } from './rates/2024-03';
-import { rates2024_04 } from './rates/2024-04';
-import { rates2024_05 } from './rates/2024-05';
-import { rates2024_06 } from './rates/2024-06';
-import { rates2024_07 } from './rates/2024-07';
-import { rates2024_08 } from './rates/2024-08';
-import { rates2024_09 } from './rates/2024-09';
-import { rates2024_10 } from './rates/2024-10';
-import { rates2024_11 } from './rates/2024-11';
-import { rates2024_12 } from './rates/2024-12';
+import type { QuarterData } from '@/services/exchangeService/types';
 
 // 基本為替レート（フォールバック用）
-export const DEFAULT_RATE = 110.0;
+export const DEFAULT_RATE = 150.0;
 
-// 月別データをまとめたマップ
-export const monthlyRates: { [key: string]: { [key: string]: number } } = {
-  '2024-01': rates2024_01,
-  '2024-02': rates2024_02,
-  '2024-03': rates2024_03,
-  '2024-04': rates2024_04,
-  '2024-05': rates2024_05,
-  '2024-06': rates2024_06,
-  '2024-07': rates2024_07,
-  '2024-08': rates2024_08,
-  '2024-09': rates2024_09,
-  '2024-10': rates2024_10,
-  '2024-11': rates2024_11,
-  '2024-12': rates2024_12
-};
+// キャッシュ
+let ratesCache: { [key: string]: number } = {};
 
 /**
  * 日付が休日（土日）かどうかを判定
@@ -71,54 +47,117 @@ export function normalizeDate(dateStr: string): string {
 }
 
 /**
+ * 四半期データを取得
+ */
+async function getQuarterData(dateStr: string): Promise<QuarterData | null> {
+  const date = new Date(dateStr);
+  const year = date.getFullYear();
+  const quarter = Math.floor(date.getMonth() / 3) + 1;
+  const currentYear = new Date().getFullYear();
+  const currentQuarter = Math.floor(new Date().getMonth() / 3) + 1;
+
+  // ファイルパスを構築
+  const filePath = year === currentYear && quarter === currentQuarter
+    ? `/data/current/${year}Q${quarter}.json`
+    : `/data/historical/${year}/Q${quarter}.json`;
+
+  console.log('Attempting to load exchange rate data from:', filePath);
+
+  try {
+    const response = await fetch(filePath);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+    }
+
+    const data = await response.json() as QuarterData;
+    console.log('Loaded quarter data:', {
+      startDate: data.startDate,
+      endDate: data.endDate,
+      ratesCount: Object.keys(data.rates).length
+    });
+
+    return data;
+  } catch (error) {
+    console.error(`Failed to load quarter data for ${year}Q${quarter}:`, error);
+    return null;
+  }
+}
+
+/**
  * 指定された日付の為替レートを取得
  */
-export function getExchangeRate(dateStr: string): number {
+export async function getExchangeRate(dateStr: string): Promise<number> {
   const normalizedDate = normalizeDate(dateStr);
   if (!normalizedDate) {
     return DEFAULT_RATE;
   }
 
-  // 月を特定（YYYY-MM）
-  const monthKey = normalizedDate.substring(0, 7);
-  const monthData = monthlyRates[monthKey];
-  
-  if (!monthData) {
-    console.warn(`No exchange rate data for month: ${monthKey}`);
+  // キャッシュをチェック
+  if (ratesCache[normalizedDate]) {
+    return ratesCache[normalizedDate];
+  }
+
+  try {
+    const quarterData = await getQuarterData(normalizedDate);
+    if (!quarterData) {
+      return DEFAULT_RATE;
+    }
+
+    // 指定日のレートを確認
+    if (quarterData.rates[normalizedDate]?.rate?.JPY) {
+      const rate = quarterData.rates[normalizedDate].rate.JPY;
+      ratesCache[normalizedDate] = rate;
+      return rate;
+    }
+
+    // 休日の場合は直前の営業日のレートを使用
+    if (isHoliday(normalizedDate)) {
+      const prevBusinessDay = getPreviousBusinessDay(normalizedDate);
+      if (quarterData.rates[prevBusinessDay]?.rate?.JPY) {
+        const rate = quarterData.rates[prevBusinessDay].rate.JPY;
+        ratesCache[normalizedDate] = rate;
+        return rate;
+      }
+    }
+
+    // それでも見つからない場合は直近の営業日のレートを探す
+    const dates = Object.keys(quarterData.rates)
+      .sort()
+      .reverse();
+    
+    const prevDate = dates.find(date => date < normalizedDate);
+    if (prevDate && quarterData.rates[prevDate]?.rate?.JPY) {
+      const rate = quarterData.rates[prevDate].rate.JPY;
+      ratesCache[normalizedDate] = rate;
+      return rate;
+    }
+
+    return DEFAULT_RATE;
+  } catch (error) {
+    console.error('Error fetching exchange rate:', error);
     return DEFAULT_RATE;
   }
+}
 
-  // 指定日のレートを確認
-  if (monthData[normalizedDate]) {
-    return monthData[normalizedDate];
-  }
-
-  // 休日の場合は直前の営業日のレートを使用
-  if (isHoliday(normalizedDate)) {
-    const prevBusinessDay = getPreviousBusinessDay(normalizedDate);
-    if (monthData[prevBusinessDay]) {
-      return monthData[prevBusinessDay];
-    }
-  }
-
-  // それでも見つからない場合は直近の営業日のレートを探す
-  const dates = Object.keys(monthData).sort().reverse();
-  const prevDate = dates.find(date => date < normalizedDate);
-  
-  if (prevDate) {
-    return monthData[prevDate];
-  }
-
-  return DEFAULT_RATE;
+// キャッシュをクリア
+export function clearRatesCache(): void {
+  ratesCache = {};
 }
 
 // 開発用のバリデーション関数
-export function validateExchangeRates(): void {
-  Object.entries(monthlyRates).forEach(([month, rates]) => {
-    Object.entries(rates).forEach(([date, rate]) => {
-      if (rate <= 0 || rate > 1000) {
-        console.error(`Invalid rate for ${month}/${date}: ${rate}`);
-      }
-    });
-  });
+export async function validateExchangeRates(startDate: string, endDate: string): Promise<void> {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const current = new Date(start);
+
+  while (current <= end) {
+    const dateStr = format(current, 'yyyy-MM-dd');
+    const rate = await getExchangeRate(dateStr);
+    
+    if (rate <= 0 || rate > 1000) {
+      console.error(`Invalid rate for ${dateStr}: ${rate}`);
+    }
+    
+    current.setDate(current.getDate() + 1);
+  }
 }

@@ -1,13 +1,13 @@
 // src/hooks/useConversion.ts
 import { useState } from 'react';
-import type { RawDividendData, ConvertedDividendRecord } from '@/types/dividend';
+import type { RawDividendData, ProcessedDividendData } from '@/types/dividend';
 import { processDividendData } from '@/utils/dividend/processDividend';
 
 export function useConversion() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const processFile = async (data: RawDividendData[]): Promise<ConvertedDividendRecord[]> => {
+  const processFile = async (data: RawDividendData[]): Promise<ProcessedDividendData> => {
     setIsLoading(true);
     setError(null);
 
@@ -15,8 +15,13 @@ export function useConversion() {
       const processed = await processDividendData(data);
       return processed;
     } catch (e) {
-      setError(e instanceof Error ? e.message : '変換中にエラーが発生しました');
-      return [];
+      const errorMessage = e instanceof Error ? e.message : '変換中にエラーが発生しました';
+      setError(errorMessage);
+      return {
+        dividends: [],
+        interest: [],
+        other: []
+      };
     } finally {
       setIsLoading(false);
     }

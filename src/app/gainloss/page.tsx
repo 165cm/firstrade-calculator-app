@@ -2,7 +2,7 @@
 'use client';
 import { useState } from 'react';
 import { GainLossFileUploader } from '@/components/gainloss/GainLossFileUploader';
-import GainLossSummary from '@/components/gainloss/GainLossSummary'; // defaultインポートに変更
+import GainLossSummary from '@/components/gainloss/GainLossSummary';
 import type { GainLossSummary as GainLossSummaryType, RawGainLossData } from '@/types/gainloss';
 import { processGainLossData } from '@/utils/gainloss/processGainLoss';
 import { calculateGainLossSummary } from '@/utils/gainloss/calculateSummary';
@@ -18,7 +18,7 @@ export default function GainLossPage() {
 
     try {
       const processedData = await processGainLossData(data);
-      const calculatedSummary = calculateGainLossSummary(processedData);
+      const calculatedSummary = await calculateGainLossSummary(processedData);
       setSummary(calculatedSummary);
     } catch (e) {
       setError(e instanceof Error ? e.message : '損益データの処理中にエラーが発生しました');
@@ -28,7 +28,7 @@ export default function GainLossPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6"> {/* コンテナスタイルを統一 */}
+    <div className="max-w-5xl mx-auto p-6 space-y-6">
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded" role="alert">
           <p className="font-bold">エラーが発生しました</p>

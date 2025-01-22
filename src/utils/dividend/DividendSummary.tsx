@@ -41,10 +41,10 @@ const SummaryCard = ({ title, amountUSD, amountJPY, color }: {
   );
   
   
-  export function processDividendData(records: DividendRecord[]): ProcessedDividendData {
+  export async function processDividendData(records: DividendRecord[]): Promise<ProcessedDividendData> {
     try {
-      const processedRecords = records.map(record => {
-        const exchangeRate = getExchangeRate(record.TradeDate);
+      const processPromises = records.map(async record => {
+        const exchangeRate = await getExchangeRate(record.TradeDate);
         return {
           ...record,
           exchangeRate,
@@ -52,6 +52,8 @@ const SummaryCard = ({ title, amountUSD, amountJPY, color }: {
         };
       });
   
+      const processedRecords = await Promise.all(processPromises);
+      
       return {
         dividends: processedRecords.filter(r => r.Action.toUpperCase() === 'DIVIDEND'),
         interest: processedRecords.filter(r => r.Action.toUpperCase() === 'INTEREST'),

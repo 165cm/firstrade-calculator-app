@@ -1,9 +1,9 @@
 // src/utils/dividend/processDividend.ts
-import type { RawDividendData, ConvertedDividendRecord } from '@/types/dividend';
+import type { RawDividendData, ConvertedDividendRecord, ProcessedDividendData } from '@/types/dividend';
 import { getExchangeRate } from '@/data/exchangeRates';
 
-export async function processDividendData(data: RawDividendData[]): Promise<ConvertedDividendRecord[]> {
-  const convertedRecords: ConvertedDividendRecord[] = [];
+export async function processDividendData(data: RawDividendData[]): Promise<ProcessedDividendData> {
+  const processedRecords: ConvertedDividendRecord[] = [];
 
   for (const record of data) {
     try {
@@ -13,8 +13,8 @@ export async function processDividendData(data: RawDividendData[]): Promise<Conv
         continue;
       }
 
-      const exchangeRate = getExchangeRate(record.TradeDate);
-      convertedRecords.push({
+      const exchangeRate = await getExchangeRate(record.TradeDate);
+      processedRecords.push({
         Symbol: record.Symbol,
         TradeDate: record.TradeDate,
         Amount: amount,
@@ -29,5 +29,16 @@ export async function processDividendData(data: RawDividendData[]): Promise<Conv
     }
   }
 
-  return convertedRecords;
+  const records = processedRecords;
+  return {
+    dividends: records.filter(r => r.Action.toUpperCase() === 'DIVIDEND'),
+    interest: records.filter(r => r.Action.toUpperCase() === 'INTEREST'),
+    other: records.filter(r => {
+      const action = r.Action.toUpperCase();
+      return action !== 'DIVIDEND' && 
+             action !== 'INTEREST' &&
+             action !== 'BUY' &&
+             action !== 'SELL';
+    })
+  };
 }
