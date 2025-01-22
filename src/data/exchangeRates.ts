@@ -1,6 +1,7 @@
 // src/data/exchangeRates.ts
 import { parse, format, isValid, isSunday, isSaturday } from 'date-fns';
-import type { QuarterData } from '@/services/exchangeService/types.js';
+import type { QuarterData } from '@/types/exchange';
+
 
 // 基本為替レート（フォールバック用）
 export const DEFAULT_RATE = 150.0;
