@@ -1,17 +1,16 @@
-// src/app/api/exchange-rates/route.ts
+// src/app/api/exchange-rates/update/route.ts
 import { NextResponse } from 'next/server';
+// .jsを削除
 import { FrankfurterAPI } from '@/services/exchangeService/api/frankfurter';
 import { ExchangeStorageService } from '@/services/exchangeService/storage';
 import { ExchangeRateUpdater } from '@/services/exchangeService/updater';
 
 export async function GET() {
-  // GETメソッドのテスト用レスポンス
   return NextResponse.json({ message: 'Exchange rates API endpoint' });
 }
 
 export async function POST() {
   try {
-    // 処理開始のログ
     console.log('為替レート更新: 開始', {
       timestamp: new Date().toISOString()
     });
@@ -22,7 +21,6 @@ export async function POST() {
 
     await updater.updateDaily();
 
-    // 完了ログ
     console.log('為替レート更新: 完了', {
       timestamp: new Date().toISOString()
     });
@@ -33,7 +31,6 @@ export async function POST() {
       timestamp: new Date().toISOString()
     });
   } catch (error) {
-    // エラーログ
     console.error('為替レート更新: エラー', {
       error: error instanceof Error ? error.message : '不明なエラー',
       timestamp: new Date().toISOString()

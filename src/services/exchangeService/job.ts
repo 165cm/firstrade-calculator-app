@@ -1,8 +1,8 @@
 // src/services/exchangeService/job.ts を修正
-import { FrankfurterAPI } from './api/frankfurter.js';
-import { ExchangeStorageService } from './storage.js';
-import { ExchangeRateUpdater } from './updater.js';
-import { NotificationService } from './notification.js';
+import { FrankfurterAPI } from './api/frankfurter';
+import { ExchangeStorageService } from './storage';
+import { ExchangeRateUpdater } from './updater';
+import { NotificationService } from './notification';
 
 export async function executeJob(fromDate?: string): Promise<void> {
   const notificationService = new NotificationService();

@@ -3,7 +3,7 @@ import { createHash } from 'crypto';
 import { format, endOfQuarter } from 'date-fns';
 import fs from 'fs/promises';
 import { join } from 'path';
-import type { QuarterData, ExchangeRate } from './types.js';
+import type { QuarterData, ExchangeRate } from './types';
 
 // JSONデータの基本型定義
 type JsonPrimitive = string | number | boolean | null;
