@@ -1,102 +1,74 @@
 // scripts/processRates.ts
-import fs from 'fs/promises';
-import path from 'path';
 import { fileURLToPath } from 'url';
 import { RateSplitter } from '../src/utils/rateSplitter.js';
 import type { QuarterData } from '../src/services/exchangeService/types.js';
+import * as utils from '../src/utils/exchangeUtils.js';
 
-// ESM環境でのパス解決のためのセットアップ
-const __filename = fileURLToPath(import.meta.url);
-const projectRoot = path.join(path.dirname(__filename), '..');
+export type ProcessOptions = Pick<utils.ProcessingOptions, 'validate'>;
 
-// 定数定義
-const DATA_DIR = path.join(projectRoot, 'src', 'data');
-const HISTORICAL_DIR = path.join(DATA_DIR, 'historical');
-const CURRENT_FILE = path.join(DATA_DIR, 'current', '2025Q1.json');
-
-interface ChecksumData {
-  [key: string]: string;
-}
-
-async function ensureDirectory(dir: string): Promise<void> {
+export async function processRates(options: ProcessOptions = {}) {
   try {
-    await fs.access(dir);
-  } catch {
-    await fs.mkdir(dir, { recursive: true });
-  }
-}
+    const { validate = true } = options;
 
-async function saveQuarterData(
-  year: string,
-  quarter: string,
-  data: QuarterData
-): Promise<void> {
-  const yearDir = path.join(HISTORICAL_DIR, year);
-  await ensureDirectory(yearDir);
-  
-  const filePath = path.join(yearDir, `${quarter}.json`);
-  await fs.writeFile(filePath, JSON.stringify(data, null, 2));
-}
+    // 必要なディレクトリの作成
+    await utils.ensureDirectories();
 
-async function updateChecksums(
-  year: string,
-  quarter: string,
-  hash: string
-): Promise<void> {
-  const checksumPath = path.join(HISTORICAL_DIR, 'checksum.json');
-  let checksums: ChecksumData = {};
-  
-  try {
-    const content = await fs.readFile(checksumPath, 'utf-8');
-    checksums = JSON.parse(content);
-  } catch {
-    // チェックサムファイルが存在しない場合は新規作成
-  }
-  
-  checksums[`${year}${quarter}`] = hash;
-  await fs.writeFile(checksumPath, JSON.stringify(checksums, null, 2));
-}
-
-async function main() {
-  try {
     // 元データの読み込み
     console.log('Reading source data...');
-    const sourceData = JSON.parse(
-      await fs.readFile(CURRENT_FILE, 'utf-8')
-    ) as QuarterData;
+    const sourceData = await utils.readJsonFile<QuarterData>(utils.PATHS.CURRENT);
+
+    if (!sourceData) {
+      throw new Error('Source data not found');
+    }
 
     // データの分割
     console.log('Splitting data by quarter...');
     const splitResults = RateSplitter.splitByQuarter(sourceData);
 
-    // historical ディレクトリの作成
-    await ensureDirectory(HISTORICAL_DIR);
-
     // 分割データの保存
     console.log('Saving split data...');
+    const processedQuarters: string[] = [];
+
     for (const result of splitResults) {
       // データの検証
-      if (!RateSplitter.validateQuarterData(result.data)) {
-        console.warn(`Invalid data for ${result.year}${result.quarter}`);
+      if (validate && !utils.validateQuarterData(result.data)) {
+        console.warn(`Invalid data for ${result.year}Q${result.quarter}`);
         continue;
       }
 
       // データの保存
-      await saveQuarterData(result.year, result.quarter, result.data);
-      await updateChecksums(result.year, result.quarter, result.data.hash);
+      // 日付の計算を明示的に数値型で行う
+      const year = Number(result.year);
+      const quarter = Number(result.quarter);
+      const quarterDate = new Date(year, (quarter - 1) * 3, 1);
+      const quarterInfo = utils.getQuarterInfo(quarterDate);
       
-      console.log(`Processed ${result.year}${result.quarter}`);
+      await utils.writeJsonFile(quarterInfo.path, result.data);
+      await utils.updateChecksum(`${year}Q${quarter}`, result.data.hash);
+      
+      processedQuarters.push(`${year}Q${quarter}`);
+      console.log(`Processed ${year}Q${quarter}`);
     }
 
     console.log('Data processing completed successfully!');
+    return {
+      success: true,
+      processedQuarters,
+      totalRates: splitResults.reduce((sum, result) => 
+        sum + (result.data.rates ? Object.keys(result.data.rates).length : 0), 
+        0
+      )
+    };
   } catch (error) {
     console.error('Error processing data:', error);
-    process.exit(1);
+    throw error;
   }
 }
 
-// スクリプトの実行
-main().catch(error => {
-  console.error('Script execution error:', error);
-  process.exit(1);
-});
+// スクリプトの直接実行の場合
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  processRates().catch(error => {
+    console.error('Script execution error:', error);
+    process.exit(1);
+  });
+}

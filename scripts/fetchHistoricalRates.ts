@@ -1,7 +1,8 @@
 // scripts/fetchHistoricalRates.ts
-import { format, eachDayOfInterval } from 'date-fns';
+import { format } from 'date-fns';
+import { fileURLToPath } from 'url';
 import { FrankfurterAPI } from '../src/services/exchangeService/api/frankfurter.js';
-import { ExchangeStorageService } from '../src/services/exchangeService/storage.js';
+import * as utils from '../src/utils/exchangeUtils.js';
 import type { QuarterData, ExchangeRate } from '../src/services/exchangeService/types.js';
 
 interface FetchOptions {
@@ -9,18 +10,44 @@ interface FetchOptions {
   delayMs?: number;
 }
 
-async function fetchHistoricalRates(
+async function createOrUpdateQuarterData(quarterInfo: utils.QuarterInfo, rateData: ExchangeRate): Promise<void> {
+  const filePath = quarterInfo.path;
+  
+  // 既存のデータを読み込むか、新しいデータを作成
+  const existingData = await utils.readJsonFile<QuarterData>(filePath);
+  const quarterData: QuarterData = existingData || {
+    startDate: format(new Date(quarterInfo.year, (quarterInfo.quarter - 1) * 3, 1), 'yyyy-MM-dd'),
+    endDate: format(new Date(quarterInfo.year, quarterInfo.quarter * 3 - 1, 31), 'yyyy-MM-dd'),
+    rates: {} as Record<string, ExchangeRate>,
+    hash: ''
+  };
+
+  // レートデータを更新（型安全な方法で）
+  const updatedRates = {
+    ...quarterData.rates,
+    [rateData.date]: rateData
+  };
+  quarterData.rates = updatedRates;
+
+  // ハッシュ値を更新
+  quarterData.hash = utils.calculateHash(quarterData);
+
+  // データを保存
+  await utils.writeJsonFile(filePath, quarterData);
+  console.log(`Updated ${quarterInfo.year}Q${quarterInfo.quarter} with rate for ${rateData.date}`);
+}
+
+export async function fetchHistoricalRates(
   startDate: Date,
   endDate: Date,
   options: FetchOptions = {}
-) {
+): Promise<void> {
   const {
     forceUpdate = false,
     delayMs = 1000
   } = options;
 
   const api = new FrankfurterAPI();
-  const storage = new ExchangeStorageService();
 
   console.log('為替データ取得開始:', {
     '開始日': format(startDate, 'yyyy-MM-dd'),
@@ -29,27 +56,17 @@ async function fetchHistoricalRates(
     '強制更新': forceUpdate
   });
 
-  // 現在のデータを読み込み
-  const currentData: QuarterData = await storage.readCurrentQuarter() || {
-    startDate: format(startDate, 'yyyy-MM-01'),
-    endDate: format(endDate, 'yyyy-MM-dd'),
-    rates: {} as { [key: string]: ExchangeRate },
-    hash: ''
-  };
+  try {
+    // 必要なディレクトリを作成
+    await utils.ensureDirectories();
 
-  // 日付の配列を生成
-  const dates = eachDayOfInterval({ start: startDate, end: endDate });
+    // 四半期ごとにデータを取得
+    let currentDate = startDate;
+    while (currentDate <= endDate) {
+      const quarterInfo = utils.getQuarterInfo(currentDate);
+      const formattedDate = format(currentDate, 'yyyy-MM-dd');
 
-  for (const date of dates) {
-    const formattedDate = format(date, 'yyyy-MM-dd');
-    
-    // 既存データのチェック
-    if (!forceUpdate && currentData.rates[formattedDate]) {
-      console.log(`スキップ: ${formattedDate} (既存データ)`);
-      continue;
-    }
-
-    try {
+      // レート取得
       const rate = await api.fetchRate(formattedDate);
       const rateData: ExchangeRate = {
         date: formattedDate,
@@ -59,32 +76,32 @@ async function fetchHistoricalRates(
       };
 
       // データを保存
-      currentData.rates[formattedDate] = rateData;
-      await storage.saveRate(rateData);
-      console.log(`取得成功: ${formattedDate}`);
-      
-      // APIレート制限対策
-      await new Promise(resolve => setTimeout(resolve, delayMs));
-    } catch (error) {
-      console.error(`エラー (${formattedDate}):`, error);
-    }
-  }
+      await createOrUpdateQuarterData(quarterInfo, rateData);
+      console.log(`Fetched rate for ${formattedDate}: ¥${rate}`);
 
-  console.log('為替データ取得完了');
+      // 次の日に進む
+      currentDate = new Date(currentDate.getTime() + 24 * 60 * 60 * 1000);
+      
+      // API制限対策の待機
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+    }
+  } catch (error) {
+    console.error('Error fetching rates:', error);
+    throw error;
+  }
 }
 
-// メイン処理
-async function main() {
-  const startDate = new Date(2025, 0, 1); // 2025-01-01
-  const endDate = new Date();  // 現在日付
-
-  await fetchHistoricalRates(startDate, endDate, {
-    forceUpdate: true,  // 強制更新を有効化
-    delayMs: 1000      // API制限対策の待機時間
+// スクリプトの直接実行の場合
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  // 2024年Q4の更新のため、11月と12月のデータを取得
+  const startDate = new Date(2024, 10, 1); // 2024-11-01
+  const endDate = new Date(2024, 11, 31);  // 2024-12-31
+  
+  fetchHistoricalRates(startDate, endDate, {
+    forceUpdate: true,
+    delayMs: 1000
+  }).catch(error => {
+    console.error('スクリプト実行エラー:', error);
+    process.exit(1);
   });
 }
-
-main().catch(error => {
-  console.error('スクリプト実行エラー:', error);
-  process.exit(1);
-});
