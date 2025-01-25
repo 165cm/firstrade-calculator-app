@@ -5,8 +5,14 @@ import Navigation from '@/components/Navigation'; // 新規作成
 
 export const metadata: Metadata = {
   title: 'Firstrade証券取引分析ツール',
-  description: 'Firstrade証券の配当金を日本円に換算するツール',
-};
+  description: 'Firstrade証券の配当金・損益を簡単に計算できる無料ツール',
+  openGraph: {
+    title: 'Firstrade証券取引分析ツール',
+    description: 'Firstrade証券の配当金・損益を簡単に計算できる無料ツール',
+    url: 'https://firstrade.nomadkazoku.com',
+    type: 'website',
+  }
+}
 
 export default function RootLayout({
   children,

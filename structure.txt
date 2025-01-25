@@ -13,6 +13,8 @@ job-config.yaml
 next.config.ts
 package-lock.json
 package.json
+postcss.config.cjs
+postcss.config.mjs
 postcss.config.ts
 public/data/current/2025Q1.json
 public/data/current/last_update.json
@@ -65,6 +67,7 @@ src/app/gainloss/page.tsx
 src/app/globals.css
 src/app/layout.tsx
 src/app/page.tsx
+src/components/Navigation.tsx
 src/components/common/ExportButton.tsx
 src/components/dividend/DividendFileUploader.tsx
 src/components/dividend/DividendTable.tsx
@@ -105,6 +108,7 @@ src/utils/gainloss/processGainLoss.ts
 src/utils/gainloss/validateGainLoss.ts
 src/utils/rateSplitter.ts
 structure.txt
+tailwind.config.cjs
 tailwind.config.ts
 tsconfig.job.json
 tsconfig.json
