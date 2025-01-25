@@ -122,15 +122,16 @@ export const GainLossFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
           <input {...getInputProps()} />
           <p>Firstradeの損益計算書CSVをドロップ、<br />またはクリックしてファイルを選択</p>
           <p className="text-sm text-gray-500 mt-2">
-            ※Gain/Loss Reportのみ対応
+            ※FT_GainLoss_(口座番号).csvのみ対応
           </p>
         </div>
 
         <Alert className="h-32 flex items-center">
-          <AlertDescription>
-            損益計算書（Gain/Loss Report）のCSVファイルをアップロードしてください。
-            為替レートは取引日の実勢レートを使用します。
-          </AlertDescription>
+         <AlertDescription>
+          CSVの入手方法：<br />
+          Firstrade管理画面 ＞ Gain/Loss ＞ Download CSV
+          から該当年のデータをダウンロード
+        </AlertDescription>
         </Alert>
       </div>
     </div>

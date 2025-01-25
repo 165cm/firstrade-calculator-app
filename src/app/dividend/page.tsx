@@ -2,6 +2,7 @@
 'use client';
 import { useState } from 'react';
 import { DividendFileUploader } from '@/components/dividend/DividendFileUploader';
+import InfoSection from '@/components/InfoSection';
 import { DividendSummary } from '@/utils/dividend/DividendSummary';
 import { useConversion } from '@/hooks/useConversion';
 import type { 
@@ -58,6 +59,8 @@ export default function DividendPage() {
           <DividendSummary data={dividendData} />
         </div>
       )}
+      <InfoSection />
     </div>
+    
   );
 }

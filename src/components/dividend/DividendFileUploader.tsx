@@ -50,15 +50,16 @@ export const DividendFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
           <input {...getInputProps()} />
           <p>Firstradeの配当金明細CSVをドロップ、<br />またはクリックしてファイルを選択</p>
           <p className="text-sm text-gray-500 mt-2">
-            ※Dividend Reportのみ対応
+            ※FT_CSV_(口座番号).csvのみ対応
           </p>
         </div>
 
         <Alert className="h-32 flex items-center">
           <AlertDescription>
-            配当金明細（Dividend Report）のCSVファイルをアップロードしてください。
-            為替レートは各支払日の実勢レートを使用します。
-          </AlertDescription>
+            CSVの入手方法：<br />
+            Firstrade管理画面 ＞ Tax Center ＞ Download Account Information
+            から期間を指定してダウンロード
+            </AlertDescription>
         </Alert>
       </div>
     </div>

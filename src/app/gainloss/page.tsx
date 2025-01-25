@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { GainLossFileUploader } from '@/components/gainloss/GainLossFileUploader';
 import GainLossSummary from '@/components/gainloss/GainLossSummary';
+import InfoSection from '@/components/InfoSection';
 import type { GainLossSummary as GainLossSummaryType, RawGainLossData } from '@/types/gainloss';
 import { processGainLossData } from '@/utils/gainloss/processGainLoss';
 import { calculateGainLossSummary } from '@/utils/gainloss/calculateSummary';
@@ -51,6 +52,7 @@ export default function GainLossPage() {
       {!isLoading && summary && (
         <GainLossSummary summary={summary} />
       )}
+      <InfoSection />
     </div>
   );
 }
