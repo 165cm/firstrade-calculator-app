@@ -20,6 +20,14 @@ interface Props {
   data: ProcessedDividendData;
 }
 
+const calculateMonthlyTotal = (dividends: ConvertedDividendRecord[], interest: ConvertedDividendRecord[]) => {
+  const records = [...dividends, ...interest];
+  return records.reduce((sum, record) => ({
+    usd: sum.usd + record.Amount,
+    jpy: sum.jpy + record.amountJPY
+  }), { usd: 0, jpy: 0 });
+ };
+
 // サマリーカードの部分を修正
 const SummaryCard = ({ title, amountUSD, amountJPY, color }: {
     title: string;
@@ -40,6 +48,17 @@ const SummaryCard = ({ title, amountUSD, amountJPY, color }: {
     </div>
   );
   
+  const groupRecordsByMonth = (records: ConvertedDividendRecord[]) => {
+    const monthlyGroups = new Map<string, ConvertedDividendRecord[]>();
+    
+    records.forEach(record => {
+      const month = record.TradeDate.substring(5, 7);
+      const currentGroup = monthlyGroups.get(month) || [];
+      monthlyGroups.set(month, [...currentGroup, record]);
+    });
+    
+    return monthlyGroups;
+  };  
   
   export async function processDividendData(records: DividendRecord[]): Promise<ProcessedDividendData> {
     try {
@@ -284,25 +303,57 @@ return (
       {/* 明細アコーディオン */}
       <div className="bg-white rounded-lg shadow">
         <Accordion type="single" defaultValue="">
-          <AccordionItem value="dividends">
-            <AccordionTrigger className="text-sm font-semibold">
-              配当金明細 ({data.dividends.length}件)
-            </AccordionTrigger>
-            <AccordionContent>
-              {renderTable(data.dividends)}
-            </AccordionContent>
-          </AccordionItem>
+          {Array.from({length: 12}, (_, i) => {
+            const month = String(i + 1).padStart(2, '0');
+            const monthlyDividends = groupRecordsByMonth(data.dividends).get(month) || [];
+            const monthlyInterest = groupRecordsByMonth(data.interest).get(month) || [];
+            const totalRecords = monthlyDividends.length + monthlyInterest.length;
+            const monthlyTotal = calculateMonthlyTotal(monthlyDividends, monthlyInterest);
 
-          {data.interest.length > 0 && (
-            <AccordionItem value="interest">
-              <AccordionTrigger className="text-sm font-semibold">
-                利子明細 ({data.interest.length}件)
-              </AccordionTrigger>
-              <AccordionContent>
-                {renderTable(data.interest)}
-              </AccordionContent>
-            </AccordionItem>
-          )}
+            if (totalRecords === 0) return null;
+
+            return (
+              <AccordionItem key={month} value={month}>
+                <AccordionTrigger className="text-sm font-semibold">
+                <div className="flex justify-between items-center w-full">
+                  <span className="text-gray-700">
+                    {`${Number(month)}月の明細 (${totalRecords}件)`}
+                  </span>
+                  {totalRecords > 0 && (
+                    <div className="text-right space-y-1">
+                      <div className="flex items-center justify-end">
+                        <span className="text-xs text-gray-500 mr-2">USD</span>
+                        <span className="text-base font-bold text-indigo-600">
+                          ${monthlyTotal.usd.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-end">
+                        <span className="text-xs text-gray-500 mr-2">JPY</span>
+                        <span className="text-sm text-gray-600">
+                          ¥{Math.floor(monthlyTotal.jpy).toLocaleString()}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                </AccordionTrigger>
+                <AccordionContent>
+                  {monthlyDividends.length > 0 && (
+                    <>
+                      <h4 className="text-sm font-medium text-gray-500 mb-2">配当金</h4>
+                      {renderTable(monthlyDividends)}
+                    </>
+                  )}
+                  {monthlyInterest.length > 0 && (
+                    <>
+                      <h4 className="text-sm font-medium text-gray-500 mt-4 mb-2">利子</h4>
+                      {renderTable(monthlyInterest)}
+                    </>
+                  )}
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })}
 
           {data.other.length > 0 && (
             <AccordionItem value="other">
