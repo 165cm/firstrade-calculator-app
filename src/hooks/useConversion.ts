@@ -20,7 +20,8 @@ export function useConversion() {
       return {
         dividends: [],
         interest: [],
-        other: []
+        other: [],
+        withholding: []
       };
     } finally {
       setIsLoading(false);

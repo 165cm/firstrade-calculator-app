@@ -62,7 +62,7 @@ async function getQuarterData(dateStr: string): Promise<QuarterData | null> {
     ? `/data/current/${year}Q${quarter}.json`
     : `/data/historical/${year}/Q${quarter}.json`;
 
-  console.log('Attempting to load exchange rate data from:', filePath);
+  //console.log('Attempting to load exchange rate data from:', filePath);
 
   try {
     const response = await fetch(filePath);
@@ -71,11 +71,12 @@ async function getQuarterData(dateStr: string): Promise<QuarterData | null> {
     }
 
     const data = await response.json() as QuarterData;
+    /** 
     console.log('Loaded quarter data:', {
       startDate: data.startDate,
       endDate: data.endDate,
       ratesCount: Object.keys(data.rates).length
-    });
+    });*/
 
     return data;
   } catch (error) {

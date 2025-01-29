@@ -3,32 +3,40 @@
 import { useState } from 'react';
 import { DividendFileUploader } from '@/components/dividend/DividendFileUploader';
 import InfoSection from '@/components/InfoSection';
-import { DividendSummary } from '@/utils/dividend/DividendSummary';
+import { DividendSummary, processDividendData } from '@/utils/dividend/DividendSummary';
 import { useConversion } from '@/hooks/useConversion';
 import type { 
   ProcessedDividendData, 
   RawDividendData
 } from '@/types/dividend';
+import { getExchangeRate } from '@/data/exchangeRates';
 
 export default function DividendPage() {
-  const { isLoading, error, processFile, setError } = useConversion();
+  const { isLoading, error, setError } = useConversion();
   const [dividendData, setDividendData] = useState<ProcessedDividendData>({
     dividends: [],
     interest: [],
-    other: []
+    other: [],
+    withholding: []
   });
 
   const handleDividendData = async (rawData: RawDividendData[]) => {
     try {
       // まずrawDataを処理
-      const processed = await processFile(
-        rawData.map(data => ({
-          ...data,
-          Amount: typeof data.Amount === 'string' ? parseFloat(data.Amount) : data.Amount
+      const processedData = await processDividendData(
+        await Promise.all(rawData.map(async data => {
+          const exchangeRate = await getExchangeRate(data.TradeDate);
+          const amount = typeof data.Amount === 'string' ? parseFloat(data.Amount) : data.Amount;
+          return {
+            ...data,
+            Amount: amount,
+            exchangeRate,
+            amountJPY: amount * exchangeRate
+          };
         }))
       );
       
-      setDividendData(processed);
+      setDividendData(processedData);
     } catch (e) {
       setError(e instanceof Error ? e.message : '配当データの処理中にエラーが発生しました');
     }
@@ -61,6 +69,5 @@ export default function DividendPage() {
       )}
       <InfoSection />
     </div>
-    
   );
 }

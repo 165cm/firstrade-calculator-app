@@ -2,7 +2,7 @@
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
-import type { QuarterData } from '../../src/services/exchangeService/types';
+import type { QuarterData } from '../types/exchange';
 import crypto from 'crypto';
 
 // ESM環境でのパス解決のためのセットアップ

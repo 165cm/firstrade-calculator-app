@@ -24,6 +24,7 @@ export interface ProcessedDividendData {
   dividends: ConvertedDividendRecord[];
   interest: ConvertedDividendRecord[];
   other: ConvertedDividendRecord[];
+  withholding: ConvertedDividendRecord[]; // 追加
 }
 
 // CSVから取得した生データの型

@@ -2,31 +2,106 @@
 import { ConvertedDividendRecord } from '@/types/dividend';
 import { TradeDetail } from '@/types/gainloss';
 import Papa from 'papaparse';
+import { extractWithholdingAmount } from '../withholding';
 
 // 配当金データのエクスポート関数を修正
+// src/utils/export/csvExport.ts
+
 export function exportDividendToCsv(records: ConvertedDividendRecord[]): string {
-  const csvData = records.map(record => ({
-    // 各フィールドを確実にマッピング
-    '支払日': record.TradeDate,
-    '銘柄': record.Symbol,
-    '配当金（USD）': record.Amount.toFixed(2),
-    '為替レート': record.exchangeRate.toFixed(2),
-    '配当金（円）': Math.round(record.amountJPY).toLocaleString(),
-    '種別': record.Action.toUpperCase()
-  }));
+  // 配当データのみをフィルタリング
+  const dividendRecords = records.filter(r => 
+    r.Action.toUpperCase() === 'DIVIDEND' || 
+    r.Action.toUpperCase() === 'INTEREST'
+  );
 
-  // データの存在確認とデバッグログ
-  console.log('Export Data:', {
-    recordCount: records.length,
-    firstRecord: records[0],
-    csvData: csvData[0]
+  // 明細データの変換
+  const detailRows = dividendRecords.map(record => {
+    const withholding = extractWithholdingAmount(record);
+    return {
+      '支払日': record.TradeDate,
+      '銘柄': record.Symbol,
+      '配当金額(USD)': record.Amount.toFixed(2),
+      '源泉徴収(USD)': withholding ? (-withholding).toFixed(2) : '',
+      '為替レート': record.exchangeRate.toFixed(2),
+      '配当金額(円)': Math.round(record.amountJPY).toLocaleString(),
+      '源泉徴収(円)': withholding ? Math.round(-withholding * record.exchangeRate).toLocaleString() : '',
+      '種別': record.Action.toUpperCase()
+    };
   });
 
-  // CSVファイルの生成（列名を日本語で直接指定）
-  return Papa.unparse(csvData, {
+  // 合計の計算
+  const totals = dividendRecords.reduce((sum, record) => {
+    const withholding = extractWithholdingAmount(record) || 0;
+    return {
+      usdDividend: sum.usdDividend + record.Amount,
+      usdWithholding: sum.usdWithholding + withholding,
+      jpyDividend: sum.jpyDividend + record.amountJPY,
+      jpyWithholding: sum.jpyWithholding + (withholding * record.exchangeRate)
+    };
+  }, {
+    usdDividend: 0,
+    usdWithholding: 0,
+    jpyDividend: 0,
+    jpyWithholding: 0
+  });
+
+  // フッター行の作成（空行を含む）
+  const footerRows = [
+    {
+      '支払日': '',
+      '銘柄': '',
+      '配当金額(USD)': '',
+      '源泉徴収(USD)': '',
+      '為替レート': '',
+      '配当金額(円)': '',
+      '源泉徴収(円)': '',
+      '種別': ''
+    },
+    {
+      '支払日': '合計',
+      '銘柄': '',
+      '配当金額(USD)': totals.usdDividend.toFixed(2),
+      '源泉徴収(USD)': (-totals.usdWithholding).toFixed(2),
+      '為替レート': '',
+      '配当金額(円)': Math.round(totals.jpyDividend).toLocaleString(),
+      '源泉徴収(円)': Math.round(-totals.jpyWithholding).toLocaleString(),
+      '種別': ''
+    }
+  ];
+
+  // すべての行を結合
+  const allRows = [...detailRows, ...footerRows];
+
+  return Papa.unparse(allRows, {
     header: true,
-    columns: ['支払日', '銘柄', '配当金（USD）', '為替レート', '配当金（円）', '種別']
+    columns: [
+      '支払日',
+      '銘柄',
+      '配当金額(USD)',
+      '源泉徴収(USD)',
+      '為替レート',
+      '配当金額(円)',
+      '源泉徴収(円)',
+      '種別'
+    ]
   });
+}
+
+export function downloadCsv(csvContent: string, filename: string): void {
+  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+  const blob = new Blob([bom, csvContent], { 
+    type: 'text/csv;charset=utf-8' 
+  });
+  
+  const link = document.createElement('a');
+  const url = URL.createObjectURL(blob);
+  
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 // 損益計算データのエクスポート関数
@@ -62,25 +137,6 @@ export function exportGainLossToCsv(trades: TradeDetail[]): string {
       '取得価格(¥)', '売却価格(¥)', '損益(¥)', '損益率(¥)'
     ]
   });
-}
-
-// CSVダウンロード用のユーティリティ関数
-export function downloadCsv(csvContent: string, filename: string): void {
-  // BOMを追加してExcelでの文字化けを防ぐ
-  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-  const blob = new Blob([bom, csvContent], { 
-    type: 'text/csv;charset=utf-8' 
-  });
-  
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  
-  link.setAttribute('href', url);
-  link.setAttribute('download', filename);
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
 }
 
 function formatDate(dateStr: string): string {
