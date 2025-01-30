@@ -2,13 +2,26 @@
 const nextConfig = {
   output: 'standalone',
   typescript: {
-    // ビルド時の型チェックを無効化
     ignoreBuildErrors: true,
   },
   eslint: {
-    // ビルド時のESLintチェックを無効化
     ignoreDuringBuilds: true,
   },
-}
+  headers: async () => [
+    {
+      source: '/service-worker.js',
+      headers: [
+        {
+          key: 'Service-Worker-Allowed',
+          value: '/',
+        },
+        {
+          key: 'Cache-Control',
+          value: 'no-store, max-age=0',
+        },
+      ],
+    },
+  ],
+};
 
 export default nextConfig;

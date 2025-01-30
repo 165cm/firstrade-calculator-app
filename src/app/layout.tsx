@@ -1,7 +1,9 @@
 // src/app/layout.tsx
 import './globals.css';
 import type { Metadata } from 'next';
-import Navigation from '@/components/Navigation'; // 新規作成
+import Navigation from '@/components/Navigation';
+import ClientLayout from '@/components/ClientLayout';
+import CacheDebugger from '@/components/CacheDebugger';
 
 export const metadata: Metadata = {
   title: 'Firstrade証券取引分析ツール',
@@ -22,10 +24,13 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body suppressHydrationWarning={true}>
-        <main className="min-h-screen bg-white">
-          <Navigation />
-          {children}
-        </main>
+        <ClientLayout>
+          <main className="min-h-screen bg-white">
+            <Navigation />
+            {children}
+          </main>
+          {process.env.NODE_ENV === 'development' && <CacheDebugger />}
+        </ClientLayout>
       </body>
     </html>
   );
