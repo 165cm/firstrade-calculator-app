@@ -349,9 +349,14 @@ export function DividendSummary({ data }: Props) {
           <h3 className="text-sm font-semibold text-gray-500">月次推移</h3>
           <div className="text-right">
             <p className="text-sm text-gray-500">月平均</p>
-            <p className="text-lg font-semibold text-gray-700">
-              ¥{Math.floor(summary.monthly.jpy).toLocaleString()}
-            </p>
+            <div className="space-y-2">
+              <p className="text-3xl font-bold text-gray-900">
+                ${Math.floor(summary.monthly.usd).toLocaleString()}
+              </p>
+              <p className="text-xl text-gray-600">
+                ¥{Math.floor(summary.monthly.jpy).toLocaleString()}
+              </p>
+            </div>
           </div>
         </div>
         <div className="w-full" style={{ height: '300px' }}>
@@ -366,12 +371,12 @@ export function DividendSummary({ data }: Props) {
                 tickLine={true}
               />
               <YAxis 
-                tickFormatter={(value) => `¥${(value / 10000).toFixed(0)}万`}
+                tickFormatter={(value) => `$${(value).toFixed(0)}`}
                 axisLine={true}
                 tickLine={true}
               />
               <Tooltip 
-                formatter={(value: number) => `¥${Math.floor(value).toLocaleString()}`}
+                formatter={(value: number) => `$${value.toFixed(2)}`}
                 labelFormatter={(label) => `${label}月`}
                 contentStyle={{ backgroundColor: 'white', border: '1px solid #ccc' }}
               />
