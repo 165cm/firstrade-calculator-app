@@ -45,8 +45,31 @@ export function exportDividendToCsv(records: ConvertedDividendRecord[]): string 
     jpyWithholding: 0
   });
 
-  // フッター行の作成（空行を含む）
+    // 月次合計の計算を追加
+    const monthlyTotals = dividendRecords.reduce((acc, record) => {
+      const month = record.TradeDate.substring(5, 7);
+      const withholding = extractWithholdingAmount(record) || 0;
+      
+      if (!acc[month]) {
+        acc[month] = {
+          usdDividend: 0,
+          usdWithholding: 0,
+          jpyDividend: 0,
+          jpyWithholding: 0
+        };
+      }
+      
+      acc[month].usdDividend += record.Amount;
+      acc[month].usdWithholding += withholding;
+      acc[month].jpyDividend += record.amountJPY;
+      acc[month].jpyWithholding += withholding * record.exchangeRate;
+      
+      return acc;
+    }, {} as Record<string, typeof totals>);  
+
+  // フッター行の作成（年間合計と月次合計を含む）
   const footerRows = [
+    // 空行
     {
       '支払日': '',
       '銘柄': '',
@@ -57,8 +80,9 @@ export function exportDividendToCsv(records: ConvertedDividendRecord[]): string 
       '源泉徴収(円)': '',
       '種別': ''
     },
+    // 年間合計
     {
-      '支払日': '合計',
+      '支払日': '年間合計',
       '銘柄': '',
       '配当金額(USD)': totals.usdDividend.toFixed(2),
       '源泉徴収(USD)': (-totals.usdWithholding).toFixed(2),
@@ -66,7 +90,39 @@ export function exportDividendToCsv(records: ConvertedDividendRecord[]): string 
       '配当金額(円)': Math.round(totals.jpyDividend).toLocaleString(),
       '源泉徴収(円)': Math.round(-totals.jpyWithholding).toLocaleString(),
       '種別': ''
-    }
+    },
+    // 空行
+    {
+      '支払日': '',
+      '銘柄': '',
+      '配当金額(USD)': '',
+      '源泉徴収(USD)': '',
+      '為替レート': '',
+      '配当金額(円)': '',
+      '源泉徴収(円)': '',
+      '種別': ''
+    },
+    // 月次合計
+    ...Array.from({length: 12}, (_, i) => {
+      const month = String(i + 1).padStart(2, '0');
+      const monthData = monthlyTotals[month] || {
+        usdDividend: 0,
+        usdWithholding: 0,
+        jpyDividend: 0,
+        jpyWithholding: 0
+      };
+      
+      return {
+        '支払日': `${month}月計`,
+        '銘柄': '',
+        '配当金額(USD)': monthData.usdDividend.toFixed(2),
+        '源泉徴収(USD)': (-monthData.usdWithholding).toFixed(2),
+        '為替レート': '',
+        '配当金額(円)': Math.round(monthData.jpyDividend).toLocaleString(),
+        '源泉徴収(円)': Math.round(-monthData.jpyWithholding).toLocaleString(),
+        '種別': ''
+      };
+    })
   ];
 
   // すべての行を結合
