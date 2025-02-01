@@ -9,7 +9,7 @@ export default function Navigation() {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">Firstrade証券取引分析ツール</h1>
+      <h1 className="text-2xl font-bold mb-4">Firstrade証券取引分析ツール(β) v1.3.1</h1>
 
       <div className="mb-6">
         <nav className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
