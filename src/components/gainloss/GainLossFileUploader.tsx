@@ -5,11 +5,33 @@ import Papa, { ParseResult, ParseConfig } from 'papaparse';
 import { preprocessCsv } from '@/utils/gainloss/preprocessCsv';
 import type { RawGainLossData } from '@/types/gainloss';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { HEADER_MAPPINGS } from '@/types/gainloss';
 
 interface Props {
   onUpload: (data: RawGainLossData[]) => void;
   onError: (message: string) => void;
+}
+
+/**
+ * 文字列や数値を安全に数値に変換する関数
+ */
+function safeParseNumber(value: string | number): number {
+  // すでに数値の場合はそのまま返す
+  if (typeof value === 'number') return value;
+  
+  // 空の値は0として扱う
+  if (!value || value === '') return 0;
+  
+  // カンマや通貨記号を取り除く（もしpreprocessCsvで処理されていない場合の保険）
+  const cleaned = value.toString().replace(/[,\s$¥]/g, '');
+  const num = Number(cleaned);
+  
+  // NaNチェック
+  if (isNaN(num)) {
+    console.warn(`数値変換失敗: "${value}" -> NaN`);
+    return 0;
+  }
+  
+  return num;
 }
 
 export const GainLossFileUploader: React.FC<Props> = ({ onUpload, onError }) => {
@@ -25,6 +47,10 @@ export const GainLossFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
         return;
       }
 
+      // デバッグログ
+      console.log(`CSVファイル読み込み: ${file.name}, サイズ: ${file.size}バイト`);
+      
+      // preprocessCsvでCSVデータを前処理
       const preprocessResult = preprocessCsv(csvData);
       if (!preprocessResult.success) {
         onError(preprocessResult.error || 'CSV前処理中にエラーが発生しました');
@@ -35,22 +61,8 @@ export const GainLossFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
       const parseConfig: ParseConfig<RawGainLossData> = {
         header: true,
         skipEmptyLines: true,
-        transformHeader: (header: string) => {
-          // ヘッダーの正規化
-          const normalizedHeader = header.replace(/"/g, '').trim().toLowerCase();
-          console.log('Normalizing header:', header, '->', normalizedHeader);
-          
-          // マッピングを検索
-          for (const [standardKey, aliases] of Object.entries(HEADER_MAPPINGS)) {
-            if (aliases.some(alias => alias.toLowerCase() === normalizedHeader)) {
-              console.log(`Mapped ${normalizedHeader} to ${standardKey}`);
-              return standardKey;
-            }
-          }
-          
-          console.log(`No mapping found for: ${normalizedHeader}`);
-          return header;
-        },
+        // dynamicTypingをfalseに設定 - 自動変換を無効化
+        dynamicTyping: false,
         complete: (results: ParseResult<RawGainLossData>) => {
           try {
             const rawData = results.data;
@@ -60,7 +72,8 @@ export const GainLossFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
             }
 
             // デバッグ用：検出されたヘッダーを出力
-            console.log('Detected headers:', Object.keys(rawData[0]));
+            console.log('検出されたヘッダー:', Object.keys(rawData[0]));
+            console.log('データサンプル (最初の行):', rawData[0]);
 
             // 必須フィールドの存在確認
             const firstRow = rawData[0];
@@ -78,32 +91,67 @@ export const GainLossFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
               );
             }
 
-            // 数値フィールドの変換
-            const processedData = rawData.map(row => ({
-              ...row,
-              Quantity: Number(row.Quantity),
-              Proceeds: Number(row.Proceeds),
-              Cost: Number(row.Cost),
-              Amount: Number(row.Amount)
-            }));
+            // 数値フィールドの変換（safeParseNumber関数を使用）
+            const processedData = rawData.map((row, index) => {
+              // 行データのサンプルをログに出力（最初の3行のみ）
+              if (index < 3) {
+                console.log(`行 ${index + 1} の処理:`, row);
+              }
+              
+              // 数値変換を行い、新しいオブジェクトを返す
+              const processed = {
+                ...row,
+                Quantity: safeParseNumber(row.Quantity),
+                Proceeds: safeParseNumber(row.Proceeds),
+                Cost: safeParseNumber(row.Cost),
+                Amount: safeParseNumber(row.Amount)
+              };
+              
+              // 変換結果をログに出力（最初の3行のみ）
+              if (index < 3) {
+                console.log(`変換結果 (行 ${index + 1}):`, {
+                  Symbol: processed.Symbol,
+                  Quantity: processed.Quantity,
+                  Proceeds: processed.Proceeds,
+                  Cost: processed.Cost,
+                  Amount: processed.Amount
+                });
+              }
+              
+              return processed;
+            });
 
+            // 最終的なデータサイズをログに出力
+            console.log(`処理完了: ${processedData.length}件のデータを処理`);
+            
             onUpload(processedData);
           } catch (err) {
+            console.error('データ処理エラー:', err);
             onError(err instanceof Error ? err.message : 'データの処理中にエラーが発生しました');
           }
         }
+        // エラーハンドラは ParseConfig の型に合わせて修正
+        // error: (error: Error) => { ... } は削除
       };
 
       // CSVのパース実行
       Papa.parse(preprocessResult.data!, parseConfig);
+      
+      // 代わりにエラーハンドリングを追加
+      // エラーはPromiseのcatchで捕捉
+      reader.onerror = (error) => {
+        console.error('ファイル読み込みエラー:', error);
+        onError('ファイルの読み込み中にエラーが発生しました');
+      };
     };
 
-    reader.onerror = () => {
+    reader.onerror = (error) => {
+      console.error('ファイル読み込みエラー:', error);
       onError('ファイルの読み込み中にエラーが発生しました');
     };
 
     reader.readAsText(file);
-  }, [onUpload, onError]);  // 依存配列を追加
+  }, [onUpload, onError]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'text/csv': ['.csv'] },

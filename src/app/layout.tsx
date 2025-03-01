@@ -6,10 +6,10 @@ import ClientLayout from '@/components/ClientLayout';
 import CacheDebugger from '@/components/CacheDebugger';
 
 export const metadata: Metadata = {
-  title: 'Firstrade証券取引分析ツール(β) v1.3.1',
+  title: 'Firstrade証券取引分析ツール(β) v1.3.2',
   description: 'Firstrade証券の配当金・損益を簡単に計算できる無料ツール',
   openGraph: {
-    title: 'Firstrade証券取引分析ツール(β) v1.3.1',
+    title: 'Firstrade証券取引分析ツール(β) v1.3.2',
     description: 'Firstrade証券の配当金・損益を簡単に計算できる無料ツール',
     url: 'https://firstrade.nomadkazoku.com',
     type: 'website',
