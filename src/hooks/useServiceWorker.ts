@@ -1,11 +1,22 @@
 // src/hooks/useServiceWorker.ts
 import { useEffect } from 'react';
 
+// StackBlitz環境を検出する関数
+const isStackBlitz = () => {
+  return typeof window !== 'undefined' && (
+    window.location.hostname.includes('stackblitz') ||
+    window.location.hostname.includes('webcontainer') ||
+    // その他のStackBlitz関連のホスト名パターン
+    /\.stackblitz\.io$/.test(window.location.hostname)
+  );
+};
+
 export const useServiceWorker = () => {
  useEffect(() => {
    if (
      typeof window !== 'undefined' &&
-     'serviceWorker' in navigator
+     'serviceWorker' in navigator &&
+     !isStackBlitz()
    ) {
      // 直接Service Workerを登録
      navigator.serviceWorker
@@ -23,6 +34,8 @@ export const useServiceWorker = () => {
        .catch(error => {
          console.error('Service Worker registration failed:', error);
        });
+   } else if (isStackBlitz()) {
+     console.log('StackBlitz環境のため、Service Workerの登録をスキップしました');
    }
  }, []);
 
