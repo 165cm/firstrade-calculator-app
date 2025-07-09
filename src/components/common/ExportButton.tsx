@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/hooks/useAuth';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 interface Props {
   onClick: () => void;
@@ -16,8 +17,8 @@ export function ExportButton({ onClick }: Props) {
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // ログインユーザーは直接エクスポート可能
-  if (user) {
+  // Supabaseが設定されていて、かつログインユーザーは直接エクスポート可能
+  if (isSupabaseConfigured() && user) {
     return (
       <Button onClick={onClick}>
         CSVエクスポート

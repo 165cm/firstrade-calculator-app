@@ -2,7 +2,8 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { AuthModal } from './AuthModal'
-import { Button } from '@/components/ui/button'
+import { useAuth } from '@/hooks/useAuth';
+import { isSupabaseConfigured } from '@/lib/supabase';
 
 export function AuthButton() {
   const { user, signOut, loading } = useAuth()
@@ -17,6 +18,11 @@ export function AuthButton() {
     return (
       <div className="w-20 h-8 bg-gray-200 animate-pulse rounded"></div>
     )
+  }
+
+  // Supabaseが設定されていない場合は何も表示しない
+  if (!isSupabaseConfigured()) {
+    return null;
   }
 
   if (user) {

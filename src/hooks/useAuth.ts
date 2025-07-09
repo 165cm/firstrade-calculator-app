@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { User, Session } from '@supabase/supabase-js'
-import { supabase } from '@/lib/supabase'
+import { supabase, isSupabaseConfigured } from '@/lib/supabase'
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
@@ -8,6 +8,11 @@ export function useAuth() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    if (!isSupabaseConfigured() || !supabase) {
+      setLoading(false);
+      return;
+    }
+
     // 初期セッション取得
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
@@ -29,6 +34,9 @@ export function useAuth() {
 
   // サインアップ
   const signUp = async (email: string, password: string) => {
+    if (!supabase) {
+      throw new Error('Supabaseが設定されていません');
+    }
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -38,6 +46,9 @@ export function useAuth() {
 
   // サインイン
   const signIn = async (email: string, password: string) => {
+    if (!supabase) {
+      throw new Error('Supabaseが設定されていません');
+    }
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -47,12 +58,18 @@ export function useAuth() {
 
   // サインアウト
   const signOut = async () => {
+    if (!supabase) {
+      throw new Error('Supabaseが設定されていません');
+    }
     const { error } = await supabase.auth.signOut()
     return { error }
   }
 
   // パスワードリセット
   const resetPassword = async (email: string) => {
+    if (!supabase) {
+      throw new Error('Supabaseが設定されていません');
+    }
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     })
