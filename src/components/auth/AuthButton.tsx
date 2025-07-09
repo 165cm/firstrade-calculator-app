@@ -2,8 +2,8 @@
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { AuthModal } from './AuthModal'
-import { useAuth } from '@/hooks/useAuth';
 import { isSupabaseConfigured } from '@/lib/supabase';
+import { Button } from '@/components/ui/button';
 
 export function AuthButton() {
   const { user, signOut, loading } = useAuth()
