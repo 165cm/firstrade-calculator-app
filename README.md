@@ -19,6 +19,9 @@
   - shadcn/ui
   - Recharts
 
+- **認証・データベース**
+  - Supabase (認証・データベース)
+
 - **データ処理**
   - PapaParse (CSV処理)
   - Frankfurter API (為替レート取得)
@@ -34,9 +37,24 @@ git clone https://github.com/yourusername/firstrade-calculator.git
 cd firstrade-calculator
 npm install
 
+# 環境変数の設定
+cp .env.example .env
+# .envファイルにSupabaseの設定を追加
+
 # 開発サーバーの起動
 npm run dev
 ```
+
+### Supabaseセットアップ
+
+1. [Supabase](https://supabase.com)でプロジェクトを作成
+2. プロジェクトのURLとAnon Keyを取得
+3. `.env`ファイルに以下を設定：
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+4. Supabaseダッシュボードで認証設定を確認（メール確認を無効化推奨）
 
 ### 為替レート管理のセットアップ
 

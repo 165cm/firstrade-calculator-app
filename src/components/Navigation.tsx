@@ -3,13 +3,17 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { AuthButton } from '@/components/auth/AuthButton';
 
 export default function Navigation() {
   const pathname = usePathname();
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-4">Firstrade証券取引分析ツール(β) v1.3.2</h1>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-2xl font-bold">Firstrade証券取引分析ツール(β) v1.3.2</h1>
+        <AuthButton />
+      </div>
 
       <div className="mb-6">
         <nav className="flex space-x-1 bg-gray-100 p-1 rounded-lg">

@@ -3,16 +3,27 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Props {
   onClick: () => void;
 }
 
 export function ExportButton({ onClick }: Props) {
+  const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+
+  // ログインユーザーは直接エクスポート可能
+  if (user) {
+    return (
+      <Button onClick={onClick}>
+        CSVエクスポート
+      </Button>
+    );
+  }
 
   const handleExport = async () => {
     try {
@@ -53,7 +64,7 @@ export function ExportButton({ onClick }: Props) {
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>
-        CSVエクスポート
+        CSVエクスポート (メンバー限定)
       </Button>
 
       <Dialog 
@@ -64,7 +75,7 @@ export function ExportButton({ onClick }: Props) {
         <div className="space-y-4">
           <p className="text-sm text-gray-500">
             CSVエクスポートはメンバー専用機能です。<br />
-            パスワードを入力してください。
+            会員登録またはパスワードを入力してください。
           </p>
           <div className="space-y-2">
             <Input
