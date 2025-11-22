@@ -34,26 +34,61 @@ export function extractTransactions(data: RawTradeData[]): TradeTransaction[] {
   for (const record of data) {
     try {
       const action = record.Action?.toUpperCase();
-      if (action !== 'BUY' && action !== 'SELL') {
-        continue;
-      }
-
       const quantity = cleanNumber(record.Quantity);
       const price = cleanNumber(record.Price);
       const amount = cleanNumber(record.Amount);
+      const symbol = record.Symbol?.trim();
+      const description = (record as RawTradeData & { Description?: string }).Description || '';
 
+      // シンボルがない場合はスキップ
+      if (!symbol) {
+        continue;
+      }
+
+      // 数量がない場合はスキップ
       if (isNaN(quantity) || quantity === 0) {
         continue;
       }
 
-      transactions.push({
-        symbol: record.Symbol,
-        date: record.TradeDate,
-        action: action as 'BUY' | 'SELL',
-        quantity: Math.abs(quantity),
-        price: Math.abs(price),
-        amount: Math.abs(amount)
-      });
+      // BUY/SELL判定
+      if (action === 'BUY' || action === 'SELL') {
+        transactions.push({
+          symbol,
+          date: record.TradeDate,
+          action: action as 'BUY' | 'SELL',
+          quantity: Math.abs(quantity),
+          price: Math.abs(price),
+          amount: Math.abs(amount)
+        });
+      }
+      // Other アクションの中から REIN（配当再投資）を抽出
+      // Quantity > 0 かつ Amount < 0 は購入
+      else if (action === 'OTHER' && quantity > 0 && amount < 0) {
+        // REIN（再投資）は購入として扱う
+        if (description.includes('REIN') || description.includes('REVERSE SPLIT')) {
+          const calcPrice = Math.abs(amount) / quantity;
+          transactions.push({
+            symbol,
+            date: record.TradeDate,
+            action: 'BUY',
+            quantity: quantity,
+            price: calcPrice,
+            amount: Math.abs(amount)
+          });
+        }
+      }
+      // Quantity > 0 かつ Amount > 0 は売却（清算など）
+      else if (action === 'OTHER' && quantity > 0 && amount > 0) {
+        const calcPrice = amount / quantity;
+        transactions.push({
+          symbol,
+          date: record.TradeDate,
+          action: 'SELL',
+          quantity: quantity,
+          price: calcPrice,
+          amount: amount
+        });
+      }
     } catch (error) {
       logger.error('取引レコード処理エラー:', { record, error });
     }
