@@ -1,27 +1,15 @@
 // src/utils/gainloss/processGainLoss.ts
 import type { RawGainLossData, GainLossRecord } from '@/types/gainloss';
-
-/**
- * 文字列からカンマや通貨記号を取り除き、数値に変換する関数
- */
-function cleanNumber(value: string | number): number {
-  if (typeof value === 'number') return value;
-  if (!value || value === '') return 0;
-  
-  // カンマ、スペース、通貨記号を削除
-  const cleaned = value.toString().replace(/[,\s$¥]/g, '');
-  const num = Number(cleaned);
-  
-  return isNaN(num) ? 0 : num;
-}
+import { cleanNumber } from '@/utils/common/numberUtils';
+import { logger } from '@/utils/common/logger';
 
 /**
  * RawGainLossDataオブジェクトから処理済みのGainLossRecordを生成する
  */
 export async function processGainLossData(data: RawGainLossData[]): Promise<GainLossRecord[]> {
   const processedRecords: GainLossRecord[] = [];
-  
-  console.log('処理開始:', {
+
+  logger.log('処理開始:', {
     件数: data.length,
     サンプル: data.length > 0 ? data[0] : 'データなし'
   });
@@ -31,9 +19,9 @@ export async function processGainLossData(data: RawGainLossData[]): Promise<Gain
       // 日付のフォーマット統一
       const purchaseDate = formatDate(String(record.PurchaseDate));
       const saleDate = formatDate(String(record.TradeDate));
-      
+
       if (!purchaseDate || !saleDate) {
-        console.warn('無効な日付形式:', { record });
+        logger.warn('無効な日付形式:', { record });
         continue;
       }
 
@@ -41,10 +29,10 @@ export async function processGainLossData(data: RawGainLossData[]): Promise<Gain
       const quantity = typeof record.Quantity === 'number' ? record.Quantity : cleanNumber(String(record.Quantity));
       const proceeds = typeof record.Proceeds === 'number' ? record.Proceeds : cleanNumber(String(record.Proceeds));
       const cost = typeof record.Cost === 'number' ? record.Cost : cleanNumber(String(record.Cost));
-      
+
       // 数値変換の結果をログ出力（デバッグ用）
-      console.log('数値変換結果:', {
-        元の数量: record.Quantity, 
+      logger.debug('数値変換結果:', {
+        元の数量: record.Quantity,
         変換後数量: quantity,
         元の売却額: record.Proceeds,
         変換後売却額: proceeds,
@@ -55,8 +43,8 @@ export async function processGainLossData(data: RawGainLossData[]): Promise<Gain
       // 基本データの計算
       const gainLoss = proceeds - cost;
 
-      // GainLossRecordの基本情報のみを設定
-      processedRecords.push({
+      // GainLossRecordの基本情報のみを設定（為替関連はオプショナル）
+      const processedRecord: GainLossRecord = {
         symbol: String(record.Symbol),
         purchaseDate,
         saleDate,
@@ -64,14 +52,15 @@ export async function processGainLossData(data: RawGainLossData[]): Promise<Gain
         proceeds,
         cost,
         gainLoss
-      } as GainLossRecord);  // 型アサーションを使用（為替関連の計算はcalculateSummaryで行う）
+      };
+      processedRecords.push(processedRecord);
 
     } catch (error) {
-      console.error('レコード処理エラー:', { record, error });
+      logger.error('レコード処理エラー:', { record, error });
     }
   }
 
-  console.log(`処理完了: ${processedRecords.length}件のレコードを生成`);
+  logger.log(`処理完了: ${processedRecords.length}件のレコードを生成`);
   return processedRecords;
 }
 
@@ -108,11 +97,11 @@ function formatDate(dateStr: string): string {
     if (!isNaN(date.getTime())) {
       return date.toISOString().split('T')[0];
     }
-    
-    console.warn(`無効な日付形式: "${dateStr}"`);
+
+    logger.warn(`無効な日付形式: "${dateStr}"`);
     return '';
   } catch (error) {
-    console.error(`日付フォーマットエラー: "${dateStr}"`, error);
+    logger.error(`日付フォーマットエラー: "${dateStr}"`, error);
     return '';
   }
 }
@@ -125,29 +114,29 @@ export function validateGainLossRecord(record: GainLossRecord): boolean {
   try {
     // 基本的なデータの存在チェック
     if (!record.symbol || !record.purchaseDate || !record.saleDate) {
-      console.warn('必須項目が不足:', { record });
+      logger.warn('必須項目が不足:', { record });
       return false;
     }
 
     // 数値の妥当性チェック
     if (
-      isNaN(record.quantity) || 
-      isNaN(record.proceeds) || 
+      isNaN(record.quantity) ||
+      isNaN(record.proceeds) ||
       isNaN(record.cost) ||
       isNaN(record.gainLoss)
     ) {
-      console.warn('無効な数値:', { 
-        quantity: record.quantity, 
-        proceeds: record.proceeds, 
-        cost: record.cost, 
-        gainLoss: record.gainLoss 
+      logger.warn('無効な数値:', {
+        quantity: record.quantity,
+        proceeds: record.proceeds,
+        cost: record.cost,
+        gainLoss: record.gainLoss
       });
       return false;
     }
 
     // 数値が0より大きいことを確認（数量はマイナスの場合もあるため除外）
     if (record.proceeds < 0 || record.cost < 0) {
-      console.warn('無効な負の値:', { proceeds: record.proceeds, cost: record.cost });
+      logger.warn('無効な負の値:', { proceeds: record.proceeds, cost: record.cost });
       return false;
     }
 
@@ -155,13 +144,13 @@ export function validateGainLossRecord(record: GainLossRecord): boolean {
     const purchase = new Date(record.purchaseDate);
     const sale = new Date(record.saleDate);
     if (purchase >= sale) {
-      console.warn('無効な日付順序:', { purchaseDate: record.purchaseDate, saleDate: record.saleDate });
+      logger.warn('無効な日付順序:', { purchaseDate: record.purchaseDate, saleDate: record.saleDate });
       return false;
     }
 
     return true;
   } catch (error) {
-    console.error('バリデーションエラー:', error);
+    logger.error('バリデーションエラー:', error);
     return false;
   }
 }

@@ -4,33 +4,12 @@ import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
 import type { RawDividendData } from '@/types/dividend';
 import { Alert, AlertDescription } from '../ui/alert';
+import { cleanNumber } from '@/utils/common/numberUtils';
+import { logger } from '@/utils/common/logger';
 
 interface Props {
   onUpload: (data: RawDividendData[]) => void;
   onError: (message: string) => void;
-}
-
-/**
- * 文字列からカンマや通貨記号を取り除き、数値に変換する関数
- */
-function cleanNumber(value: string | number): number {
-  // すでに数値の場合はそのまま返す
-  if (typeof value === 'number') return value;
-  
-  // 空の値は0として扱う
-  if (!value || value === '') return 0;
-  
-  // カンマ、スペース、通貨記号を削除
-  const cleaned = value.toString().replace(/[,\s$¥]/g, '');
-  const num = Number(cleaned);
-  
-  // NaNチェック
-  if (isNaN(num)) {
-    console.warn(`数値変換失敗: "${value}" -> NaN`);
-    return 0;
-  }
-  
-  return num;
 }
 
 export const DividendFileUploader: React.FC<Props> = ({ onUpload, onError }) => {
@@ -49,48 +28,55 @@ export const DividendFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
       dynamicTyping: false,
       complete: (results) => {
         try {
-          console.log('CSV読み込み完了:', {
+          logger.log('CSV読み込み完了:', {
             行数: results.data.length,
             サンプル: results.data.length > 0 ? results.data[0] : {}
           });
-          
+
           // 数値フィールドのクリーニングと変換を行う
-          // anyの代わりに明示的な型を使用
           const processedData = (results.data as Record<string, string>[]).map((row, index) => {
             // デバッグログ（最初の3行のみ）
             if (index < 3) {
-              console.log(`行 ${index + 1} の処理:`, row);
+              logger.debug(`行 ${index + 1} の処理:`, row);
             }
-            
+
             // Amount値の数値変換
             const amount = cleanNumber(row.Amount);
-            
+
             // 変換結果をログ出力（最初の3行のみ）
             if (index < 3) {
-              console.log(`数値変換: "${row.Amount}" -> ${amount}`);
+              logger.debug(`数値変換: "${row.Amount}" -> ${amount}`);
             }
             
-            return {
+            // ActionTypeとして有効な値かチェック
+            const action = row.Action || '';
+            const validActions = ['DIVIDEND', 'INTEREST', 'OTHER', 'BUY', 'SELL'];
+            const normalizedAction = validActions.includes(action.toUpperCase())
+              ? action.toUpperCase()
+              : 'OTHER';
+
+            const record: RawDividendData = {
               Symbol: row.Symbol || '',
               TradeDate: row.TradeDate || '',
               Amount: amount,
-              Action: row.Action as string, // 適切な型定義があればそれを使用
+              Action: normalizedAction as RawDividendData['Action'],
               Description: row.Description || '',
               RecordType: row.RecordType || ''
-            } as RawDividendData;
+            };
+            return record;
           });
           
-          console.log(`処理完了: ${processedData.length}件のデータを処理`);
+          logger.log(`処理完了: ${processedData.length}件のデータを処理`);
           onUpload(processedData);
         } catch (err) {
-          console.error('配当データ処理エラー:', err);
+          logger.error('配当データ処理エラー:', err);
           onError(err instanceof Error ? err.message : '配当データの処理中にエラーが発生しました');
         } finally {
           setIsProcessing(false);
         }
       },
       error: (error: Error) => {
-        console.error('CSV解析エラー:', error);
+        logger.error('CSV解析エラー:', error);
         onError(`CSVの解析に失敗しました: ${error.message}`);
         setIsProcessing(false);
       }
