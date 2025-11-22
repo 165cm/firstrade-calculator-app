@@ -20,15 +20,27 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary }) => {
           <CardTitle className="text-base">ポートフォリオ概要</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             <div>
               <div className="text-sm text-gray-500">保有銘柄数</div>
               <div className="text-xl font-semibold">{portfolio.holdings.length}</div>
             </div>
             <div>
+              <div className="text-sm text-gray-500">時価総額</div>
+              <div className="text-xl font-semibold">
+                ${portfolio.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+            <div>
               <div className="text-sm text-gray-500">総取得価額</div>
               <div className="text-xl font-semibold">
                 ${portfolio.totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+            <div>
+              <div className="text-sm text-gray-500">含み損益</div>
+              <div className={`text-xl font-semibold ${portfolio.totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {portfolio.totalGainLoss >= 0 ? '+' : ''}${portfolio.totalGainLoss.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </div>
             </div>
             <div>
@@ -57,25 +69,29 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary }) => {
                 <tr className="border-b">
                   <th className="text-left py-2">銘柄</th>
                   <th className="text-right py-2">数量</th>
-                  <th className="text-right py-2">平均単価</th>
-                  <th className="text-right py-2">取得価額</th>
+                  <th className="text-right py-2">現在価格</th>
+                  <th className="text-right py-2">時価</th>
+                  <th className="text-right py-2">損益</th>
                   <th className="text-right py-2">割合</th>
-                  <th className="text-left py-2 pl-4">セクター</th>
+                  <th className="text-left py-2 pl-4">分類</th>
                 </tr>
               </thead>
               <tbody>
                 {portfolio.holdings.map((holding) => {
-                  const percent = portfolio.totalCost > 0
-                    ? (holding.totalCost / portfolio.totalCost) * 100
+                  const percent = portfolio.totalValue > 0
+                    ? ((holding.currentValue || 0) / portfolio.totalValue) * 100
                     : 0;
                   return (
                     <tr key={holding.symbol} className="border-b">
                       <td className="py-2 font-medium">{holding.symbol}</td>
-                      <td className="text-right py-2">{holding.quantity.toFixed(4)}</td>
-                      <td className="text-right py-2">${holding.averageCost.toFixed(2)}</td>
-                      <td className="text-right py-2">${holding.totalCost.toFixed(2)}</td>
+                      <td className="text-right py-2">{holding.quantity.toFixed(2)}</td>
+                      <td className="text-right py-2">${(holding.currentPrice || 0).toFixed(2)}</td>
+                      <td className="text-right py-2">${(holding.currentValue || 0).toFixed(2)}</td>
+                      <td className={`text-right py-2 ${(holding.gainLoss || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                        {(holding.gainLoss || 0) >= 0 ? '+' : ''}{(holding.gainLossPercent || 0).toFixed(1)}%
+                      </td>
                       <td className="text-right py-2">{percent.toFixed(1)}%</td>
-                      <td className="text-left py-2 pl-4 text-gray-500">{holding.sector}</td>
+                      <td className="text-left py-2 pl-4 text-gray-500">{holding.assetClass}</td>
                     </tr>
                   );
                 })}
