@@ -4,9 +4,10 @@
 name: Update Exchange Rates
 
 on:
-  # 毎週月曜日の午前0時（UTC）= 日本時間 午前9時
+  # 毎週土曜日の08:00（UTC）= CET 09:00-10:00 / JST 17:00
+  # Frankfurter API は金曜 16:00 CET に更新されるため、土曜朝に取得
   schedule:
-    - cron: '0 0 * * 1'
+    - cron: '0 8 * * 6'
 
   # 手動実行も可能
   workflow_dispatch:
