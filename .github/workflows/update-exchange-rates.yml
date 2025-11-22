@@ -59,7 +59,7 @@ jobs:
             FORCE_FLAG="--force"
           fi
           echo "📊 Fetching rates for ${YEAR} Q${QUARTER} ${FORCE_FLAG}"
-          node scripts/fetchRates.js $YEAR $QUARTER $FORCE_FLAG
+          node scripts/fetchRates.cjs $YEAR $QUARTER $FORCE_FLAG
 
       - name: Check for changes
         id: changes
