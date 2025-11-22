@@ -4,7 +4,9 @@ name: Update Exchange Rates  # ワークフローの名前
 # 実行タイミングの設定
 on:
   schedule:
-    - cron: '2 0 * * *'  # 毎日午前5時（日本時間）に実行
+    # 土曜日 CET 09:00 (UTC 08:00) に実行
+    # ECBレートは金曜16:00 CETに更新されるため、土曜朝に取得するのが最適
+    - cron: '0 8 * * 6'
   workflow_dispatch:      # 手動実行も可能にする
 
 jobs:
