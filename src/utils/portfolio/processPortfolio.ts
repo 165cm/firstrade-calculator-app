@@ -7,7 +7,7 @@ import type {
   TargetAllocation,
   RebalanceSuggestion,
   RiskIndicators,
-  PortfolioSummary,
+  SectorBreakdown,
   AssetClass,
   SectorType
 } from '@/types/portfolio';
@@ -369,6 +369,33 @@ export function calculateRiskIndicators(portfolio: Portfolio): RiskIndicators {
     sectorConcentration,
     diversificationScore
   };
+}
+
+/**
+ * セクター内訳を計算
+ */
+export function calculateSectorBreakdown(portfolio: Portfolio): SectorBreakdown[] {
+  const sectorMap = new Map<string, { value: number; holdings: string[] }>();
+
+  for (const holding of portfolio.holdings) {
+    const sector = holding.sector || 'Other';
+    const current = sectorMap.get(sector) || { value: 0, holdings: [] };
+    current.value += holding.currentValue || holding.totalCost;
+    current.holdings.push(holding.symbol);
+    sectorMap.set(sector, current);
+  }
+
+  const breakdown: SectorBreakdown[] = [];
+  sectorMap.forEach((data, sector) => {
+    breakdown.push({
+      sector,
+      value: data.value,
+      percent: portfolio.totalValue > 0 ? (data.value / portfolio.totalValue) * 100 : 0,
+      holdings: data.holdings
+    });
+  });
+
+  return breakdown.sort((a, b) => b.value - a.value);
 }
 
 /**

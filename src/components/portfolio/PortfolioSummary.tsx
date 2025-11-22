@@ -10,7 +10,7 @@ interface Props {
 }
 
 export const PortfolioSummaryComponent: React.FC<Props> = ({ summary }) => {
-  const { portfolio, allocationStatus, suggestions, riskIndicators } = summary;
+  const { portfolio, allocationStatus, suggestions, riskIndicators, sectorBreakdown } = summary;
   const [showDetails, setShowDetails] = useState(false);
 
   const gainLossPercent = portfolio.totalCost > 0
@@ -145,6 +145,32 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary }) => {
           </CardContent>
         </Card>
       </div>
+
+      {/* セクター内訳 */}
+      {sectorBreakdown && sectorBreakdown.length > 0 && (
+        <Card>
+          <CardHeader className="py-3 pb-2">
+            <CardTitle className="text-sm">セクター内訳</CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="space-y-1.5">
+              {sectorBreakdown.map((sector) => (
+                <div key={sector.sector} className="flex items-center gap-2">
+                  <div className="w-20 text-xs font-medium truncate">{sector.sector}</div>
+                  <div className="flex-1 h-2 bg-gray-100 rounded overflow-hidden">
+                    <div
+                      className="h-full bg-blue-400"
+                      style={{ width: `${sector.percent}%` }}
+                    />
+                  </div>
+                  <div className="w-12 text-xs text-right">{sector.percent.toFixed(1)}%</div>
+                  <div className="w-16 text-xs text-gray-500 text-right">${(sector.value / 1000).toFixed(1)}k</div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* 含み損銘柄（Tax-Loss Harvesting候補）*/}
       {portfolio.holdings.some(h => (h.gainLoss || 0) < 0) && (

@@ -3,21 +3,26 @@
 
 import React, { useState } from 'react';
 import { Alert, AlertDescription } from '../ui/alert';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
 interface Props {
-  onSubmit: (text: string) => void;
+  onSubmit: (text: string, cashAmount: number) => void;
   onError: (message: string) => void;
+  isCollapsed?: boolean;
+  onToggle?: () => void;
 }
 
-export const PositionInput: React.FC<Props> = ({ onSubmit, onError }) => {
+export const PositionInput: React.FC<Props> = ({ onSubmit, onError, isCollapsed, onToggle }) => {
   const [text, setText] = useState('');
+  const [cashAmount, setCashAmount] = useState<string>('');
 
   const handleSubmit = () => {
     if (!text.trim()) {
       onError('ポジションデータを入力してください');
       return;
     }
-    onSubmit(text);
+    const cash = parseFloat(cashAmount.replace(/,/g, '')) || 0;
+    onSubmit(text, cash);
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
@@ -27,43 +32,92 @@ export const PositionInput: React.FC<Props> = ({ onSubmit, onError }) => {
     }
   };
 
+  if (isCollapsed) {
+    return (
+      <Card>
+        <CardHeader className="py-3">
+          <button
+            onClick={onToggle}
+            className="w-full flex justify-between items-center text-left"
+          >
+            <CardTitle className="text-sm">データ入力</CardTitle>
+            <span className="text-gray-400 text-xs">▼ 展開</span>
+          </button>
+        </CardHeader>
+      </Card>
+    );
+  }
+
   return (
-    <div className="space-y-4">
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Firstradeポジション画面からコピペ
-        </label>
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onPaste={handlePaste}
-          placeholder={`Symbol\tQuantity\tLast\tChange($)\tChange(%)\tMarket Value\tUnit Cost\tTotal Cost\tGain/Loss($)\tGain/Loss(%)\nVOO\t21.51174\t607.14\t+7.18\t+1.20\t13,060.64\t304.72802\t6,555.23\t+6,505.41\t+99.24`}
-          className="w-full h-48 p-3 border rounded-lg font-mono text-sm resize-y focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-        />
-      </div>
+    <Card>
+      <CardHeader className="py-3 pb-2">
+        <div className="flex justify-between items-center">
+          <CardTitle className="text-sm">データ入力</CardTitle>
+          {onToggle && (
+            <button onClick={onToggle} className="text-gray-400 text-xs">
+              ▲ 閉じる
+            </button>
+          )}
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0 space-y-4">
+        {/* ポジションデータ */}
+        <div>
+          <label className="block text-xs font-medium text-gray-600 mb-1">
+            ポジション（Firstrade画面からコピペ）
+          </label>
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onPaste={handlePaste}
+            placeholder="Symbol  Quantity  Last  ...をコピペ"
+            className="w-full h-32 p-2 border rounded text-xs font-mono resize-y focus:ring-1 focus:ring-blue-500"
+          />
+        </div>
 
-      <div className="flex gap-2">
-        <button
-          onClick={handleSubmit}
-          disabled={!text.trim()}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
-        >
-          分析する
-        </button>
-        <button
-          onClick={() => setText('')}
-          className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-        >
-          クリア
-        </button>
-      </div>
+        {/* 現金入力 */}
+        <div className="flex items-center gap-3">
+          <label className="text-xs font-medium text-gray-600 whitespace-nowrap">
+            現金残高
+          </label>
+          <div className="flex items-center gap-1">
+            <span className="text-xs text-gray-500">$</span>
+            <input
+              type="text"
+              value={cashAmount}
+              onChange={(e) => setCashAmount(e.target.value)}
+              placeholder="0"
+              className="w-24 px-2 py-1 border rounded text-xs text-right focus:ring-1 focus:ring-blue-500"
+            />
+          </div>
+          <span className="text-xs text-gray-400">
+            (Balances &gt; Cash Balance)
+          </span>
+        </div>
 
-      <Alert>
-        <AlertDescription className="text-sm text-gray-600">
-          Firstrade &gt; Positions &gt; Stocks セクションのテーブルを選択してコピー＆ペーストしてください。
-          ヘッダー行も含めてOKです。
-        </AlertDescription>
-      </Alert>
-    </div>
+        {/* ボタン */}
+        <div className="flex gap-2">
+          <button
+            onClick={handleSubmit}
+            disabled={!text.trim()}
+            className="px-3 py-1.5 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+          >
+            分析する
+          </button>
+          <button
+            onClick={() => { setText(''); setCashAmount(''); }}
+            className="px-3 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+          >
+            クリア
+          </button>
+        </div>
+
+        <Alert>
+          <AlertDescription className="text-xs text-gray-500">
+            Positions &gt; Stocks のテーブルをコピペ。現金は Balances で確認できます。
+          </AlertDescription>
+        </Alert>
+      </CardContent>
+    </Card>
   );
 };
