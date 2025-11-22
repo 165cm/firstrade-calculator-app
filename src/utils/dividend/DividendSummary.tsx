@@ -14,6 +14,7 @@ import type {
   ConvertedDividendRecord
 } from '@/types/dividend';
 import { ExportButton } from '@/components/common/ExportButton';
+import { HelpTooltip } from '@/components/common/Tooltip';
 import { exportDividendToCsv, downloadCsv } from '@/utils/export/csvExport';
 import { calculateTotalWithholding, extractWithholdingAmount } from '../withholding';
 
@@ -54,7 +55,10 @@ const MonthlyTotalCard = ({
         </div>
         {withholding !== 0 && (
           <div className="flex items-center">
-            <span className="text-base text-gray-600 mr-3">源泉徴収(抜粋)</span>
+            <span className="text-base text-gray-600 mr-3">
+              源泉徴収(抜粋)
+              <HelpTooltip text="米国で源泉徴収された税金。CSVのDescriptionに記載がある分のみ集計。外国税額控除の申請に使用します。" />
+            </span>
             <span className="text-xl font-semibold text-red-600 tabular-nums">
               ${withholding.toFixed(2)}
             </span>

@@ -2,6 +2,7 @@
 import React from 'react';
 import type { GainLossSummary, SymbolSummary, TradeDetail } from '@/types/gainloss';
 import { ExportButton } from '@/components/common/ExportButton';
+import { HelpTooltip } from '@/components/common/Tooltip';
 import { exportGainLossToCsv, downloadCsv } from '@/utils/export/csvExport';
 
 interface Props {
@@ -202,7 +203,10 @@ const SymbolDetailsSection: React.FC<{
                 <th className="px-4 py-2 text-right">取得価格(¥)</th>
                 <th className="px-4 py-2 text-right">売却価格(¥)</th>
                 <th className="px-4 py-2 text-right">損益(¥)</th>
-                <th className="px-4 py-2 text-right">損益率(¥)</th>
+                <th className="px-4 py-2 text-right">
+                  損益率(¥)
+                  <HelpTooltip text="円建ての損益率 = (売却価格 - 取得価格) / 取得価格 × 100。為替変動も含んだ実質的な利益率です。" />
+                </th>
               </tr>
             </thead>
             <tbody className="text-sm">
