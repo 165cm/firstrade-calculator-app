@@ -8,8 +8,8 @@ import { ExchangeStorageService } from './storage';
 // データソースの種類
 export type ExchangeDataSource = 'boj' | 'frankfurter';
 
-// デフォルトは日銀データ
-const DEFAULT_DATA_SOURCE: ExchangeDataSource = 'boj';
+// デフォルトはFrankfurter（ECBレート）
+const DEFAULT_DATA_SOURCE: ExchangeDataSource = 'frankfurter';
 
 export class ExchangeRateUpdater {
     private storage: ExchangeStorageService;

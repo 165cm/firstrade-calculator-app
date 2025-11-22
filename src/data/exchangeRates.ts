@@ -147,12 +147,43 @@ export async function getExchangeRate(dateStr: string): Promise<number> {
     const dates = Object.keys(quarterData.rates)
       .sort()
       .reverse();
-    
+
     const prevDate = dates.find(date => date < normalizedDate);
     if (prevDate && quarterData.rates[prevDate]?.rate?.JPY) {
       const rate = quarterData.rates[prevDate].rate.JPY;
       ratesCache[normalizedDate] = rate;
       return rate;
+    }
+
+    // 同じ四半期にデータがない場合、前の四半期を探す
+    const date = new Date(normalizedDate);
+    const year = date.getFullYear();
+    const quarter = Math.floor(date.getMonth() / 3) + 1;
+
+    if (quarter > 1 || year > 2020) {
+      const prevQuarter = quarter === 1 ? 4 : quarter - 1;
+      const prevYear = quarter === 1 ? year - 1 : year;
+
+      // 前の四半期のデータを取得
+      const prevQuarterPath = `/data/historical/${prevYear}/Q${prevQuarter}.json`;
+      try {
+        const prevResponse = await fetch(prevQuarterPath);
+        if (prevResponse.ok) {
+          const prevQuarterData = await prevResponse.json() as QuarterData;
+          const prevDates = Object.keys(prevQuarterData.rates).sort().reverse();
+
+          if (prevDates.length > 0) {
+            const lastDate = prevDates[0];
+            const rate = prevQuarterData.rates[lastDate]?.rate?.JPY;
+            if (rate) {
+              ratesCache[normalizedDate] = rate;
+              return rate;
+            }
+          }
+        }
+      } catch {
+        // 前の四半期のデータ取得に失敗した場合は続行
+      }
     }
 
     defaultRateUsedDates.add(normalizedDate);
