@@ -48,15 +48,12 @@ export default function GainLossPage() {
 
       {defaultRateDates.length > 0 && (
         <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded" role="alert">
-          <p className="font-bold">⚠️ デフォルト為替レート使用</p>
           <p className="text-sm">
-            以下の日付は為替レートデータが取得できなかったため、デフォルト値（{DEFAULT_RATE}円/ドル）で計算されています：
+            ⚠️ デフォルト為替レート({DEFAULT_RATE}円)使用: {defaultRateDates.map(d => {
+              const date = new Date(d);
+              return `${date.getMonth() + 1}/${date.getDate()}`;
+            }).join(', ')}
           </p>
-          <ul className="text-sm mt-2 list-disc list-inside">
-            {defaultRateDates.map(date => (
-              <li key={date}>{date}</li>
-            ))}
-          </ul>
         </div>
       )}
 
