@@ -50,7 +50,7 @@ jobs:
           YEAR="${{ github.event.inputs.year || steps.date.outputs.year }}"
           QUARTER="${{ github.event.inputs.quarter || steps.date.outputs.quarter }}"
           echo "📊 Fetching rates for ${YEAR} Q${QUARTER}"
-          node scripts/fetchRatesSimple.js $YEAR $QUARTER
+          node scripts/fetchRates.js $YEAR $QUARTER
 
       - name: Check for changes
         id: changes
