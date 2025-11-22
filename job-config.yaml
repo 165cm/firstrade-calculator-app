@@ -16,6 +16,7 @@ steps:
     - '--region'
     - 'asia-northeast1'
     - '--schedule'
-    - '0 5 * * *'
+    # 土曜日 CET 09:00 (JST 17:00) - ECBレート更新後
+    - '0 17 * * 6'
     - '--time-zone'
     - 'Asia/Tokyo'
