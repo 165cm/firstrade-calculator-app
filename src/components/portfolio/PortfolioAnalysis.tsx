@@ -3,12 +3,13 @@
 
 import React, { useState } from 'react';
 import type { TargetAllocation, PortfolioSummary as PortfolioSummaryType } from '@/types/portfolio';
-import { DEFAULT_TARGET_ALLOCATIONS } from '@/types/portfolio';
+import { DEFAULT_TARGET_ALLOCATIONS, ALLOCATION_PRESETS } from '@/types/portfolio';
 import { parsePositionText, buildPortfolioFromPositions } from '@/utils/portfolio/parsePosition';
 import {
   calculateAllocationStatus,
   generateSuggestions,
-  calculateRiskIndicators
+  calculateRiskIndicators,
+  calculateSectorBreakdown
 } from '@/utils/portfolio/processPortfolio';
 import { PositionInput } from './PositionInput';
 import { TargetAllocationSettings } from './TargetAllocationSettings';
@@ -36,12 +37,14 @@ export const PortfolioAnalysis: React.FC = () => {
       const allocationStatus = calculateAllocationStatus(portfolio, targetAllocations);
       const suggestions = generateSuggestions(portfolio, allocationStatus);
       const riskIndicators = calculateRiskIndicators(portfolio);
+      const sectorBreakdown = calculateSectorBreakdown(portfolio);
 
       setSummary({
         portfolio,
         allocationStatus,
         suggestions,
-        riskIndicators
+        riskIndicators,
+        sectorBreakdown
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : '分析中にエラーが発生しました');
@@ -54,6 +57,10 @@ export const PortfolioAnalysis: React.FC = () => {
 
   const handleAllocationUpdate = (allocations: TargetAllocation[]) => {
     setTargetAllocations(allocations);
+  };
+
+  const handlePresetChange = (presetKey: keyof typeof ALLOCATION_PRESETS) => {
+    setTargetAllocations([...ALLOCATION_PRESETS[presetKey].allocations]);
   };
 
   return (
@@ -73,6 +80,7 @@ export const PortfolioAnalysis: React.FC = () => {
       <TargetAllocationSettings
         allocations={targetAllocations}
         onUpdate={handleAllocationUpdate}
+        onPresetChange={handlePresetChange}
       />
 
       {/* エラー表示 */}

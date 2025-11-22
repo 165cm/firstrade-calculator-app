@@ -77,6 +77,15 @@ export interface PortfolioSummary {
   allocationStatus: AllocationStatus[];
   suggestions: RebalanceSuggestion[];
   riskIndicators: RiskIndicators;
+  sectorBreakdown: SectorBreakdown[];
+}
+
+// セクター内訳
+export interface SectorBreakdown {
+  sector: string;
+  value: number;
+  percent: number;
+  holdings: string[];
 }
 
 // リスク指標
@@ -102,6 +111,27 @@ export const DEFAULT_TARGET_ALLOCATIONS: TargetAllocation[] = [
   { id: 'bond', name: '債券', targetPercent: 20, type: 'assetClass' },
   { id: 'cash', name: '現金', targetPercent: 10, type: 'assetClass' },
 ];
+
+// プリセット: 保守的
+export const CONSERVATIVE_ALLOCATIONS: TargetAllocation[] = [
+  { id: 'stock', name: '株式', targetPercent: 40, type: 'assetClass' },
+  { id: 'bond', name: '債券', targetPercent: 50, type: 'assetClass' },
+  { id: 'cash', name: '現金', targetPercent: 10, type: 'assetClass' },
+];
+
+// プリセット: 成長型
+export const AGGRESSIVE_ALLOCATIONS: TargetAllocation[] = [
+  { id: 'stock', name: '株式', targetPercent: 90, type: 'assetClass' },
+  { id: 'bond', name: '債券', targetPercent: 5, type: 'assetClass' },
+  { id: 'cash', name: '現金', targetPercent: 5, type: 'assetClass' },
+];
+
+// プリセット定義
+export const ALLOCATION_PRESETS = {
+  balanced: { name: 'バランス型', allocations: DEFAULT_TARGET_ALLOCATIONS },
+  conservative: { name: '保守的', allocations: CONSERVATIVE_ALLOCATIONS },
+  aggressive: { name: '成長型', allocations: AGGRESSIVE_ALLOCATIONS },
+} as const;
 
 // セクター別デフォルト上限
 export const SECTOR_LIMITS: Record<SectorType, number> = {
