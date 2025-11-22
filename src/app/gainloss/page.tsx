@@ -9,6 +9,7 @@ import type { GainLossSummary as GainLossSummaryType, RawGainLossData } from '@/
 import { processGainLossData } from '@/utils/gainloss/processGainLoss';
 import { calculateGainLossSummary } from '@/utils/gainloss/calculateSummary';
 import { getDefaultRateUsedDates, clearDefaultRateTracking, DEFAULT_RATE } from '@/data/exchangeRates';
+import { HelpTooltip } from '@/components/common/Tooltip';
 
 export default function GainLossPage() {
   const [error, setError] = useState<string | null>(null);
@@ -86,6 +87,7 @@ export default function GainLossPage() {
               const date = new Date(d);
               return `${date.getMonth() + 1}/${date.getDate()}`;
             }).join(', ')}
+            <HelpTooltip text="確定申告時は、三菱UFJ銀行等のTTM（仲値）を確認し、必要に応じて手動で修正してください。差額は通常数百円程度です。" />
           </p>
         </div>
       )}

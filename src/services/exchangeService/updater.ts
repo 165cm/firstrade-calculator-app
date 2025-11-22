@@ -2,7 +2,14 @@
 import { format, differenceInDays, endOfQuarter, eachDayOfInterval } from 'date-fns';
 import type { ExchangeRateAPI } from '@/types/exchange';
 import { FrankfurterAPI } from './api/frankfurter';
+import { BOJRateAPI } from './api/boj';
 import { ExchangeStorageService } from './storage';
+
+// データソースの種類
+export type ExchangeDataSource = 'boj' | 'frankfurter';
+
+// デフォルトはFrankfurter（ECBレート）
+const DEFAULT_DATA_SOURCE: ExchangeDataSource = 'frankfurter';
 
 export class ExchangeRateUpdater {
     private storage: ExchangeStorageService;
@@ -175,10 +182,25 @@ export class ExchangeRateUpdater {
     
   }
 
+  // データソースに応じたAPIインスタンスを取得
+  export function getExchangeRateAPI(source?: ExchangeDataSource): ExchangeRateAPI {
+    const dataSource = source || (process.env.EXCHANGE_DATA_SOURCE as ExchangeDataSource) || DEFAULT_DATA_SOURCE;
+
+    switch (dataSource) {
+      case 'frankfurter':
+        return new FrankfurterAPI();
+      case 'boj':
+      default:
+        return new BOJRateAPI();
+    }
+  }
+
   // 単独で実行可能な関数を追加
-  export async function runExchangeRateUpdate(): Promise<void> {
-  const api = new FrankfurterAPI();
-  const storage = new ExchangeStorageService();
-  const updater = new ExchangeRateUpdater(api, storage);
-  await updater.updateDaily();
+  export async function runExchangeRateUpdate(source?: ExchangeDataSource): Promise<void> {
+    const api = getExchangeRateAPI(source);
+    const storage = new ExchangeStorageService();
+    const updater = new ExchangeRateUpdater(api, storage);
+
+    console.log(`為替レート更新開始 (データソース: ${api.getSource()})`);
+    await updater.updateDaily();
   }
