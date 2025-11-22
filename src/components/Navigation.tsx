@@ -37,6 +37,16 @@ export default function Navigation() {
           >
             損益計算書
           </Link>
+          <Link
+            href="/portfolio"
+            className={`px-3 py-2 text-xs font-medium rounded-md text-center ${
+              pathname === '/portfolio'
+                ? 'bg-white text-gray-900 shadow'
+                : 'text-gray-400 hover:text-gray-500'
+            } transition-all duration-200`}
+          >
+            分析β
+          </Link>
         </nav>
       </div>
     </div>
