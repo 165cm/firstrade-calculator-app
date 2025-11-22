@@ -4,15 +4,17 @@ import { useState } from 'react';
 import { DividendFileUploader } from '@/components/dividend/DividendFileUploader';
 import InfoSection from '@/components/InfoSection';
 import { DividendSummary, processDividendData } from '@/utils/dividend/DividendSummary';
-import { useConversion } from '@/hooks/useConversion';
-import type { 
-  ProcessedDividendData, 
+import { ProgressIndicator, ProgressState, createInitialProgress } from '@/components/common/ProgressIndicator';
+import type {
+  ProcessedDividendData,
   RawDividendData
 } from '@/types/dividend';
 import { getExchangeRate, getDefaultRateUsedDates, clearDefaultRateTracking, DEFAULT_RATE } from '@/data/exchangeRates';
 
 export default function DividendPage() {
-  const { isLoading, error, setError } = useConversion();
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState<ProgressState>(createInitialProgress());
   const [dividendData, setDividendData] = useState<ProcessedDividendData>({
     dividends: [],
     interest: [],
@@ -22,23 +24,63 @@ export default function DividendPage() {
   const [defaultRateDates, setDefaultRateDates] = useState<string[]>([]);
 
   const handleDividendData = async (rawData: RawDividendData[]) => {
+    setIsLoading(true);
+    setError(null);
+
     try {
       // デフォルト値追跡をクリア
       clearDefaultRateTracking();
 
-      // まずrawDataを処理
-      const processedData = await processDividendData(
-        await Promise.all(rawData.map(async data => {
-          const exchangeRate = await getExchangeRate(data.TradeDate);
-          const amount = typeof data.Amount === 'string' ? parseFloat(data.Amount) : data.Amount;
-          return {
-            ...data,
-            Amount: amount,
-            exchangeRate,
-            amountJPY: amount * exchangeRate
-          };
-        }))
-      );
+      const total = rawData.length;
+
+      // フェーズ1: 為替レート取得
+      setProgress({
+        phase: '為替レート取得中...',
+        current: 0,
+        total,
+        percentage: 0
+      });
+
+      const processedRawData = [];
+      for (let i = 0; i < rawData.length; i++) {
+        const data = rawData[i];
+        const exchangeRate = await getExchangeRate(data.TradeDate);
+        const amount = typeof data.Amount === 'string' ? parseFloat(data.Amount) : data.Amount;
+
+        processedRawData.push({
+          ...data,
+          Amount: amount,
+          exchangeRate,
+          amountJPY: amount * exchangeRate
+        });
+
+        // 進捗を更新（10件ごと、または最後）
+        if (i % 10 === 0 || i === rawData.length - 1) {
+          setProgress({
+            phase: '為替レート取得中...',
+            current: i + 1,
+            total,
+            percentage: Math.round(((i + 1) / total) * 80)
+          });
+        }
+      }
+
+      // フェーズ2: データ分類
+      setProgress({
+        phase: 'データを分類中...',
+        current: total,
+        total,
+        percentage: 90
+      });
+
+      const processedData = await processDividendData(processedRawData);
+
+      setProgress({
+        phase: '完了',
+        current: total,
+        total,
+        percentage: 100
+      });
 
       setDividendData(processedData);
 
@@ -47,6 +89,8 @@ export default function DividendPage() {
       setDefaultRateDates(usedDates);
     } catch (e) {
       setError(e instanceof Error ? e.message : '配当データの処理中にエラーが発生しました');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -75,10 +119,7 @@ export default function DividendPage() {
       />
 
       {isLoading && (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <span className="ml-2">データを処理中...</span>
-        </div>
+        <ProgressIndicator progress={progress} />
       )}
 
       {!isLoading && (dividendData.dividends.length > 0 || dividendData.interest.length > 0) && (

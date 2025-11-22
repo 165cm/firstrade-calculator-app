@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { GainLossFileUploader } from '@/components/gainloss/GainLossFileUploader';
 import GainLossSummary from '@/components/gainloss/GainLossSummary';
 import InfoSection from '@/components/InfoSection';
+import { ProgressIndicator, ProgressState, createInitialProgress } from '@/components/common/ProgressIndicator';
 import type { GainLossSummary as GainLossSummaryType, RawGainLossData } from '@/types/gainloss';
 import { processGainLossData } from '@/utils/gainloss/processGainLoss';
 import { calculateGainLossSummary } from '@/utils/gainloss/calculateSummary';
@@ -12,6 +13,7 @@ import { getDefaultRateUsedDates, clearDefaultRateTracking, DEFAULT_RATE } from 
 export default function GainLossPage() {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [progress, setProgress] = useState<ProgressState>(createInitialProgress());
   const [summary, setSummary] = useState<GainLossSummaryType | null>(null);
   const [defaultRateDates, setDefaultRateDates] = useState<string[]>([]);
 
@@ -23,8 +25,39 @@ export default function GainLossPage() {
       // デフォルト値追跡をクリア
       clearDefaultRateTracking();
 
+      const total = data.length;
+
+      // フェーズ1: データ変換
+      setProgress({
+        phase: 'データを変換中...',
+        current: 0,
+        total,
+        percentage: 10
+      });
+
       const processedData = await processGainLossData(data);
+
+      // フェーズ2: 為替レート取得・計算
+      setProgress({
+        phase: '為替レート取得・計算中...',
+        current: Math.floor(total * 0.3),
+        total,
+        percentage: 40
+      });
+
+      // 少し待ってUIを更新（Reactのバッチ更新対策）
+      await new Promise(resolve => setTimeout(resolve, 0));
+
       const calculatedSummary = await calculateGainLossSummary(processedData);
+
+      // フェーズ3: 完了
+      setProgress({
+        phase: '完了',
+        current: total,
+        total,
+        percentage: 100
+      });
+
       setSummary(calculatedSummary);
 
       // デフォルト値を使用した日付を取得
@@ -63,10 +96,7 @@ export default function GainLossPage() {
       />
 
       {isLoading && (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
-          <span className="ml-2">データを処理中...</span>
-        </div>
+        <ProgressIndicator progress={progress} />
       )}
 
       {!isLoading && summary && (
