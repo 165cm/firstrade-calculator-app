@@ -9,7 +9,7 @@ import type {
   ProcessedDividendData, 
   RawDividendData
 } from '@/types/dividend';
-import { getExchangeRate } from '@/data/exchangeRates';
+import { getExchangeRate, getDefaultRateUsedDates, clearDefaultRateTracking, DEFAULT_RATE } from '@/data/exchangeRates';
 
 export default function DividendPage() {
   const { isLoading, error, setError } = useConversion();
@@ -19,9 +19,13 @@ export default function DividendPage() {
     other: [],
     withholding: []
   });
+  const [defaultRateDates, setDefaultRateDates] = useState<string[]>([]);
 
   const handleDividendData = async (rawData: RawDividendData[]) => {
     try {
+      // デフォルト値追跡をクリア
+      clearDefaultRateTracking();
+
       // まずrawDataを処理
       const processedData = await processDividendData(
         await Promise.all(rawData.map(async data => {
@@ -35,8 +39,12 @@ export default function DividendPage() {
           };
         }))
       );
-      
+
       setDividendData(processedData);
+
+      // デフォルト値を使用した日付を取得
+      const usedDates = getDefaultRateUsedDates();
+      setDefaultRateDates(usedDates);
     } catch (e) {
       setError(e instanceof Error ? e.message : '配当データの処理中にエラーが発生しました');
     }
@@ -47,6 +55,20 @@ export default function DividendPage() {
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
           {error}
+        </div>
+      )}
+
+      {defaultRateDates.length > 0 && (
+        <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4" role="alert">
+          <p className="font-bold">⚠️ デフォルト為替レート使用</p>
+          <p className="text-sm">
+            以下の日付は為替レートデータが取得できなかったため、デフォルト値（{DEFAULT_RATE}円/ドル）で計算されています：
+          </p>
+          <ul className="text-sm mt-2 list-disc list-inside">
+            {defaultRateDates.map(date => (
+              <li key={date}>{date}</li>
+            ))}
+          </ul>
         </div>
       )}
 
