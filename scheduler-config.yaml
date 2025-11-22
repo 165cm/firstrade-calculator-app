@@ -1,6 +1,8 @@
 # scheduler-config.yaml
 name: exchange-rate-update
-schedule: '0 8 * * *'  # 毎日午前8時
+# 土曜日 CET 09:00 (JST 17:00) に実行
+# ECBレートは金曜16:00 CETに更新されるため、土曜朝に取得するのが最適
+schedule: '0 17 * * 6'
 timeZone: 'Asia/Tokyo'
 target:
   type: httpTarget
