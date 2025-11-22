@@ -11,7 +11,7 @@ import { logger } from '@/utils/common/logger';
  * ポジション画面のコピペテキストをパースして保有状況を取得
  */
 export function parsePositionText(text: string): Holding[] {
-  const holdings: Holding[] = [];
+  const holdingsMap = new Map<string, Holding>();
   const lines = text.trim().split('\n');
 
   logger.log(`ポジションテキスト解析開始: ${lines.length}行`);
@@ -19,18 +19,14 @@ export function parsePositionText(text: string): Holding[] {
   for (const line of lines) {
     try {
       // タブまたは複数スペースで分割
-      const parts = line.split(/\t+|\s{2,}/).map(p => p.trim()).filter(p => p);
+      let parts = line.split(/\t+|\s{2,}/).map(p => p.trim()).filter(p => p);
 
       if (parts.length < 8) continue;
 
       // ヘッダー行をスキップ
-      if (parts[0] === 'Symbol' || parts[0].includes('Stocks')) continue;
-      // actions行をスキップ
-      if (parts.includes('actions')) {
-        // actionsを除去
-        const idx = parts.indexOf('actions');
-        if (idx > -1) parts.splice(idx, 1);
-      }
+      if (parts[0] === 'Symbol' || parts[0].includes('Stocks') || parts[0].includes('Market Value')) continue;
+      // actions を除去
+      parts = parts.filter(p => p !== 'actions');
 
       const symbol = parts[0].trim();
 
@@ -38,6 +34,8 @@ export function parsePositionText(text: string): Holding[] {
       if (!symbol || /^\d+$/.test(symbol)) continue;
       // 特殊シンボル（H097852など）で価値0のものはスキップ
       if (symbol.startsWith('H0') && parts[3] === '0.00') continue;
+      // 既に登録済みの場合スキップ
+      if (holdingsMap.has(symbol)) continue;
 
       const quantity = parseNumber(parts[1]);
       const currentPrice = parseNumber(parts[2]);
@@ -49,7 +47,7 @@ export function parsePositionText(text: string): Holding[] {
 
       if (isNaN(quantity) || quantity <= 0) continue;
 
-      holdings.push({
+      holdingsMap.set(symbol, {
         symbol,
         quantity,
         averageCost: unitCost,
@@ -68,6 +66,7 @@ export function parsePositionText(text: string): Holding[] {
     }
   }
 
+  const holdings = Array.from(holdingsMap.values());
   logger.log(`ポジション解析完了: ${holdings.length}銘柄`);
   return holdings.sort((a, b) => (b.currentValue || 0) - (a.currentValue || 0));
 }
