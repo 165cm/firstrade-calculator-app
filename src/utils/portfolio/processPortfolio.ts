@@ -235,11 +235,12 @@ export function calculateAllocationStatus(
     if (target.type === 'assetClass') {
       currentValue = portfolio.holdings
         .filter(h => {
-          if (target.name === '株式') return h.assetClass === 'Stock';
+          // 株式にはStock、ETF、REIT、Otherを含める（現金・債券以外）
+          if (target.name === '株式') {
+            return h.assetClass === 'Stock' || h.assetClass === 'ETF' || h.assetClass === 'REIT' || h.assetClass === 'Other';
+          }
           if (target.name === '債券') return h.assetClass === 'Bond';
           if (target.name === '現金') return h.assetClass === 'Cash';
-          if (target.name === 'ETF') return h.assetClass === 'ETF';
-          if (target.name === 'REIT') return h.assetClass === 'REIT';
           return false;
         })
         .reduce((sum, h) => sum + (h.currentValue || h.totalCost), 0);
