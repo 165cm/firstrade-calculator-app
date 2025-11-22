@@ -71,35 +71,29 @@ async function getQuarterData(dateStr: string): Promise<QuarterData | null> {
   const date = new Date(dateStr);
   const year = date.getFullYear();
   const quarter = Math.floor(date.getMonth() / 3) + 1;
-  const currentYear = new Date().getFullYear();
-  const currentQuarter = Math.floor(new Date().getMonth() / 3) + 1;
 
-  // ファイルパスを構築
-  const filePath = year === currentYear && quarter === currentQuarter
-    ? `/data/current/${year}Q${quarter}.json`
-    : `/data/historical/${year}/Q${quarter}.json`;
+  // ファイルパスの候補（current -> historical の順で試行）
+  const pathCandidates = [
+    `/data/current/${year}Q${quarter}.json`,
+    `/data/historical/${year}/Q${quarter}.json`
+  ];
 
-  //console.log('Attempting to load exchange rate data from:', filePath);
+  for (const filePath of pathCandidates) {
+    try {
+      const response = await fetch(filePath);
+      if (!response.ok) {
+        continue; // 次のパスを試行
+      }
 
-  try {
-    const response = await fetch(filePath);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
+      const data = await response.json() as QuarterData;
+      return data;
+    } catch {
+      continue; // 次のパスを試行
     }
-
-    const data = await response.json() as QuarterData;
-    /** 
-    console.log('Loaded quarter data:', {
-      startDate: data.startDate,
-      endDate: data.endDate,
-      ratesCount: Object.keys(data.rates).length
-    });*/
-
-    return data;
-  } catch (error) {
-    console.error(`Failed to load quarter data for ${year}Q${quarter}:`, error);
-    return null;
   }
+
+  console.error(`Failed to load quarter data for ${year}Q${quarter}`);
+  return null;
 }
 
 /**
@@ -133,24 +127,29 @@ export async function getExchangeRate(dateStr: string): Promise<number> {
       return rate;
     }
 
-    // 休日の場合は直前の営業日のレートを使用
-    if (isHoliday(normalizedDate)) {
-      const prevBusinessDay = getPreviousBusinessDay(normalizedDate);
-      if (quarterData.rates[prevBusinessDay]?.rate?.JPY) {
-        const rate = quarterData.rates[prevBusinessDay].rate.JPY;
-        ratesCache[normalizedDate] = rate;
-        return rate;
-      }
+    // 直前の営業日のレートを使用（休日に限らず）
+    const prevBusinessDay = getPreviousBusinessDay(normalizedDate);
+    if (quarterData.rates[prevBusinessDay]?.rate?.JPY) {
+      const rate = quarterData.rates[prevBusinessDay].rate.JPY;
+      ratesCache[normalizedDate] = rate;
+      return rate;
     }
 
-    // それでも見つからない場合は直近の営業日のレートを探す
-    const dates = Object.keys(quarterData.rates)
-      .sort()
-      .reverse();
+    // 同じ四半期内で直近の営業日のレートを探す（過去）
+    const dates = Object.keys(quarterData.rates).sort();
+    const reversedDates = [...dates].reverse();
 
-    const prevDate = dates.find(date => date < normalizedDate);
+    const prevDate = reversedDates.find(date => date < normalizedDate);
     if (prevDate && quarterData.rates[prevDate]?.rate?.JPY) {
       const rate = quarterData.rates[prevDate].rate.JPY;
+      ratesCache[normalizedDate] = rate;
+      return rate;
+    }
+
+    // 同じ四半期内で直近の営業日のレートを探す（未来）
+    const nextDate = dates.find(date => date > normalizedDate);
+    if (nextDate && quarterData.rates[nextDate]?.rate?.JPY) {
+      const rate = quarterData.rates[nextDate].rate.JPY;
       ratesCache[normalizedDate] = rate;
       return rate;
     }
@@ -164,25 +163,31 @@ export async function getExchangeRate(dateStr: string): Promise<number> {
       const prevQuarter = quarter === 1 ? 4 : quarter - 1;
       const prevYear = quarter === 1 ? year - 1 : year;
 
-      // 前の四半期のデータを取得
-      const prevQuarterPath = `/data/historical/${prevYear}/Q${prevQuarter}.json`;
-      try {
-        const prevResponse = await fetch(prevQuarterPath);
-        if (prevResponse.ok) {
-          const prevQuarterData = await prevResponse.json() as QuarterData;
-          const prevDates = Object.keys(prevQuarterData.rates).sort().reverse();
+      // 前の四半期のデータを取得（current -> historical の順で試行）
+      const prevPaths = [
+        `/data/current/${prevYear}Q${prevQuarter}.json`,
+        `/data/historical/${prevYear}/Q${prevQuarter}.json`
+      ];
 
-          if (prevDates.length > 0) {
-            const lastDate = prevDates[0];
-            const rate = prevQuarterData.rates[lastDate]?.rate?.JPY;
-            if (rate) {
-              ratesCache[normalizedDate] = rate;
-              return rate;
+      for (const prevQuarterPath of prevPaths) {
+        try {
+          const prevResponse = await fetch(prevQuarterPath);
+          if (prevResponse.ok) {
+            const prevQuarterData = await prevResponse.json() as QuarterData;
+            const prevDates = Object.keys(prevQuarterData.rates).sort().reverse();
+
+            if (prevDates.length > 0) {
+              const lastDate = prevDates[0];
+              const rate = prevQuarterData.rates[lastDate]?.rate?.JPY;
+              if (rate) {
+                ratesCache[normalizedDate] = rate;
+                return rate;
+              }
             }
           }
+        } catch {
+          continue; // 次のパスを試行
         }
-      } catch {
-        // 前の四半期のデータ取得に失敗した場合は続行
       }
     }
 
