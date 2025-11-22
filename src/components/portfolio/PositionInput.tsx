@@ -21,7 +21,8 @@ export const PositionInput: React.FC<Props> = ({ onSubmit, onError, isCollapsed,
       onError('ポジションデータを入力してください');
       return;
     }
-    const cash = parseFloat(cashAmount.replace(/,/g, '')) || 0;
+    // $, カンマを除去して数値に変換
+    const cash = parseFloat(cashAmount.replace(/[$,]/g, '')) || 0;
     onSubmit(text, cash);
   };
 
