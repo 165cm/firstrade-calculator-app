@@ -1,0 +1,70 @@
+# .github/workflows/update-exchange-rates.yml
+# 為替レート自動更新ワークフロー
+
+name: Update Exchange Rates
+
+on:
+  # 毎週月曜日の午前0時（UTC）= 日本時間 午前9時
+  schedule:
+    - cron: '0 0 * * 1'
+
+  # 手動実行も可能
+  workflow_dispatch:
+    inputs:
+      year:
+        description: '取得する年（空欄で現在の年）'
+        required: false
+        type: string
+      quarter:
+        description: '取得する四半期（1-4、空欄で現在の四半期）'
+        required: false
+        type: string
+
+jobs:
+  update-rates:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Get current date info
+        id: date
+        run: |
+          echo "year=$(date +%Y)" >> $GITHUB_OUTPUT
+          echo "quarter=$(( ($(date +%-m) - 1) / 3 + 1 ))" >> $GITHUB_OUTPUT
+
+      - name: Fetch exchange rates
+        run: |
+          YEAR="${{ github.event.inputs.year || steps.date.outputs.year }}"
+          QUARTER="${{ github.event.inputs.quarter || steps.date.outputs.quarter }}"
+          echo "📊 Fetching rates for ${YEAR} Q${QUARTER}"
+          node scripts/fetchRatesSimple.js $YEAR $QUARTER
+
+      - name: Check for changes
+        id: changes
+        run: |
+          git diff --quiet public/data || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add public/data/
+          git commit -m "🔄 為替レート自動更新: $(date +%Y-%m-%d)"
+          git push
+
+      - name: No changes detected
+        if: steps.changes.outputs.changed != 'true'
+        run: echo "✅ No new exchange rate data to update"

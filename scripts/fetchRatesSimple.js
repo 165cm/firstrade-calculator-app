@@ -81,6 +81,20 @@ function saveQuarterData(year, quarter, data) {
 
   fs.writeFileSync(outputPath, JSON.stringify(quarterData, null, 2));
   console.log(`保存完了: ${outputPath} (${Object.keys(rates).length}件)`);
+
+  // last_update.json を更新
+  const currentDir = path.join(OUTPUT_DIR, 'current');
+  if (!fs.existsSync(currentDir)) {
+    fs.mkdirSync(currentDir, { recursive: true });
+  }
+  const lastUpdatePath = path.join(currentDir, 'last_update.json');
+  const lastUpdate = {
+    lastUpdate: new Date().toISOString(),
+    source: 'frankfurter',
+    quarter: `${year}Q${quarter}`
+  };
+  fs.writeFileSync(lastUpdatePath, JSON.stringify(lastUpdate, null, 2));
+  console.log(`更新日時を記録: ${lastUpdatePath}`);
 }
 
 // メイン処理
