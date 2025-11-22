@@ -97,6 +97,58 @@ async function getQuarterData(dateStr: string): Promise<QuarterData | null> {
 }
 
 /**
+ * 隣接する四半期からレートを取得
+ */
+async function getRateFromAdjacentQuarter(normalizedDate: string, searchPrev: boolean): Promise<number | null> {
+  const date = new Date(normalizedDate);
+  const year = date.getFullYear();
+  const quarter = Math.floor(date.getMonth() / 3) + 1;
+
+  // 探索する四半期を決定
+  let targetQuarter: number;
+  let targetYear: number;
+
+  if (searchPrev) {
+    // 前の四半期
+    targetQuarter = quarter === 1 ? 4 : quarter - 1;
+    targetYear = quarter === 1 ? year - 1 : year;
+  } else {
+    // 次の四半期
+    targetQuarter = quarter === 4 ? 1 : quarter + 1;
+    targetYear = quarter === 4 ? year + 1 : year;
+  }
+
+  // 前の四半期のデータを取得（current -> historical の順で試行）
+  const paths = [
+    `/data/current/${targetYear}Q${targetQuarter}.json`,
+    `/data/historical/${targetYear}/Q${targetQuarter}.json`
+  ];
+
+  for (const filePath of paths) {
+    try {
+      const response = await fetch(filePath);
+      if (response.ok) {
+        const quarterData = await response.json() as QuarterData;
+        const dates = Object.keys(quarterData.rates).sort();
+
+        if (dates.length > 0) {
+          // 前の四半期なら最後の日、次の四半期なら最初の日を使用
+          const targetDate = searchPrev ? dates[dates.length - 1] : dates[0];
+          const rate = quarterData.rates[targetDate]?.rate?.JPY;
+          if (rate) {
+            return rate;
+          }
+        }
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  return null;
+}
+
+/**
  * 指定された日付の為替レートを取得
  */
 export async function getExchangeRate(dateStr: string): Promise<number> {
@@ -115,6 +167,21 @@ export async function getExchangeRate(dateStr: string): Promise<number> {
   try {
     const quarterData = await getQuarterData(normalizedDate);
     if (!quarterData) {
+      // 四半期データがない場合、隣接する四半期を探す
+      // まず前の四半期を試す
+      const prevRate = await getRateFromAdjacentQuarter(normalizedDate, true);
+      if (prevRate) {
+        ratesCache[normalizedDate] = prevRate;
+        return prevRate;
+      }
+
+      // 次の四半期を試す
+      const nextRate = await getRateFromAdjacentQuarter(normalizedDate, false);
+      if (nextRate) {
+        ratesCache[normalizedDate] = nextRate;
+        return nextRate;
+      }
+
       defaultRateUsedDates.add(normalizedDate);
       console.warn(`⚠️ デフォルト為替レート(${DEFAULT_RATE})を使用: ${normalizedDate} (四半期データなし)`);
       return DEFAULT_RATE;
