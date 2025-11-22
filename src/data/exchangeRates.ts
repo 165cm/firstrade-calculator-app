@@ -9,6 +9,23 @@ export const DEFAULT_RATE = 150.0;
 // キャッシュ
 let ratesCache: { [key: string]: number } = {};
 
+// デフォルト値を使用した日付を追跡
+let defaultRateUsedDates: Set<string> = new Set();
+
+/**
+ * デフォルト値を使用した日付のリストを取得
+ */
+export function getDefaultRateUsedDates(): string[] {
+  return Array.from(defaultRateUsedDates).sort();
+}
+
+/**
+ * デフォルト値使用の追跡をクリア
+ */
+export function clearDefaultRateTracking(): void {
+  defaultRateUsedDates = new Set();
+}
+
 /**
  * 日付が休日（土日）かどうかを判定
  */
@@ -91,6 +108,8 @@ async function getQuarterData(dateStr: string): Promise<QuarterData | null> {
 export async function getExchangeRate(dateStr: string): Promise<number> {
   const normalizedDate = normalizeDate(dateStr);
   if (!normalizedDate) {
+    defaultRateUsedDates.add(dateStr);
+    console.warn(`⚠️ デフォルト為替レート(${DEFAULT_RATE})を使用: ${dateStr} (無効な日付形式)`);
     return DEFAULT_RATE;
   }
 
@@ -102,6 +121,8 @@ export async function getExchangeRate(dateStr: string): Promise<number> {
   try {
     const quarterData = await getQuarterData(normalizedDate);
     if (!quarterData) {
+      defaultRateUsedDates.add(normalizedDate);
+      console.warn(`⚠️ デフォルト為替レート(${DEFAULT_RATE})を使用: ${normalizedDate} (四半期データなし)`);
       return DEFAULT_RATE;
     }
 
@@ -134,9 +155,13 @@ export async function getExchangeRate(dateStr: string): Promise<number> {
       return rate;
     }
 
+    defaultRateUsedDates.add(normalizedDate);
+    console.warn(`⚠️ デフォルト為替レート(${DEFAULT_RATE})を使用: ${normalizedDate} (レートデータなし)`);
     return DEFAULT_RATE;
   } catch (error) {
     console.error('Error fetching exchange rate:', error);
+    defaultRateUsedDates.add(normalizedDate);
+    console.warn(`⚠️ デフォルト為替レート(${DEFAULT_RATE})を使用: ${normalizedDate} (エラー発生)`);
     return DEFAULT_RATE;
   }
 }
