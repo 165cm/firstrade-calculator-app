@@ -1,5 +1,5 @@
-// scripts/fetchRatesSimple.js
-// Windows対応：為替レート取得スクリプト
+// scripts/fetchRates.js
+// 為替レート取得スクリプト
 
 const fs = require('fs');
 const path = require('path');
@@ -35,35 +35,25 @@ async function fetchRates(startDate, endDate) {
   return response.json();
 }
 
+// 既存データを読み込み
+function loadExistingData(outputPath) {
+  if (fs.existsSync(outputPath)) {
+    const content = fs.readFileSync(outputPath, 'utf-8');
+    return JSON.parse(content);
+  }
+  return null;
+}
+
 // データを保存
-function saveQuarterData(year, quarter, data) {
+function saveQuarterData(year, quarter, data, forceOverwrite = false) {
   const dates = getQuarterDates(year, quarter);
 
-  // レートデータを変換
-  const rates = {};
-  for (const [date, rateData] of Object.entries(data.rates)) {
-    rates[date] = {
-      date,
-      rate: rateData,
-      source: 'frankfurter',
-      timestamp: Date.now()
-    };
-  }
-
-  const quarterData = {
-    startDate: dates.start,
-    endDate: dates.end,
-    rates,
-    hash: `${year}Q${quarter}-${Date.now()}`
-  };
-
-  // 現在の四半期かどうか判定
+  // 保存先を決定
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentQuarter = Math.floor(now.getMonth() / 3) + 1;
   const isCurrent = year === currentYear && quarter === currentQuarter;
 
-  // 保存先を決定
   let outputPath;
   if (isCurrent) {
     const currentDir = path.join(OUTPUT_DIR, 'current');
@@ -79,8 +69,44 @@ function saveQuarterData(year, quarter, data) {
     outputPath = path.join(historicalDir, `Q${quarter}.json`);
   }
 
+  // 既存データを読み込み
+  const existingData = loadExistingData(outputPath);
+
+  // 新しいレートデータを変換
+  const newRates = {};
+  for (const [date, rateData] of Object.entries(data.rates)) {
+    newRates[date] = {
+      date,
+      rate: rateData,
+      source: 'frankfurter',
+      timestamp: Date.now()
+    };
+  }
+
+  // マージまたは上書き
+  let finalRates;
+  if (forceOverwrite || !existingData) {
+    // 上書きモード or 既存データなし
+    finalRates = newRates;
+    console.log(`モード: ${forceOverwrite ? '上書き' : '新規作成'}`);
+  } else {
+    // 追記モード: 既存データに新しいデータをマージ（新しいデータ優先）
+    finalRates = { ...existingData.rates, ...newRates };
+    const existingCount = Object.keys(existingData.rates).length;
+    const newCount = Object.keys(newRates).length;
+    const finalCount = Object.keys(finalRates).length;
+    console.log(`モード: 追記（既存${existingCount}件 + 新規${newCount}件 = ${finalCount}件）`);
+  }
+
+  const quarterData = {
+    startDate: dates.start,
+    endDate: dates.end,
+    rates: finalRates,
+    hash: `${year}Q${quarter}-${Date.now()}`
+  };
+
   fs.writeFileSync(outputPath, JSON.stringify(quarterData, null, 2));
-  console.log(`保存完了: ${outputPath} (${Object.keys(rates).length}件)`);
+  console.log(`保存完了: ${outputPath} (${Object.keys(finalRates).length}件)`);
 
   // last_update.json を更新
   const currentDir = path.join(OUTPUT_DIR, 'current');
@@ -105,13 +131,21 @@ async function main() {
   const now = new Date();
   let year = now.getFullYear();
   let quarter = Math.floor(now.getMonth() / 3) + 1;
+  let forceOverwrite = false;
 
-  if (args.length >= 2) {
-    year = parseInt(args[0]);
-    quarter = parseInt(args[1]);
+  // 引数の解析
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--force' || args[i] === '-f') {
+      forceOverwrite = true;
+    } else if (i === 0 && !args[i].startsWith('-')) {
+      year = parseInt(args[i]);
+    } else if (i === 1 && !args[i].startsWith('-')) {
+      quarter = parseInt(args[i]);
+    }
   }
 
-  console.log(`\n📊 為替レート取得: ${year}年Q${quarter}\n`);
+  console.log(`\n📊 為替レート取得: ${year}年Q${quarter}`);
+  console.log(`   上書きモード: ${forceOverwrite ? 'ON' : 'OFF'}\n`);
 
   try {
     const dates = getQuarterDates(year, quarter);
@@ -121,7 +155,7 @@ async function main() {
     const endDate = dates.end > today ? today : dates.end;
 
     const data = await fetchRates(dates.start, endDate);
-    saveQuarterData(year, quarter, data);
+    saveQuarterData(year, quarter, data, forceOverwrite);
 
     console.log('\n✅ 完了！\n');
   } catch (error) {
