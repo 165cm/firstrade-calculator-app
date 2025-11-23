@@ -11,7 +11,7 @@ export default function InfoSection() {
           </div>
           <div className="bg-green-50 p-3 rounded-lg">
             <h3 className="font-bold mb-1">💰 基本機能無料</h3>
-            <p className="text-sm">配当金・売買損益の計算が無料。CSVエクスポートは$25の買い切りライセンスで利用可能。</p>
+            <p className="text-sm">配当金・売買損益の計算が無料。CSVエクスポートは$25の年間ライセンスで利用可能。</p>
           </div>
           <div className="bg-yellow-50 p-3 rounded-lg">
             <h3 className="font-bold mb-1">👥 情報共有</h3>

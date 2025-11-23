@@ -16,7 +16,11 @@ export async function POST(request: NextRequest) {
 
     const result = await verifyGumroadLicense(licenseKey);
 
-    return NextResponse.json(result);
+    return NextResponse.json({
+      ...result,
+      expiryDate: result.expiryDate,
+      isExpired: result.isExpired,
+    });
   } catch (error) {
     console.error('License verification error:', error);
     return NextResponse.json(

@@ -3,10 +3,12 @@ import { useState, useEffect, useCallback } from 'react';
 
 const LICENSE_KEY_STORAGE = 'gumroad_license_key';
 const LICENSE_VERIFIED_STORAGE = 'gumroad_license_verified';
+const LICENSE_EXPIRY_STORAGE = 'gumroad_license_expiry';
 
 interface UseLicenseReturn {
   isVerified: boolean;
   licenseKey: string | null;
+  expiryDate: string | null;
   isLoading: boolean;
   error: string | null;
   verifyLicense: (key: string) => Promise<boolean>;
@@ -16,6 +18,7 @@ interface UseLicenseReturn {
 export function useLicense(): UseLicenseReturn {
   const [isVerified, setIsVerified] = useState(false);
   const [licenseKey, setLicenseKey] = useState<string | null>(null);
+  const [expiryDate, setExpiryDate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,10 +26,12 @@ export function useLicense(): UseLicenseReturn {
   useEffect(() => {
     const storedKey = localStorage.getItem(LICENSE_KEY_STORAGE);
     const storedVerified = localStorage.getItem(LICENSE_VERIFIED_STORAGE);
+    const storedExpiry = localStorage.getItem(LICENSE_EXPIRY_STORAGE);
 
     if (storedKey && storedVerified === 'true') {
       setLicenseKey(storedKey);
       setIsVerified(true);
+      setExpiryDate(storedExpiry);
     }
     setIsLoading(false);
   }, []);
@@ -51,6 +56,10 @@ export function useLicense(): UseLicenseReturn {
         // ローカルストレージに保存
         localStorage.setItem(LICENSE_KEY_STORAGE, key);
         localStorage.setItem(LICENSE_VERIFIED_STORAGE, 'true');
+        if (data.expiryDate) {
+          localStorage.setItem(LICENSE_EXPIRY_STORAGE, data.expiryDate);
+          setExpiryDate(data.expiryDate);
+        }
         setLicenseKey(key);
         setIsVerified(true);
         return true;
@@ -71,14 +80,17 @@ export function useLicense(): UseLicenseReturn {
   const clearLicense = useCallback(() => {
     localStorage.removeItem(LICENSE_KEY_STORAGE);
     localStorage.removeItem(LICENSE_VERIFIED_STORAGE);
+    localStorage.removeItem(LICENSE_EXPIRY_STORAGE);
     setLicenseKey(null);
     setIsVerified(false);
+    setExpiryDate(null);
     setError(null);
   }, []);
 
   return {
     isVerified,
     licenseKey,
+    expiryDate,
     isLoading,
     error,
     verifyLicense,
