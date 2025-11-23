@@ -7,10 +7,10 @@ import CacheDebugger from '@/components/CacheDebugger';
 
 export const metadata: Metadata = {
   title: 'Firstrade証券取引分析ツール(β) v1.5.0',
-  description: 'Firstrade証券の配当金・損益を簡単に計算できる無料ツール',
+  description: 'Firstrade証券の配当金・損益を簡単に計算。基本機能無料、CSVエクスポートは買い切りライセンス',
   openGraph: {
     title: 'Firstrade証券取引分析ツール(β) v1.5.0',
-    description: 'Firstrade証券の配当金・損益を簡単に計算できる無料ツール',
+    description: 'Firstrade証券の配当金・損益を簡単に計算。基本機能無料、CSVエクスポートは買い切りライセンス',
     url: 'https://firstrade.nomadkazoku.com',
     type: 'website',
   }
