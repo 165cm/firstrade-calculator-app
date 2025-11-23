@@ -28,6 +28,27 @@ export interface VerifyLicenseResult {
   success: boolean;
   email?: string;
   message?: string;
+  expiryDate?: string;
+  isExpired?: boolean;
+}
+
+/**
+ * ライセンスの有効期限を取得
+ * 環境変数 GUMROAD_LICENSE_EXPIRY で設定（例: 2026-12-31）
+ */
+function getLicenseExpiryDate(): string | null {
+  return process.env.GUMROAD_LICENSE_EXPIRY || null;
+}
+
+/**
+ * ライセンスが期限切れかどうかをチェック
+ */
+function isLicenseExpired(expiryDate: string | null): boolean {
+  if (!expiryDate) return false; // 期限設定がなければ永久ライセンス
+
+  const now = new Date();
+  const expiry = new Date(expiryDate);
+  return now > expiry;
 }
 
 /**
@@ -70,9 +91,24 @@ export async function verifyGumroadLicense(
         };
       }
 
+      // 有効期限チェック
+      const expiryDate = getLicenseExpiryDate();
+      const expired = isLicenseExpired(expiryDate);
+
+      if (expired) {
+        return {
+          success: false,
+          message: `ライセンスの有効期限が切れています（${expiryDate}まで有効）`,
+          expiryDate: expiryDate || undefined,
+          isExpired: true,
+        };
+      }
+
       return {
         success: true,
         email: data.purchase.email,
+        expiryDate: expiryDate || undefined,
+        isExpired: false,
       };
     } else {
       return {

@@ -18,7 +18,7 @@ const ANNOUNCEMENT_MODE = process.env.NEXT_PUBLIC_ANNOUNCEMENT_MODE === 'true';
 
 export function ExportButton({ onClick }: Props) {
   const { user } = useAuth();
-  const { isVerified, verifyLicense, isLoading: isLicenseLoading } = useLicense();
+  const { isVerified, verifyLicense, expiryDate, isLoading: isLicenseLoading } = useLicense();
   const [isOpen, setIsOpen] = useState(false);
   const [licenseKey, setLicenseKey] = useState('');
   const [error, setError] = useState('');
@@ -27,9 +27,16 @@ export function ExportButton({ onClick }: Props) {
   // Supabaseログインユーザー または ライセンス認証済みユーザーは直接エクスポート可能
   if ((isSupabaseConfigured() && user) || isVerified) {
     return (
-      <Button onClick={onClick} className="bg-indigo-600 hover:bg-indigo-700">
-        CSVエクスポート
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button onClick={onClick} className="bg-indigo-600 hover:bg-indigo-700">
+          CSVエクスポート
+        </Button>
+        {expiryDate && (
+          <span className="text-xs text-gray-500">
+            〜{expiryDate}
+          </span>
+        )}
+      </div>
     );
   }
 
@@ -137,7 +144,7 @@ export function ExportButton({ onClick }: Props) {
                 <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                永久ライセンス（買い切り）
+                年間ライセンス（2025年版は2026年12月まで有効）
               </li>
             </ul>
           </div>
@@ -173,7 +180,7 @@ export function ExportButton({ onClick }: Props) {
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                 </svg>
-                ライセンスを購入する（$25）
+                2025年版ライセンスを購入（$25）
               </a>
               <p className="text-xs text-gray-400 mt-2">
                 Gumroadで安全に決済できます
