@@ -17,6 +17,8 @@ import { ExportButton } from '@/components/common/ExportButton';
 import { HelpTooltip } from '@/components/common/Tooltip';
 import { exportDividendToCsv, downloadCsv } from '@/utils/export/csvExport';
 import { calculateTotalWithholding, extractWithholdingAmount } from '../withholding';
+import { DividendYieldCalculator } from '@/components/dividend/DividendYieldCalculator';
+import { aggregateDividendsBySymbol } from '@/utils/dividend/calculateYield';
 
 interface Props {
   data: ProcessedDividendData;
@@ -158,18 +160,23 @@ export function DividendSummary({ data }: Props) {
   // handleExport関数をコンポーネントのトップレベルに移動
   const handleExport = () => {
     const timestamp = new Date().toISOString().split('T')[0];
-    
+
     // エクスポート用にデータを加工
     const exportData = [
       ...data.dividends,
       ...data.interest,
       ...data.other
     ];
-  
+
     const csvContent = exportDividendToCsv(exportData);
     downloadCsv(csvContent, `配当金明細_${timestamp}.csv`);
   };
-  
+
+  // 銘柄別配当金を集計
+  const stockDividends = useMemo(() => {
+    return aggregateDividendsBySymbol(data.dividends);
+  }, [data.dividends]);
+
   // 年間・月間の集計
   const summary = useMemo(() => {
     const calculateTotal = (records: ConvertedDividendRecord[]) => records.reduce((sum, record) => {
@@ -346,7 +353,12 @@ export function DividendSummary({ data }: Props) {
           color="text-red-600"
         />
       </div>
-    
+
+      {/* 配当利回り計算セクション */}
+      {stockDividends.length > 0 && (
+        <DividendYieldCalculator stockDividends={stockDividends} />
+      )}
+
       {/* 月次推移グラフ */}
       <div className="bg-white rounded-lg shadow p-6 w-full">
         <div className="flex justify-between items-center mb-6">
