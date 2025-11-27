@@ -326,7 +326,39 @@ export function DividendSummary({ data }: Props) {
         <h3 className="text-xl font-semibold">配当金明細</h3>
         <ExportButton onClick={handleExport} />
       </div>
-      {/* サマリーカード */}
+
+      {/* 確定申告用の重要情報を強調 */}
+      <div className="bg-gradient-to-r from-red-50 to-orange-50 border-2 border-red-300 rounded-lg p-6">
+        <div className="flex items-center mb-4">
+          <span className="text-2xl mr-3">📋</span>
+          <h3 className="text-xl font-bold text-red-900">確定申告に必要な税金情報</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="bg-white rounded-lg p-4 shadow">
+            <p className="text-sm text-gray-600 mb-2">配当所得（合計）</p>
+            <p className="text-3xl font-bold text-indigo-900">
+              ${Math.floor(summary.total.usd).toLocaleString()}
+            </p>
+            <p className="text-xl text-gray-700 mt-1">
+              ¥{Math.floor(summary.total.jpy).toLocaleString()}
+            </p>
+          </div>
+          <div className="bg-white rounded-lg p-4 shadow">
+            <p className="text-sm text-gray-600 mb-2">
+              源泉徴収額（外国税額控除用）
+              <HelpTooltip text="米国で源泉徴収された税金。外国税額控除の申請に使用します。CSVのDescriptionに記載がある分のみ集計されます。" />
+            </p>
+            <p className="text-3xl font-bold text-red-600">
+              ${Math.floor(Math.abs(summary.withholding.usd)).toLocaleString()}
+            </p>
+            <p className="text-xl text-gray-700 mt-1">
+              ¥{Math.floor(Math.abs(summary.withholding.jpy)).toLocaleString()}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* サマリーカード（詳細表示） */}
       <div className="flex flex-row gap-4 w-full">
         <SummaryCard
           title="年間配当金"
@@ -339,18 +371,6 @@ export function DividendSummary({ data }: Props) {
           amountUSD={summary.interest.usd}
           amountJPY={summary.interest.jpy}
           color="text-indigo-600"
-        />
-        <SummaryCard
-          title="総合計"
-          amountUSD={summary.total.usd}
-          amountJPY={summary.total.jpy}
-          color="text-indigo-600"
-        />
-        <SummaryCard
-          title="源泉徴収額(抜粋)"
-          amountUSD={summary.withholding.usd}
-          amountJPY={summary.withholding.jpy}
-          color="text-red-600"
         />
       </div>
 

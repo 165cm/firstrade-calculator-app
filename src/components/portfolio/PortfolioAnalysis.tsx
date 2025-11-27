@@ -11,6 +11,7 @@ import {
   calculateRiskIndicators,
   calculateSectorBreakdown
 } from '@/utils/portfolio/processPortfolio';
+import { savePortfolioHoldings } from '@/utils/storage/portfolioStorage';
 import { PositionInput } from './PositionInput';
 import { TargetAllocationSettings } from './TargetAllocationSettings';
 import { PortfolioSummaryComponent } from './PortfolioSummary';
@@ -64,6 +65,9 @@ export const PortfolioAnalysis: React.FC = () => {
         riskIndicators,
         sectorBreakdown
       });
+
+      // ポートフォリオデータをLocalStorageに保存（配当ページで利用）
+      savePortfolioHoldings(allHoldings.filter(h => h.symbol !== 'CASH'));
 
       // 分析後は入力を折りたたむ
       setInputCollapsed(true);

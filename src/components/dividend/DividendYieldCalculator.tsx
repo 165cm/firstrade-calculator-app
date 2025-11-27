@@ -10,7 +10,18 @@ import {
   removeStockPrice,
   getStoredStockPrices
 } from '@/utils/dividend/calculateYield';
+import {
+  getStockPrices,
+  hasPortfolioData,
+  getLastUpdatedTime
+} from '@/utils/storage/portfolioStorage';
 import { HelpTooltip } from '@/components/common/Tooltip';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from '@/components/ui/accordion';
 
 interface Props {
   stockDividends: StockDividendInfo[];
@@ -20,12 +31,26 @@ export function DividendYieldCalculator({ stockDividends }: Props) {
   const [stockPrices, setStockPrices] = useState<Record<string, number>>({});
   const [editingSymbol, setEditingSymbol] = useState<string | null>(null);
   const [tempPrice, setTempPrice] = useState<string>('');
+  const [hasPortfolio, setHasPortfolio] = useState(false);
+  const [portfolioLastUpdated, setPortfolioLastUpdated] = useState<string | null>(null);
 
-  // LocalStorageから株価を読み込む
+  // LocalStorageから株価を読み込む（個別入力 + ポートフォリオデータ）
   useEffect(() => {
-    const stored = getStoredStockPrices();
-    setStockPrices(stored);
-  }, []);
+    // 個別入力された株価
+    const manualPrices = getStoredStockPrices();
+
+    // ポートフォリオデータから株価を取得
+    const symbols = stockDividends.map(s => s.symbol);
+    const portfolioPrices = getStockPrices(symbols);
+
+    // ポートフォリオデータを優先的に使用（新しいデータ）
+    const mergedPrices = { ...manualPrices, ...portfolioPrices };
+    setStockPrices(mergedPrices);
+
+    // ポートフォリオデータの有無を確認
+    setHasPortfolio(hasPortfolioData());
+    setPortfolioLastUpdated(getLastUpdatedTime());
+  }, [stockDividends]);
 
   // 株価と配当利回りを計算したデータ
   const enrichedData = useMemo(() => {
@@ -86,16 +111,48 @@ export function DividendYieldCalculator({ stockDividends }: Props) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow p-6 w-full">
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">
-          配当利回り計算
-          <HelpTooltip text="銘柄別の年間配当金を表示します。株価を入力すると配当利回りが自動計算されます。株価は自動で保存されます。" />
-        </h3>
-        <p className="text-sm text-gray-600">
-          株価を入力して配当利回りを確認できます
-        </p>
-      </div>
+    <Accordion type="single" collapsible className="bg-white rounded-lg shadow">
+      <AccordionItem value="dividend-yield" className="border-none">
+        <AccordionTrigger className="px-6 py-4 hover:no-underline">
+          <div className="flex items-center justify-between w-full pr-4">
+            <div className="flex items-center space-x-3">
+              <h3 className="text-lg font-semibold text-gray-900">
+                配当利回り計算（オプション）
+              </h3>
+              <HelpTooltip text="銘柄別の年間配当金を表示します。ポートフォリオ分析ツールで入力したデータがあれば自動で株価が反映されます。" />
+            </div>
+            <span className="text-sm text-gray-500">
+              {hasPortfolio ? '📊 ポートフォリオ連携済み' : '💡 クリックして展開'}
+            </span>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="px-6 pb-6">
+          {/* ポートフォリオ連携メッセージ */}
+          {hasPortfolio && portfolioLastUpdated && (
+            <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="text-sm text-blue-900">
+                <strong>📊 ポートフォリオ分析ツールと連携中</strong>
+                <br />
+                ポートフォリオページで入力したデータから株価を自動取得しました。
+                <span className="text-xs text-blue-700 ml-2">
+                  （最終更新: {new Date(portfolioLastUpdated).toLocaleString('ja-JP')}）
+                </span>
+              </p>
+            </div>
+          )}
+
+          {!hasPortfolio && (
+            <div className="mb-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+              <p className="text-sm text-yellow-900">
+                <strong>💡 ヒント</strong>
+                <br />
+                <a href="/portfolio" className="text-blue-600 hover:underline">
+                  ポートフォリオ分析ツール
+                </a>
+                で保有銘柄を登録すると、株価が自動的に反映されます。
+              </p>
+            </div>
+          )}
 
       <div className="overflow-x-auto">
         <table className="min-w-full">
@@ -269,12 +326,14 @@ export function DividendYieldCalculator({ stockDividends }: Props) {
       </div>
 
       {/* 注意事項 */}
-      <div className="mt-4 bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm text-blue-900">
+      <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg p-4">
+        <p className="text-sm text-gray-700">
           <strong>💡 使い方：</strong> 「株価」列をクリックして現在の株価を入力してください。
           配当利回りが自動で計算され、ブラウザに保存されます。Enterキーで保存、Escキーでキャンセルできます。
         </p>
       </div>
-    </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 }
