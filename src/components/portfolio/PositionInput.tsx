@@ -1,7 +1,7 @@
 // src/components/portfolio/PositionInput.tsx
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
@@ -12,9 +12,37 @@ interface Props {
   onToggle?: () => void;
 }
 
+const STORAGE_KEY = 'portfolio-beta-input';
+
 export const PositionInput: React.FC<Props> = ({ onSubmit, onError, isCollapsed, onToggle }) => {
   const [text, setText] = useState('');
   const [cashAmount, setCashAmount] = useState<string>('');
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // localStorageから復元
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved);
+        if (data.text) setText(data.text);
+        if (data.cashAmount) setCashAmount(data.cashAmount);
+      }
+    } catch (e) {
+      console.warn('Failed to restore from localStorage:', e);
+    }
+    setIsInitialized(true);
+  }, []);
+
+  // localStorageに保存
+  useEffect(() => {
+    if (!isInitialized) return;
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({ text, cashAmount }));
+    } catch (e) {
+      console.warn('Failed to save to localStorage:', e);
+    }
+  }, [text, cashAmount, isInitialized]);
 
   const handleSubmit = () => {
     if (!text.trim()) {
@@ -30,6 +58,16 @@ export const PositionInput: React.FC<Props> = ({ onSubmit, onError, isCollapsed,
     const pastedText = e.clipboardData.getData('text');
     if (pastedText) {
       setText(pastedText);
+    }
+  };
+
+  const handleClear = () => {
+    setText('');
+    setCashAmount('');
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn('Failed to clear localStorage:', e);
     }
   };
 
@@ -106,16 +144,17 @@ export const PositionInput: React.FC<Props> = ({ onSubmit, onError, isCollapsed,
             分析する
           </button>
           <button
-            onClick={() => { setText(''); setCashAmount(''); }}
+            onClick={handleClear}
             className="px-3 py-1.5 text-xs border border-gray-300 rounded hover:bg-gray-50 transition-colors"
           >
-            クリア
+            🗑️ クリア
           </button>
         </div>
 
         <Alert>
           <AlertDescription className="text-xs text-gray-500">
             Positions &gt; Stocks のテーブルをコピペ。現金は Balances で確認できます。
+            <span className="block mt-1 text-gray-400">💾 入力データは自動保存されます</span>
           </AlertDescription>
         </Alert>
       </CardContent>

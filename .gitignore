@@ -60,3 +60,8 @@ next-env.d.ts
 *.log
 *.local
 .env
+
+# Product Description
+product_message.md
+
+

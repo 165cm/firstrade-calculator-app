@@ -40,11 +40,11 @@ function isHoliday(dateStr: string): boolean {
 function getPreviousBusinessDay(dateStr: string): string {
   const date = new Date(dateStr);
   let prevDate = new Date(date.getTime() - 24 * 60 * 60 * 1000);
-  
+
   while (isHoliday(format(prevDate, 'yyyy-MM-dd'))) {
     prevDate = new Date(prevDate.getTime() - 24 * 60 * 60 * 1000);
   }
-  
+
   return format(prevDate, 'yyyy-MM-dd');
 }
 
@@ -92,7 +92,8 @@ async function getQuarterData(dateStr: string): Promise<QuarterData | null> {
     }
   }
 
-  console.error(`Failed to load quarter data for ${year}Q${quarter}`);
+  // デバッグ用（通常運用では表示しない）
+  // console.debug(`Quarter data not found for ${year}Q${quarter}, will try adjacent quarters`);
   return null;
 }
 
@@ -167,19 +168,47 @@ export async function getExchangeRate(dateStr: string): Promise<number> {
   try {
     const quarterData = await getQuarterData(normalizedDate);
     if (!quarterData) {
-      // 四半期データがない場合、隣接する四半期を探す
-      // まず前の四半期を試す
-      const prevRate = await getRateFromAdjacentQuarter(normalizedDate, true);
-      if (prevRate) {
-        ratesCache[normalizedDate] = prevRate;
-        return prevRate;
-      }
+      // 四半期データがない場合、複数の隣接する四半期を探す
+      // まず前の四半期を試す（最大4四半期分）
+      for (let i = 1; i <= 4; i++) {
+        const date = new Date(normalizedDate);
+        const year = date.getFullYear();
+        const quarter = Math.floor(date.getMonth() / 3) + 1;
 
-      // 次の四半期を試す
-      const nextRate = await getRateFromAdjacentQuarter(normalizedDate, false);
-      if (nextRate) {
-        ratesCache[normalizedDate] = nextRate;
-        return nextRate;
+        let targetQuarter = quarter - i;
+        let targetYear = year;
+
+        while (targetQuarter <= 0) {
+          targetQuarter += 4;
+          targetYear -= 1;
+        }
+
+        const paths = [
+          `/data/current/${targetYear}Q${targetQuarter}.json`,
+          `/data/historical/${targetYear}/Q${targetQuarter}.json`
+        ];
+
+        for (const filePath of paths) {
+          try {
+            const response = await fetch(filePath);
+            if (response.ok) {
+              const prevQuarterData = await response.json() as QuarterData;
+              const prevDates = Object.keys(prevQuarterData.rates).sort().reverse();
+
+              if (prevDates.length > 0) {
+                const lastDate = prevDates[0];
+                const rate = prevQuarterData.rates[lastDate]?.rate?.JPY;
+                if (rate) {
+                  console.log(`直近の為替レート(${targetYear}Q${targetQuarter} ${lastDate}: ${rate}円)を使用: ${normalizedDate}`);
+                  ratesCache[normalizedDate] = rate;
+                  return rate;
+                }
+              }
+            }
+          } catch {
+            continue;
+          }
+        }
       }
 
       defaultRateUsedDates.add(normalizedDate);
@@ -283,11 +312,11 @@ export async function validateExchangeRates(startDate: string, endDate: string):
   while (current <= end) {
     const dateStr = format(current, 'yyyy-MM-dd');
     const rate = await getExchangeRate(dateStr);
-    
+
     if (rate <= 0 || rate > 1000) {
       console.error(`Invalid rate for ${dateStr}: ${rate}`);
     }
-    
+
     current.setDate(current.getDate() + 1);
   }
 }

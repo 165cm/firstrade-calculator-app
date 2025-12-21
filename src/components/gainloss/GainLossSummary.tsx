@@ -1,9 +1,7 @@
 // src/components/gainloss/GainLossSummary.tsx
 import React from 'react';
 import type { GainLossSummary, SymbolSummary, TradeDetail } from '@/types/gainloss';
-import { ExportButton } from '@/components/common/ExportButton';
 import { HelpTooltip } from '@/components/common/Tooltip';
-import { exportGainLossToCsv, downloadCsv } from '@/utils/export/csvExport';
 
 interface Props {
   summary: GainLossSummary;
@@ -11,31 +9,7 @@ interface Props {
 
 const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
 
-  const handleExport = React.useCallback(() => {
-    try {
-      const timestamp = new Date().toISOString().split('T')[0];
-      // trades配列を正しく展開してsymbolを追加
-      const allTrades = summary.symbolSummary.flatMap(symbolData => 
-        symbolData.trades.map(trade => ({
-          ...trade,
-          symbol: symbolData.symbol  // 親オブジェクトからsymbolを取得
-        }))
-      ).sort((a, b) => 
-        new Date(a.saleDate).getTime() - new Date(b.saleDate).getTime()
-      );
 
-      console.log('Export data check:', {
-        tradeCount: allTrades.length,
-        firstTrade: allTrades[0]
-      });
-
-      const csvContent = exportGainLossToCsv(allTrades);
-      downloadCsv(csvContent, `損益計算書_${timestamp}.csv`);
-    } catch (error) {
-      console.error('Export error:', error);
-      // ここでエラーハンドリングを追加することもできます
-    }
-  }, [summary]);
 
 
   // 平均為替レートの計算
@@ -68,52 +42,51 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
   // すべての取引から平均レートを計算
   const allTrades = summary.symbolSummary.flatMap(s => s.trades);
   const averageRates = calculateWeightedAverageRate(allTrades);
-  
+
   // 総合損益率の計算（年間サマリー用）
-  const totalSalesUSD = summary.symbolSummary.reduce((sum, symbol) => 
+  const totalSalesUSD = summary.symbolSummary.reduce((sum, symbol) =>
     sum + symbol.trades.reduce((acc, trade) => acc + trade.proceeds, 0), 0);
   const gainLossRateUSD = (summary.totalGainLossUSD / totalSalesUSD) * 100;
 
-  const totalSalesJPY = summary.symbolSummary.reduce((sum, symbol) => 
+  const totalSalesJPY = summary.symbolSummary.reduce((sum, symbol) =>
     sum + symbol.trades.reduce((acc, trade) => acc + trade.proceedsJPY, 0), 0);
   const gainLossRateJPY = (summary.totalGainLossJPY / totalSalesJPY) * 100;
 
   return (
 
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold">年間損益サマリー</h2>
-        <ExportButton onClick={handleExport} />
+        <h2 className="text-lg font-bold">年間損益サマリー</h2>
       </div>
       {/* 損益サマリー（変更なし） */}
-      <div className="bg-white rounded-lg shadow p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4">
         <div className="grid grid-cols-3 gap-4">
-          <div className="p-4 bg-gray-50 rounded">
-            <p className="text-sm text-gray-600">米ドル建て損益</p>
-            <p className="text-2xl font-bold">
+          <div className="p-3 bg-gray-50 rounded">
+            <p className="text-xs text-gray-600">米ドル建て損益</p>
+            <p className="text-xl font-bold">
               ${summary.totalGainLossUSD.toFixed(2)}
-              <span className="text-sm ml-2">
+              <span className="text-xs ml-2 font-normal">
                 ({Math.round(gainLossRateUSD)}%)
               </span>
             </p>
           </div>
-          <div className="p-4 bg-gray-50 rounded">
-            <div className="space-y-2">
+          <div className="p-3 bg-gray-50 rounded">
+            <div className="space-y-1">
               <div>
-                <p className="text-sm text-gray-600">平均購入時レート:</p>
-                <p className="text-2xl font-bold">¥{averageRates.purchaseRate.toFixed(2)}</p>
+                <p className="text-xs text-gray-600">平均購入時レート:</p>
+                <p className="text-xl font-bold">¥{averageRates.purchaseRate.toFixed(2)}</p>
               </div>
               <div>
-                <p className="text-sm text-gray-600">平均売却時レート:</p>
-                <p className="text-2xl font-bold">¥{averageRates.saleRate.toFixed(2)}</p>
+                <p className="text-xs text-gray-600">平均売却時レート:</p>
+                <p className="text-xl font-bold">¥{averageRates.saleRate.toFixed(2)}</p>
               </div>
             </div>
           </div>
-          <div className="p-4 bg-gray-50 rounded">
-            <p className="text-sm text-gray-600">日本円換算損益</p>
-            <p className="text-2xl font-bold">
+          <div className="p-3 bg-gray-50 rounded">
+            <p className="text-xs text-gray-600">日本円換算損益</p>
+            <p className="text-xl font-bold">
               ¥{Math.round(summary.totalGainLossJPY).toLocaleString()}
-              <span className="text-sm ml-2">
+              <span className="text-xs ml-2 font-normal">
                 ({Math.round(gainLossRateJPY)}%)
               </span>
             </p>
@@ -122,11 +95,11 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
       </div>
 
       {/* 銘柄別実績（詳細付き） */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-bold mb-4">銘柄別実績</h2>
-        <div className="space-y-4">
+      <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4">
+        <h2 className="text-lg font-bold mb-4">銘柄別実績</h2>
+        <div className="space-y-3">
           {summary.symbolSummary.map((symbolData) => (
-            <SymbolDetailsSection 
+            <SymbolDetailsSection
               key={symbolData.symbol}
               symbolData={symbolData}
             />
@@ -141,39 +114,39 @@ const SymbolDetailsSection: React.FC<{
   symbolData: SymbolSummary;
 }> = ({ symbolData }) => {
   const [isExpanded, setIsExpanded] = React.useState(false);
-  
+
   // 銘柄全体の合計を計算
-  const totalProceedsJPY = symbolData.trades.reduce((sum, trade) => 
+  const totalProceedsJPY = symbolData.trades.reduce((sum, trade) =>
     sum + (trade.proceeds * trade.saleRate), 0);  // exchangeRateをsaleRateに変更
-  const totalCostJPY = symbolData.trades.reduce((sum, trade) => 
+  const totalCostJPY = symbolData.trades.reduce((sum, trade) =>
     sum + (trade.cost * trade.purchaseRate), 0);  // exchangeRateをpurchaseRateに変更
-  
+
   const totalGainLossJPY = totalProceedsJPY - totalCostJPY;
   const totalGainLossRateJPY = ((totalProceedsJPY / totalCostJPY) - 1) * 100;
 
   return (
-    <div className="mb-4 border rounded-lg overflow-hidden">
+    <div className="mb-3 border rounded-lg overflow-hidden">
       {/* 銘柄サマリー行 */}
-      <div 
-        className="p-4 bg-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-100"
+      <div
+        className="p-3 bg-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-100"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center space-x-4">
           <span className="font-bold">{symbolData.symbol}</span>
-          <span className="text-sm text-gray-600">取引回数: {symbolData.trades.length}</span>
+          <span className="text-xs text-gray-600">取引回数: {symbolData.trades.length}</span>
         </div>
         <div className="flex items-center space-x-6">
           <div className="text-right">
-            <div className="text-sm text-gray-600">米ドル建て</div>
-            <div className={symbolData.gainLossUSD >= 0 ? "text-green-600" : "text-red-600"}>
+            <div className="text-xs text-gray-600">米ドル建て</div>
+            <div className={`text-sm font-semibold ${symbolData.gainLossUSD >= 0 ? "text-green-600" : "text-red-600"}`}>
               ${symbolData.gainLossUSD.toFixed(2)}
             </div>
           </div>
           <div className="text-right">
-            <div className="text-sm text-gray-600">円換算</div>
-            <div className={totalGainLossJPY >= 0 ? "text-green-600" : "text-red-600"}>
+            <div className="text-xs text-gray-600">円換算</div>
+            <div className={`text-sm font-semibold ${totalGainLossJPY >= 0 ? "text-green-600" : "text-red-600"}`}>
               ¥{Math.round(totalGainLossJPY).toLocaleString()}
-              <span className="text-sm ml-1">
+              <span className="text-xs ml-1 font-normal text-gray-500">
                 ({Math.round(totalGainLossRateJPY)}%)
               </span>
             </div>
@@ -189,27 +162,27 @@ const SymbolDetailsSection: React.FC<{
 
       {/* 詳細テーブル */}
       {isExpanded && (
-        <div className="p-4 overflow-x-auto">
-          <table className="w-full min-w-[1200px]">
+        <div className="p-2 overflow-x-auto">
+          <table className="w-full min-w-[1000px] text-xs">
             <thead>
-              <tr className="text-sm text-gray-600 border-b">
-                <th className="px-4 py-2 text-left">購入日</th>
-                <th className="px-4 py-2 text-right">購入時為替</th>
-                <th className="px-4 py-2 text-left">売却日</th>
-                <th className="px-4 py-2 text-right">売却時為替</th>
-                <th className="px-4 py-2 text-right">数量</th>
-                <th className="px-4 py-2 text-right">取得価格($)</th>
-                <th className="px-4 py-2 text-right">売却価格($)</th>
-                <th className="px-4 py-2 text-right">取得価格(¥)</th>
-                <th className="px-4 py-2 text-right">売却価格(¥)</th>
-                <th className="px-4 py-2 text-right">損益(¥)</th>
-                <th className="px-4 py-2 text-right">
+              <tr className="text-gray-600 border-b">
+                <th className="px-2 py-1 text-left">購入日</th>
+                <th className="px-2 py-1 text-right">購入時為替</th>
+                <th className="px-2 py-1 text-left">売却日</th>
+                <th className="px-2 py-1 text-right">売却時為替</th>
+                <th className="px-2 py-1 text-right">数量</th>
+                <th className="px-2 py-1 text-right">取得($)</th>
+                <th className="px-2 py-1 text-right">売却($)</th>
+                <th className="px-2 py-1 text-right">取得(¥)</th>
+                <th className="px-2 py-1 text-right">売却(¥)</th>
+                <th className="px-2 py-1 text-right">損益(¥)</th>
+                <th className="px-2 py-1 text-right">
                   損益率(¥)
                   <HelpTooltip text="円建ての損益率 = (売却価格 - 取得価格) / 取得価格 × 100。為替変動も含んだ実質的な利益率です。" />
                 </th>
               </tr>
             </thead>
-            <tbody className="text-sm">
+            <tbody>
               {symbolData.trades.map((trade, index) => {
                 // 日本円での取得価格と売却価格
                 const costJPY = trade.cost * trade.purchaseRate;
@@ -223,19 +196,19 @@ const SymbolDetailsSection: React.FC<{
 
                 return (
                   <tr key={index} className={`border-b hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                    <td className="px-4 py-2">{formatDate(trade.purchaseDate)}</td>
-                    <td className="px-4 py-2 text-right">¥{trade.purchaseRate.toFixed(2)}</td>
-                    <td className="px-4 py-2">{formatDate(trade.saleDate)}</td>
-                    <td className="px-4 py-2 text-right">¥{trade.saleRate.toFixed(2)}</td>
-                    <td className="px-4 py-2 text-right">{trade.quantity.toFixed(4)}</td>
-                    <td className="px-4 py-2 text-right">${trade.cost.toFixed(2)}</td>
-                    <td className="px-4 py-2 text-right">${trade.proceeds.toFixed(2)}</td>
-                    <td className="px-4 py-2 text-right">¥{Math.round(costJPY).toLocaleString()}</td>
-                    <td className="px-4 py-2 text-right">¥{Math.round(proceedsJPY).toLocaleString()}</td>
-                    <td className={`px-4 py-2 text-right ${gainLossJPY >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <td className="px-2 py-1">{formatDate(trade.purchaseDate)}</td>
+                    <td className="px-2 py-1 text-right">¥{trade.purchaseRate.toFixed(2)}</td>
+                    <td className="px-2 py-1">{formatDate(trade.saleDate)}</td>
+                    <td className="px-2 py-1 text-right">¥{trade.saleRate.toFixed(2)}</td>
+                    <td className="px-2 py-1 text-right">{trade.quantity.toFixed(4)}</td>
+                    <td className="px-2 py-1 text-right">${trade.cost.toFixed(2)}</td>
+                    <td className="px-2 py-1 text-right">${trade.proceeds.toFixed(2)}</td>
+                    <td className="px-2 py-1 text-right">¥{Math.round(costJPY).toLocaleString()}</td>
+                    <td className="px-2 py-1 text-right">¥{Math.round(proceedsJPY).toLocaleString()}</td>
+                    <td className={`px-2 py-1 text-right ${gainLossJPY >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       ¥{Math.round(gainLossJPY).toLocaleString()}
                     </td>
-                    <td className={`px-4 py-2 text-right ${gainLossRateJPY >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    <td className={`px-2 py-1 text-right ${gainLossRateJPY >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {Math.round(gainLossRateJPY)}%
                     </td>
                   </tr>

@@ -3,14 +3,13 @@ import './globals.css';
 import type { Metadata } from 'next';
 import Navigation from '@/components/Navigation';
 import ClientLayout from '@/components/ClientLayout';
-import CacheDebugger from '@/components/CacheDebugger';
 
 export const metadata: Metadata = {
-  title: 'Firstrade証券取引分析ツール(β) v1.5.0',
-  description: 'Firstrade証券の配当金・損益を簡単に計算。基本機能無料、CSVエクスポートは年間ライセンス',
+  title: 'FirstScope 2025',
+  description: 'Firstrade証券の資産運用を最適化するプロフェッショナル分析ツール',
   openGraph: {
-    title: 'Firstrade証券取引分析ツール(β) v1.5.0',
-    description: 'Firstrade証券の配当金・損益を簡単に計算。基本機能無料、CSVエクスポートは年間ライセンス',
+    title: 'FirstScope 2025',
+    description: 'Firstrade証券の資産運用を最適化するプロフェッショナル分析ツール',
     url: 'https://firstrade.nomadkazoku.com',
     type: 'website',
   }
@@ -23,13 +22,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body suppressHydrationWarning={true}>
+      <body suppressHydrationWarning={true} className="bg-slate-50">
         <ClientLayout>
-          <main className="min-h-screen bg-white">
+          <div className="min-h-screen">
             <Navigation />
             {children}
-          </main>
-          {process.env.NODE_ENV === 'development' && <CacheDebugger />}
+          </div>
         </ClientLayout>
       </body>
     </html>

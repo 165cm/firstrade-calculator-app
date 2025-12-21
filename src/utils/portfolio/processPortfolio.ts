@@ -2,6 +2,7 @@
 import type {
   Holding,
   Portfolio,
+  PortfolioSummary,
   TradeTransaction,
   AllocationStatus,
   TargetAllocation,
@@ -293,17 +294,23 @@ export function generateSuggestions(
 
   // 個別銘柄の集中リスクチェック
   for (const holding of portfolio.holdings) {
+    const currentValue = holding.currentValue || holding.totalCost;
     const percent = portfolio.totalValue > 0
-      ? (holding.totalCost / portfolio.totalValue) * 100
+      ? (currentValue / portfolio.totalValue) * 100
       : 0;
 
     if (percent > SINGLE_SYMBOL_LIMIT) {
+      // 目標値（10%）に戻すための売却金額を計算
+      const targetValue = portfolio.totalValue * (SINGLE_SYMBOL_LIMIT / 100);
+      const excessAmount = currentValue - targetValue;
+
       suggestions.push({
         symbol: holding.symbol,
         action: 'sell',
-        reason: `単一銘柄上限(${SINGLE_SYMBOL_LIMIT}%)を超過`,
+        reason: `単一銘柄上限(${SINGLE_SYMBOL_LIMIT}%)超過 → ${percent.toFixed(1)}%`,
         currentPercent: percent,
-        targetPercent: SINGLE_SYMBOL_LIMIT
+        targetPercent: SINGLE_SYMBOL_LIMIT,
+        suggestedAmount: excessAmount > 0 ? excessAmount : undefined
       });
     }
   }
@@ -311,20 +318,30 @@ export function generateSuggestions(
   // オーバーウェイト/アンダーウェイトの提案
   for (const status of allocationStatus) {
     if (status.status === 'overweight' && status.deviationPercent > 10) {
+      // 目標配分に戻すための売却金額を計算
+      const targetValue = portfolio.totalValue * (status.targetPercent / 100);
+      const excessAmount = status.currentValue - targetValue;
+
       suggestions.push({
         symbol: status.name,
         action: 'sell',
         reason: `目標配分より${status.deviationPercent.toFixed(1)}%超過`,
         currentPercent: status.currentPercent,
-        targetPercent: status.targetPercent
+        targetPercent: status.targetPercent,
+        suggestedAmount: excessAmount > 0 ? excessAmount : undefined
       });
     } else if (status.status === 'underweight' && status.deviationPercent < -10) {
+      // 目標配分に戻すための追加金額を計算
+      const targetValue = portfolio.totalValue * (status.targetPercent / 100);
+      const shortfallAmount = targetValue - status.currentValue;
+
       suggestions.push({
         symbol: status.name,
         action: 'buy',
         reason: `目標配分より${Math.abs(status.deviationPercent).toFixed(1)}%不足`,
         currentPercent: status.currentPercent,
-        targetPercent: status.targetPercent
+        targetPercent: status.targetPercent,
+        suggestedAmount: shortfallAmount > 0 ? shortfallAmount : undefined
       });
     }
   }
@@ -415,6 +432,7 @@ export function analyzePortfolio(
   const allocationStatus = calculateAllocationStatus(portfolio, targetAllocations);
   const suggestions = generateSuggestions(portfolio, allocationStatus);
   const riskIndicators = calculateRiskIndicators(portfolio);
+  const sectorBreakdown = calculateSectorBreakdown(portfolio);
 
   logger.log('ポートフォリオ分析完了');
 
@@ -422,6 +440,7 @@ export function analyzePortfolio(
     portfolio,
     allocationStatus,
     suggestions,
-    riskIndicators
+    riskIndicators,
+    sectorBreakdown
   };
 }
