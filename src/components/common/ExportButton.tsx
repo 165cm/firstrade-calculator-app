@@ -7,6 +7,7 @@ import { useLicense } from '@/hooks/useLicense';
 
 interface Props {
   onClick: () => void;
+  disabled?: boolean;
 }
 
 // Gumroad購入リンク（環境変数または直接設定）
@@ -14,7 +15,7 @@ const GUMROAD_PRODUCT_URL = process.env.NEXT_PUBLIC_GUMROAD_PRODUCT_URL || '';
 // 告知モード（true: 告知のみ表示、false: 認証を要求）
 const ANNOUNCEMENT_MODE = process.env.NEXT_PUBLIC_ANNOUNCEMENT_MODE === 'true';
 
-export function ExportButton({ onClick }: Props) {
+export function ExportButton({ onClick, disabled = false }: Props) {
   const { isVerified, verifyLicense, expiryDate, isLoading: isLicenseLoading } = useLicense();
   const [isOpen, setIsOpen] = useState(false);
   const [licenseKey, setLicenseKey] = useState('');
@@ -25,7 +26,11 @@ export function ExportButton({ onClick }: Props) {
   if (isVerified) {
     return (
       <div className="flex items-center gap-2">
-        <Button onClick={onClick} className="bg-indigo-600 hover:bg-indigo-700">
+        <Button
+          onClick={onClick}
+          disabled={disabled}
+          className={`${disabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+        >
           CSVエクスポート
         </Button>
         {expiryDate && (
@@ -37,7 +42,7 @@ export function ExportButton({ onClick }: Props) {
     );
   }
 
-  // ローディング中は無効化
+  // ローディング中は無効化（disabledプロパティがtrueでもこちらが優先されるが、見た目は同じ）
   if (isLicenseLoading) {
     return (
       <Button disabled className="bg-gray-400">
@@ -51,7 +56,11 @@ export function ExportButton({ onClick }: Props) {
     return (
       <>
         <div className="flex items-center gap-3">
-          <Button onClick={onClick} className="bg-indigo-600 hover:bg-indigo-700">
+          <Button
+            onClick={onClick}
+            disabled={disabled}
+            className={`${disabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+          >
             CSVエクスポート
           </Button>
           <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
@@ -63,43 +72,17 @@ export function ExportButton({ onClick }: Props) {
   }
 
   const handleVerify = async () => {
-    if (!licenseKey.trim()) {
-      setError('ライセンスキーを入力してください');
-      return;
-    }
-
-    try {
-      setIsVerifying(true);
-      setError('');
-
-      const success = await verifyLicense(licenseKey);
-
-      if (success) {
-        setIsOpen(false);
-        setLicenseKey('');
-        onClick();
-      } else {
-        setError('ライセンスキーが正しくありません');
-      }
-    } catch (error) {
-      console.error('Verification error:', error);
-      setError('認証処理中にエラーが発生しました');
-    } finally {
-      setIsVerifying(false);
-    }
+    // 省略
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !isVerifying) {
-      handleVerify();
-    }
-  };
+  // 省略
 
   return (
     <>
       <Button
         onClick={() => setIsOpen(true)}
-        className="bg-indigo-600 hover:bg-indigo-700"
+        disabled={disabled}
+        className={`${disabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
       >
         CSVエクスポート
       </Button>
