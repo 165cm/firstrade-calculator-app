@@ -72,10 +72,37 @@ export function ExportButton({ onClick, disabled = false }: Props) {
   }
 
   const handleVerify = async () => {
-    // 省略
+    if (!licenseKey.trim()) {
+      setError('ライセンスキーを入力してください');
+      return;
+    }
+
+    try {
+      setIsVerifying(true);
+      setError('');
+
+      const success = await verifyLicense(licenseKey);
+
+      if (success) {
+        setIsOpen(false);
+        setLicenseKey('');
+        onClick();
+      } else {
+        setError('ライセンスキーが正しくありません');
+      }
+    } catch (error) {
+      console.error('Verification error:', error);
+      setError('認証処理中にエラーが発生しました');
+    } finally {
+      setIsVerifying(false);
+    }
   };
 
-  // 省略
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && !isVerifying) {
+      handleVerify();
+    }
+  };
 
   return (
     <>
