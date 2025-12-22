@@ -1,21 +1,21 @@
-// src/app/gainloss-beta/page.tsx
+// src/app/simulator/page.tsx
 'use client';
 
 import { useRef, useState } from 'react';
-import { GainLossBetaAnalysis, GainLossBetaHandle } from '@/components/gainlossBeta/GainLossBetaAnalysis';
+import { SimulatorAnalysis, SimulatorHandle } from '@/components/simulator/SimulatorAnalysis';
 import { ExportButton } from '@/components/common/ExportButton';
 
 
-export default function GainLossBetaPage() {
-    const analysisRef = useRef<GainLossBetaHandle>(null);
+export default function SimulatorPage() {
+    const analysisRef = useRef<SimulatorHandle>(null);
     const [hasData, setHasData] = useState(false);
 
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900">損益計算書 (Beta)</h1>
-                    <p className="text-sm text-slate-500 mt-1">コピー＆ペーストによる損益データの分析</p>
+                    <h1 className="text-2xl font-bold text-slate-900">売買シミュレーター</h1>
+                    <p className="text-sm text-slate-500 mt-1">コピー＆ペーストによる仮の損益シミュレーション</p>
                 </div>
                 <div className="flex gap-3">
                     {hasData && (
@@ -36,7 +36,7 @@ export default function GainLossBetaPage() {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-6">
-                <GainLossBetaAnalysis
+                <SimulatorAnalysis
                     ref={analysisRef}
                     onDataStatusChange={setHasData}
                 />

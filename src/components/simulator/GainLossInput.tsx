@@ -1,4 +1,4 @@
-// src/components/gainlossBeta/GainLossInput.tsx
+// src/components/simulator/GainLossInput.tsx
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -17,7 +17,7 @@ interface TermSection {
     pages: string[];
 }
 
-const STORAGE_KEY = 'gainloss-beta-input';
+const STORAGE_KEY = 'simulator-input';
 
 export const GainLossInput: React.FC<Props> = ({ onSubmit, onError, isCollapsed, onToggle, isLoading }) => {
     const [shortTerm, setShortTerm] = useState<TermSection>({ pages: [''] });

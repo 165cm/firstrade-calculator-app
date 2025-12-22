@@ -1,6 +1,6 @@
-// src/utils/gainlossBeta/parseGainLoss.ts
+// src/utils/simulator/parseGainLoss.ts
 
-import type { GainLossEntry, GainLossSummary, TermSummary } from '@/types/gainlossBeta';
+import type { SimulatorEntry, SimulatorSummary, TermSummary } from '@/types/simulator';
 
 /**
  * 金額文字列をパース（$1,234.56 や -$1,234.56 形式）
@@ -42,8 +42,8 @@ function hasWashSaleFlag(str: string): boolean {
 /**
  * ダッシュボードからコピーされたテキストをパースして損益エントリを取得
  */
-export function parseGainLossText(text: string): { entries: GainLossEntry[], shortTermSummary: TermSummary | null, longTermSummary: TermSummary | null } {
-    const entries: GainLossEntry[] = [];
+export function parseGainLossText(text: string): { entries: SimulatorEntry[], shortTermSummary: TermSummary | null, longTermSummary: TermSummary | null } {
+    const entries: SimulatorEntry[] = [];
     const lines = text.trim().split('\n');
 
     let currentTermType: 'short' | 'long' = 'short';
@@ -110,7 +110,7 @@ export function parseGainLossText(text: string): { entries: GainLossEntry[], sho
         if (!symbol || /^\d+$/.test(symbol)) continue;
 
         try {
-            const entry: GainLossEntry = {
+            const entry: SimulatorEntry = {
                 symbol: symbol,
                 description: parts[1] || '',
                 qty: parseNumber(parts[2]),
@@ -140,11 +140,11 @@ export function parseGainLossText(text: string): { entries: GainLossEntry[], sho
 /**
  * エントリからサマリーを計算
  */
-export function calculateSummaryFromEntries(entries: GainLossEntry[]): { shortTerm: TermSummary, longTerm: TermSummary, total: TermSummary } {
+export function calculateSummaryFromEntries(entries: SimulatorEntry[]): { shortTerm: TermSummary, longTerm: TermSummary, total: TermSummary } {
     const shortTermEntries = entries.filter(e => e.termType === 'short');
     const longTermEntries = entries.filter(e => e.termType === 'long');
 
-    const calcTermSummary = (items: GainLossEntry[]): TermSummary => {
+    const calcTermSummary = (items: SimulatorEntry[]): TermSummary => {
         const salesProceeds = items.reduce((sum, e) => sum + e.salesProceeds, 0);
         const adjustedCost = items.reduce((sum, e) => sum + e.adjustedCost, 0);
         const wsLossDisallowed = items.reduce((sum, e) => sum + e.wsLossDisallowed, 0);
@@ -176,10 +176,10 @@ export function calculateSummaryFromEntries(entries: GainLossEntry[]): { shortTe
  * 完全なサマリーを構築
  */
 export function buildGainLossSummary(
-    entries: GainLossEntry[],
+    entries: SimulatorEntry[],
     shortTermSummary: TermSummary | null,
     longTermSummary: TermSummary | null
-): GainLossSummary {
+): SimulatorSummary {
     const calculated = calculateSummaryFromEntries(entries);
 
     // ヘッダーからのサマリーがあればそれを使用、なければ計算値を使用

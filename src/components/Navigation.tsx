@@ -4,7 +4,6 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
-import { AuthButton } from '@/components/auth/AuthButton';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -16,7 +15,7 @@ export default function Navigation() {
   const navItems = [
     { name: '配当金', path: '/dividend' },
     { name: '損益計算', path: '/gainloss' },
-    { name: '損益β', path: '/gainloss-beta' },
+    { name: 'シミュレーター', path: '/simulator' },
     { name: '分析β', path: '/portfolio' },
   ];
 
@@ -68,7 +67,6 @@ export default function Navigation() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
-              <AuthButton />
             </div>
 
             {/* Mobile menu button */}
@@ -125,7 +123,6 @@ export default function Navigation() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                 </svg>
               </a>
-              <AuthButton />
             </div>
           </div>
         </div>

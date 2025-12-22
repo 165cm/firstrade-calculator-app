@@ -1,18 +1,18 @@
-// src/components/gainlossBeta/GainLossBetaAnalysis.tsx
+// src/components/simulator/SimulatorAnalysis.tsx
 'use client';
 
 import React, { useState, useEffect, useImperativeHandle } from 'react';
-import type { GainLossSummary as GainLossSummaryType, GainLossEntry } from '@/types/gainlossBeta';
-import { parseGainLossText, buildGainLossSummary } from '@/utils/gainlossBeta/parseGainLoss';
+import type { SimulatorSummary, SimulatorEntry } from '@/types/simulator';
+import { parseGainLossText, buildGainLossSummary } from '@/utils/simulator/parseGainLoss';
 import { getExchangeRate, DEFAULT_RATE } from '@/data/exchangeRates';
-import { exportGainLossBetaToCsv, downloadCsv } from '@/utils/export/csvExport';
+import { exportSimulatorToCsv, downloadCsv } from '@/utils/export/csvExport';
 import { GainLossInput } from './GainLossInput';
 import { GainLossSummaryComponent } from './GainLossSummary';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
 
-const SUMMARY_STORAGE_KEY = 'gainloss-beta-summary';
+const SUMMARY_STORAGE_KEY = 'simulator-summary';
 
-export interface GainLossBetaHandle {
+export interface SimulatorHandle {
     clear: () => void;
     downloadCSV: () => void;
 }
@@ -21,8 +21,8 @@ interface Props {
     onDataStatusChange?: (hasData: boolean) => void;
 }
 
-export const GainLossBetaAnalysis = React.forwardRef<GainLossBetaHandle, Props>(({ onDataStatusChange }, ref) => {
-    const [summary, setSummary] = useState<GainLossSummaryType | null>(null);
+export const SimulatorAnalysis = React.forwardRef<SimulatorHandle, Props>(({ onDataStatusChange }, ref) => {
+    const [summary, setSummary] = useState<SimulatorSummary | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [inputCollapsed, setInputCollapsed] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -90,8 +90,8 @@ export const GainLossBetaAnalysis = React.forwardRef<GainLossBetaHandle, Props>(
             if (!summary) return;
             try {
                 const timestamp = new Date().toISOString().split('T')[0];
-                const csvContent = exportGainLossBetaToCsv(summary.entries);
-                downloadCsv(csvContent, `損益計算書(Beta)_${timestamp}.csv`);
+                const csvContent = exportSimulatorToCsv(summary.entries);
+                downloadCsv(csvContent, `売買シミュレーション_${timestamp}.csv`);
             } catch (error) {
                 console.error('Export error:', error);
             }
@@ -116,7 +116,7 @@ export const GainLossBetaAnalysis = React.forwardRef<GainLossBetaHandle, Props>(
             const datesWithDefaultRate: string[] = [];
 
             // 為替レートを取得して円換算
-            const entriesWithJpy: GainLossEntry[] = await Promise.all(
+            const entriesWithJpy: SimulatorEntry[] = await Promise.all(
                 entries.map(async (entry) => {
                     try {
                         const [rateAcquired, rateSold] = await Promise.all([
@@ -173,10 +173,10 @@ export const GainLossBetaAnalysis = React.forwardRef<GainLossBetaHandle, Props>(
 
     return (
         <div className="space-y-4">
-            {/* ベータ版バナー */}
-            <Alert className="bg-yellow-50 border-yellow-200">
-                <AlertTitle className="text-yellow-800 text-sm">ベータ版</AlertTitle>
-                <AlertDescription className="text-yellow-700 text-xs">
+            {/* シミュレーターバナー */}
+            <Alert className="bg-blue-50 border-blue-200">
+                <AlertTitle className="text-blue-800 text-sm">売買シミュレーター</AlertTitle>
+                <AlertDescription className="text-blue-700 text-xs">
                     Firstradeの Gain/Loss 画面からコピペして損益を計算できます。年度末のCSVファイルを待たずに税金対策が可能です。
                 </AlertDescription>
             </Alert>
@@ -217,4 +217,4 @@ export const GainLossBetaAnalysis = React.forwardRef<GainLossBetaHandle, Props>(
     );
 });
 
-GainLossBetaAnalysis.displayName = 'GainLossBetaAnalysis';
+SimulatorAnalysis.displayName = 'SimulatorAnalysis';

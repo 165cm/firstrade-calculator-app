@@ -1,4 +1,4 @@
-// src/utils/dividend/DividendSummary.tsx
+// src/components/dividend/DividendSummary.tsx
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
@@ -14,7 +14,7 @@ import type {
   ProcessedDividendData,
   ConvertedDividendRecord
 } from '@/types/dividend';
-import { calculateTotalWithholding, extractWithholdingAmount } from '../withholding';
+import { calculateTotalWithholding, extractWithholdingAmount } from '@/utils/withholding';
 
 interface Props {
   data: ProcessedDividendData;

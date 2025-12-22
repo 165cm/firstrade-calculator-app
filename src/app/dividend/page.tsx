@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { DividendFileUploader } from '@/components/dividend/DividendFileUploader';
 
-import { DividendSummary, processDividendData } from '@/utils/dividend/DividendSummary';
+import { DividendSummary, processDividendData } from '@/components/dividend/DividendSummary';
 import { ExportButton } from '@/components/common/ExportButton';
 import { exportDividendToCsv, downloadCsv } from '@/utils/export/csvExport';
 import { ProgressIndicator, ProgressState, createInitialProgress } from '@/components/common/ProgressIndicator';

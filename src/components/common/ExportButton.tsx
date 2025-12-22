@@ -3,9 +3,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/hooks/useAuth';
 import { useLicense } from '@/hooks/useLicense';
-import { isSupabaseConfigured } from '@/lib/supabase';
 
 interface Props {
   onClick: () => void;
@@ -17,15 +15,14 @@ const GUMROAD_PRODUCT_URL = process.env.NEXT_PUBLIC_GUMROAD_PRODUCT_URL || '';
 const ANNOUNCEMENT_MODE = process.env.NEXT_PUBLIC_ANNOUNCEMENT_MODE === 'true';
 
 export function ExportButton({ onClick }: Props) {
-  const { user } = useAuth();
   const { isVerified, verifyLicense, expiryDate, isLoading: isLicenseLoading } = useLicense();
   const [isOpen, setIsOpen] = useState(false);
   const [licenseKey, setLicenseKey] = useState('');
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
 
-  // Supabaseログインユーザー または ライセンス認証済みユーザーは直接エクスポート可能
-  if ((isSupabaseConfigured() && user) || isVerified) {
+  // ライセンス認証済みユーザーは直接エクスポート可能
+  if (isVerified) {
     return (
       <div className="flex items-center gap-2">
         <Button onClick={onClick} className="bg-indigo-600 hover:bg-indigo-700">
@@ -178,7 +175,7 @@ export function ExportButton({ onClick }: Props) {
                 className="inline-flex items-center justify-center w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg"
               >
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                 </svg>
                 2025年版ライセンスを購入（$25）
               </a>

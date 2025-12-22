@@ -1,9 +1,9 @@
-// src/types/gainlossBeta.ts
+// src/types/simulator.ts
 
 /**
- * 個別の損益エントリ
+ * 個別の損益エントリ（シミュレーター用）
  */
-export interface GainLossEntry {
+export interface SimulatorEntry {
     symbol: string;
     description: string;
     qty: number;
@@ -41,12 +41,16 @@ export interface TermSummary {
 }
 
 /**
- * 全体サマリー
+ * 全体サマリー（シミュレーター用）
  */
-export interface GainLossSummary {
+export interface SimulatorSummary {
     shortTerm: TermSummary;
     longTerm: TermSummary;
     total: TermSummary;
-    entries: GainLossEntry[];
+    entries: SimulatorEntry[];
     processedAt: string;
 }
+
+// 後方互換性のためのエイリアス（段階的に削除予定）
+export type GainLossEntry = SimulatorEntry;
+export type GainLossSummary = SimulatorSummary;

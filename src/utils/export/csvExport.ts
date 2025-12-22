@@ -196,13 +196,13 @@ export function exportGainLossToCsv(trades: TradeDetail[]): string {
 }
 
 
-import { GainLossEntry } from '@/types/gainlossBeta';
+import { SimulatorEntry } from '@/types/simulator';
 import { Holding } from '@/types/portfolio';
 
 // ... (existing helper functions if any need to be exposed or duplicated)
 
-// 損益計算(Beta)データのエクスポート関数
-export function exportGainLossBetaToCsv(entries: GainLossEntry[]): string {
+// シミュレーターデータのエクスポート関数
+export function exportSimulatorToCsv(entries: SimulatorEntry[]): string {
   const csvData = entries.map(entry => ({
     '銘柄': entry.symbol,
     '数量': entry.qty.toFixed(4),

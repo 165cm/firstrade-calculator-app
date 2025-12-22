@@ -1,14 +1,14 @@
-// src/components/gainlossBeta/GainLossSummary.tsx
+// src/components/simulator/GainLossSummary.tsx
 'use client';
 
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
-import type { GainLossSummary as GainLossSummaryType, GainLossEntry, TermSummary } from '@/types/gainlossBeta';
+import type { SimulatorSummary, SimulatorEntry, TermSummary } from '@/types/simulator';
 import { HelpTooltip } from '../common/Tooltip';
 
 
 interface Props {
-    summary: GainLossSummaryType;
+    summary: SimulatorSummary;
 }
 
 /**
@@ -55,7 +55,7 @@ const TermSummaryRow: React.FC<{
 /**
  * 取引明細テーブル（コンパクト版）
  */
-const CompactEntriesTable: React.FC<{ entries: GainLossEntry[] }> = ({ entries }) => {
+const CompactEntriesTable: React.FC<{ entries: SimulatorEntry[] }> = ({ entries }) => {
     const [showAll, setShowAll] = useState(false);
     const shortTermEntries = entries.filter(e => e.termType === 'short');
     const longTermEntries = entries.filter(e => e.termType === 'long');

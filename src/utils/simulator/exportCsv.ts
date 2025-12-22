@@ -1,11 +1,11 @@
-// src/utils/gainlossBeta/exportCsv.ts
+// src/utils/simulator/exportCsv.ts
 
-import type { GainLossSummary, GainLossEntry } from '@/types/gainlossBeta';
+import type { SimulatorSummary, SimulatorEntry } from '@/types/simulator';
 
 /**
  * 損益データをCSV形式でエクスポート
  */
-export function generateGainLossCsv(summary: GainLossSummary): string {
+export function generateGainLossCsv(summary: SimulatorSummary): string {
     const headers = [
         'Term Type',
         'Symbol',
@@ -32,7 +32,7 @@ export function generateGainLossCsv(summary: GainLossSummary): string {
     rows.push(headers);
 
     // 取引データ
-    summary.entries.forEach((entry: GainLossEntry) => {
+    summary.entries.forEach((entry: SimulatorEntry) => {
         rows.push([
             entry.termType === 'short' ? 'Short Term' : 'Long Term',
             entry.symbol,
