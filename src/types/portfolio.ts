@@ -48,6 +48,7 @@ export interface TargetAllocation {
   name: string;
   targetPercent: number;
   type: 'sector' | 'assetClass' | 'symbol';
+  isLocked?: boolean;
 }
 
 // 配分状況
