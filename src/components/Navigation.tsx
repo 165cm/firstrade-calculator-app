@@ -13,10 +13,10 @@ export default function Navigation() {
   const brandColor = 'bg-[#2e58a6]';
 
   const navItems = [
-    { name: '配当金', path: '/dividend' },
-    { name: '損益計算', path: '/gainloss' },
-    { name: 'シミュレーター', path: '/simulator' },
-    { name: '分析β', path: '/portfolio' },
+    { name: '配当金明細', path: '/dividend' },
+    { name: '売却損益', path: '/gainloss' },
+    { name: '損益シミュレーター', path: '/simulator' },
+    { name: 'ポートフォリオ', path: '/portfolio' },
   ];
 
   return (

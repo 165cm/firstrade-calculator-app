@@ -110,8 +110,8 @@ export default function GainLossPage() {
       {/* Page Header */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">損益計算書</h1>
-          <p className="text-sm text-slate-500 mt-1">年間実現損益の計算と表示</p>
+          <h1 className="text-2xl font-bold text-slate-900">売却損益</h1>
+          <p className="text-sm text-slate-500 mt-1">FirstradeのCSVから株式売却益を計算し、確定申告用の円換算レポートを作成</p>
         </div>
         <div className="flex gap-3">
           {summary && (

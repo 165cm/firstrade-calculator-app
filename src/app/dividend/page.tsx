@@ -142,7 +142,7 @@ export default function DividendPage() {
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">配当金明細</h1>
-          <p className="text-sm text-slate-500 mt-1">配当金の計算と年間サマリーの表示</p>
+          <p className="text-sm text-slate-500 mt-1">FirstradeのCSVから配当・利子収入を集計し、確定申告用の円換算データを作成</p>
         </div>
         <div className="flex gap-3">
           {hasData && (
