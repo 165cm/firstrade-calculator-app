@@ -5,28 +5,13 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import type { SimulatorSummary, SimulatorEntry, TermSummary } from '@/types/simulator';
 import { HelpTooltip } from '../common/Tooltip';
+import { formatUSD, formatJPY } from '@/utils/common/formatters';
 
 
 interface Props {
     summary: SimulatorSummary;
 }
 
-/**
- * 金額をフォーマット（コンパクト版）
- */
-function formatUSD(value: number): string {
-    const isNegative = value < 0;
-    const absValue = Math.abs(value);
-    const formatted = absValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return isNegative ? `-$${formatted}` : `$${formatted}`;
-}
-
-function formatJPY(value: number): string {
-    const isNegative = value < 0;
-    const absValue = Math.abs(value);
-    const formatted = Math.round(absValue).toLocaleString('ja-JP');
-    return isNegative ? `-¥${formatted}` : `¥${formatted}`;
-}
 
 /**
  * コンパクトな期間サマリー行

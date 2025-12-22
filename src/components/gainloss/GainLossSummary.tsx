@@ -2,6 +2,7 @@
 import React from 'react';
 import type { GainLossSummary, SymbolSummary, TradeDetail } from '@/types/gainloss';
 import { HelpTooltip } from '@/components/common/Tooltip';
+import { formatJPY, formatExchangeRate } from '@/utils/common/formatters';
 
 interface Props {
   summary: GainLossSummary;
@@ -85,7 +86,7 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
           <div className="p-3 bg-gray-50 rounded">
             <p className="text-xs text-gray-600">日本円換算損益</p>
             <p className="text-xl font-bold">
-              ¥{Math.round(summary.totalGainLossJPY).toLocaleString()}
+              {formatJPY(summary.totalGainLossJPY)}
               <span className="text-xs ml-2 font-normal">
                 ({Math.round(gainLossRateJPY)}%)
               </span>
@@ -145,7 +146,7 @@ const SymbolDetailsSection: React.FC<{
           <div className="text-right">
             <div className="text-xs text-gray-600">円換算</div>
             <div className={`text-sm font-semibold ${totalGainLossJPY >= 0 ? "text-green-600" : "text-red-600"}`}>
-              ¥{Math.round(totalGainLossJPY).toLocaleString()}
+              {formatJPY(totalGainLossJPY)}
               <span className="text-xs ml-1 font-normal text-gray-500">
                 ({Math.round(totalGainLossRateJPY)}%)
               </span>
@@ -197,16 +198,16 @@ const SymbolDetailsSection: React.FC<{
                 return (
                   <tr key={index} className={`border-b hover:bg-gray-50 ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
                     <td className="px-2 py-1">{formatDate(trade.purchaseDate)}</td>
-                    <td className="px-2 py-1 text-right">¥{trade.purchaseRate.toFixed(2)}</td>
+                    <td className="px-2 py-1 text-right">{formatExchangeRate(trade.purchaseRate)}</td>
                     <td className="px-2 py-1">{formatDate(trade.saleDate)}</td>
-                    <td className="px-2 py-1 text-right">¥{trade.saleRate.toFixed(2)}</td>
+                    <td className="px-2 py-1 text-right">{formatExchangeRate(trade.saleRate)}</td>
                     <td className="px-2 py-1 text-right">{trade.quantity.toFixed(4)}</td>
                     <td className="px-2 py-1 text-right">${trade.cost.toFixed(2)}</td>
                     <td className="px-2 py-1 text-right">${trade.proceeds.toFixed(2)}</td>
-                    <td className="px-2 py-1 text-right">¥{Math.round(costJPY).toLocaleString()}</td>
-                    <td className="px-2 py-1 text-right">¥{Math.round(proceedsJPY).toLocaleString()}</td>
+                    <td className="px-2 py-1 text-right">{formatJPY(costJPY)}</td>
+                    <td className="px-2 py-1 text-right">{formatJPY(proceedsJPY)}</td>
                     <td className={`px-2 py-1 text-right ${gainLossJPY >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      ¥{Math.round(gainLossJPY).toLocaleString()}
+                      {formatJPY(gainLossJPY)}
                     </td>
                     <td className={`px-2 py-1 text-right ${gainLossRateJPY >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {Math.round(gainLossRateJPY)}%
