@@ -1,7 +1,7 @@
 // src/components/simulator/GainLossInput.tsx
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
@@ -13,16 +13,49 @@ interface Props {
     isLoading?: boolean;
 }
 
-interface TermSection {
-    pages: string[];
+export interface GainLossInputHandle {
+    loadData: (text: string) => void;
+    clear: () => void;
 }
 
-const STORAGE_KEY = 'simulator-input';
-
-export const GainLossInput: React.FC<Props> = ({ onSubmit, onError, isCollapsed, onToggle, isLoading }) => {
+export const GainLossInput = React.forwardRef<GainLossInputHandle, Props>(({ onSubmit, onError, isCollapsed, onToggle, isLoading }, ref) => {
     const [shortTerm, setShortTerm] = useState<TermSection>({ pages: [''] });
     const [longTerm, setLongTerm] = useState<TermSection>({ pages: [''] });
     const [isInitialized, setIsInitialized] = useState(false);
+
+    // 外部からデータをロードするためのハンドラ
+    useImperativeHandle(ref, () => ({
+        clear: handleClear,
+        loadData: (text: string) => {
+            // テキストをShort/Longに分割してセット
+            const lines = text.split('\n');
+            const shortTermLines: string[] = [];
+            const longTermLines: string[] = [];
+            let currentTerm = 'short';
+
+            for (const line of lines) {
+                if (line.includes('Short Term')) {
+                    currentTerm = 'short';
+                    continue; // ヘッダーは含めない（handleSubmitで付与されるため）ただしデモデータの構造による
+                }
+                if (line.includes('Long Term')) {
+                    currentTerm = 'long';
+                    continue;
+                }
+                if (!line.trim()) continue;
+
+                if (currentTerm === 'short') {
+                    shortTermLines.push(line);
+                } else {
+                    longTermLines.push(line);
+                }
+            }
+
+            setShortTerm({ pages: [shortTermLines.join('\n')] });
+            setLongTerm({ pages: [longTermLines.join('\n')] });
+        }
+    }));
+
 
     // localStorageから復元
     useEffect(() => {
@@ -276,4 +309,6 @@ export const GainLossInput: React.FC<Props> = ({ onSubmit, onError, isCollapsed,
             </CardContent>
         </Card>
     );
-};
+});
+
+GainLossInput.displayName = 'GainLossInput';

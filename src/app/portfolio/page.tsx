@@ -18,6 +18,18 @@ export default function PortfolioPage() {
           <p className="text-sm text-slate-500 mt-1">保有銘柄の資産配分を可視化し、理想的なリバランス案を提案</p>
         </div>
         <div className="flex gap-3">
+          {!hasData && (
+            <button
+              onClick={() => analysisRef.current?.loadDemoData()}
+              className="bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium text-blue-700 shadow-sm border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              デモデータをインポート
+            </button>
+          )}
+
           {hasData && (
             <>
               <ExportButton onClick={() => analysisRef.current?.downloadCSV()} />
