@@ -1,9 +1,11 @@
 // src/app/dividend/page.tsx
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DividendFileUploader } from '@/components/dividend/DividendFileUploader';
-import InfoSection from '@/components/InfoSection';
-import { DividendSummary, processDividendData } from '@/utils/dividend/DividendSummary';
+
+import { DividendSummary, processDividendData } from '@/components/dividend/DividendSummary';
+import { ExportButton } from '@/components/common/ExportButton';
+import { exportDividendToCsv, downloadCsv } from '@/utils/export/csvExport';
 import { ProgressIndicator, ProgressState, createInitialProgress } from '@/components/common/ProgressIndicator';
 import type {
   ProcessedDividendData,
@@ -11,6 +13,8 @@ import type {
 } from '@/types/dividend';
 import { getExchangeRate, getDefaultRateUsedDates, clearDefaultRateTracking, DEFAULT_RATE } from '@/data/exchangeRates';
 import { HelpTooltip } from '@/components/common/Tooltip';
+
+const STORAGE_KEY = 'dividend_data';
 
 export default function DividendPage() {
   const [error, setError] = useState<string | null>(null);
@@ -23,6 +27,21 @@ export default function DividendPage() {
     withholding: []
   });
   const [defaultRateDates, setDefaultRateDates] = useState<string[]>([]);
+  const [hasCachedData, setHasCachedData] = useState(false);
+
+  // 初回マウント時にlocalStorageからデータを復元
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setDividendData(parsed);
+        setHasCachedData(true);
+      }
+    } catch (e) {
+      console.error('Failed to restore dividend data from localStorage:', e);
+    }
+  }, []);
 
   const handleDividendData = async (rawData: RawDividendData[]) => {
     setIsLoading(true);
@@ -84,6 +103,14 @@ export default function DividendPage() {
       });
 
       setDividendData(processedData);
+      setHasCachedData(true);
+
+      // localStorageに保存
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(processedData));
+      } catch (e) {
+        console.error('Failed to save dividend data to localStorage:', e);
+      }
 
       // デフォルト値を使用した日付を取得
       const usedDates = getDefaultRateUsedDates();
@@ -95,41 +122,99 @@ export default function DividendPage() {
     }
   };
 
+  const handleClearCache = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setDividendData({
+      dividends: [],
+      interest: [],
+      other: [],
+      withholding: []
+    });
+    setDefaultRateDates([]);
+    setHasCachedData(false);
+  };
+
+  const hasData = dividendData.dividends.length > 0 || dividendData.interest.length > 0;
+
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-6">
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4" role="alert">
-          {error}
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Page Header */}
+      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900">配当金明細</h1>
+          <p className="text-sm text-slate-500 mt-1">FirstradeのCSVから配当・利子収入を集計し、確定申告用の円換算データを作成</p>
         </div>
-      )}
-
-      {defaultRateDates.length > 0 && (
-        <div className="bg-yellow-100 border border-yellow-400 text-yellow-800 px-4 py-3 rounded mb-4" role="alert">
-          <p className="text-sm">
-            ⚠️ デフォルト為替レート({DEFAULT_RATE}円)使用: {defaultRateDates.map(d => {
-              const date = new Date(d);
-              return `${date.getMonth() + 1}/${date.getDate()}`;
-            }).join(', ')}
-            <HelpTooltip text="確定申告時は、三菱UFJ銀行等のTTM（仲値）を確認し、必要に応じて手動で修正してください。差額は通常数百円程度です。" />
-          </p>
+        <div className="flex gap-3">
+          {hasData && (
+            <ExportButton onClick={() => {
+              const timestamp = new Date().toISOString().split('T')[0];
+              const exportData = [
+                ...dividendData.dividends,
+                ...dividendData.interest,
+                ...dividendData.other
+              ];
+              const csvContent = exportDividendToCsv(exportData);
+              downloadCsv(csvContent, `配当金明細_${timestamp}.csv`);
+            }} />
+          )}
+          {hasCachedData && (
+            <button
+              onClick={handleClearCache}
+              className="bg-white px-4 py-2 rounded-lg text-sm font-medium text-slate-700 shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              入力データをリセット
+            </button>
+          )}
         </div>
-      )}
+      </div>
 
-      <DividendFileUploader
-        onUpload={handleDividendData}
-        onError={setError}
-      />
+      <div className="space-y-6">
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-sm" role="alert">
+            {error}
+          </div>
+        )}
 
-      {isLoading && (
-        <ProgressIndicator progress={progress} />
-      )}
+        {defaultRateDates.length > 0 && (
+          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg shadow-sm" role="alert">
+            <p className="text-sm flex items-start gap-2">
+              <span>⚠️</span>
+              <span>
+                デフォルト為替レート({DEFAULT_RATE}円)使用: {defaultRateDates.map(d => {
+                  const date = new Date(d);
+                  return `${date.getMonth() + 1}/${date.getDate()}`;
+                }).join(', ')}
+                <HelpTooltip text="確定申告時は、三菱UFJ銀行等のTTM（仲値）を確認し、必要に応じて手動で修正してください。差額は通常数百円程度です。" />
+              </span>
+            </p>
+          </div>
+        )}
 
-      {!isLoading && (dividendData.dividends.length > 0 || dividendData.interest.length > 0) && (
-        <div className="space-y-6">
-          <DividendSummary data={dividendData} />
+        {/* Upload Area */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+          <DividendFileUploader
+            onUpload={handleDividendData}
+            onError={setError}
+          />
         </div>
-      )}
-      <InfoSection />
+
+        {isLoading && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+            <ProgressIndicator progress={progress} />
+          </div>
+        )}
+
+        {!isLoading && hasData && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+            <DividendSummary data={dividendData} />
+          </div>
+        )}
+      </div>
+
+
     </div>
   );
 }

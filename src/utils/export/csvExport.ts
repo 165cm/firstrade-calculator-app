@@ -9,8 +9,8 @@ import { extractWithholdingAmount } from '../withholding';
 
 export function exportDividendToCsv(records: ConvertedDividendRecord[]): string {
   // 配当データのみをフィルタリング
-  const dividendRecords = records.filter(r => 
-    r.Action.toUpperCase() === 'DIVIDEND' || 
+  const dividendRecords = records.filter(r =>
+    r.Action.toUpperCase() === 'DIVIDEND' ||
     r.Action.toUpperCase() === 'INTEREST'
   );
 
@@ -45,27 +45,27 @@ export function exportDividendToCsv(records: ConvertedDividendRecord[]): string 
     jpyWithholding: 0
   });
 
-    // 月次合計の計算を追加
-    const monthlyTotals = dividendRecords.reduce((acc, record) => {
-      const month = record.TradeDate.substring(5, 7);
-      const withholding = extractWithholdingAmount(record) || 0;
-      
-      if (!acc[month]) {
-        acc[month] = {
-          usdDividend: 0,
-          usdWithholding: 0,
-          jpyDividend: 0,
-          jpyWithholding: 0
-        };
-      }
-      
-      acc[month].usdDividend += record.Amount;
-      acc[month].usdWithholding += withholding;
-      acc[month].jpyDividend += record.amountJPY;
-      acc[month].jpyWithholding += withholding * record.exchangeRate;
-      
-      return acc;
-    }, {} as Record<string, typeof totals>);  
+  // 月次合計の計算を追加
+  const monthlyTotals = dividendRecords.reduce((acc, record) => {
+    const month = record.TradeDate.substring(5, 7);
+    const withholding = extractWithholdingAmount(record) || 0;
+
+    if (!acc[month]) {
+      acc[month] = {
+        usdDividend: 0,
+        usdWithholding: 0,
+        jpyDividend: 0,
+        jpyWithholding: 0
+      };
+    }
+
+    acc[month].usdDividend += record.Amount;
+    acc[month].usdWithholding += withholding;
+    acc[month].jpyDividend += record.amountJPY;
+    acc[month].jpyWithholding += withholding * record.exchangeRate;
+
+    return acc;
+  }, {} as Record<string, typeof totals>);
 
   // フッター行の作成（年間合計と月次合計を含む）
   const footerRows = [
@@ -103,7 +103,7 @@ export function exportDividendToCsv(records: ConvertedDividendRecord[]): string 
       '種別': ''
     },
     // 月次合計
-    ...Array.from({length: 12}, (_, i) => {
+    ...Array.from({ length: 12 }, (_, i) => {
       const month = String(i + 1).padStart(2, '0');
       const monthData = monthlyTotals[month] || {
         usdDividend: 0,
@@ -111,7 +111,7 @@ export function exportDividendToCsv(records: ConvertedDividendRecord[]): string 
         jpyDividend: 0,
         jpyWithholding: 0
       };
-      
+
       return {
         '支払日': `${month}月計`,
         '銘柄': '',
@@ -145,13 +145,13 @@ export function exportDividendToCsv(records: ConvertedDividendRecord[]): string 
 
 export function downloadCsv(csvContent: string, filename: string): void {
   const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-  const blob = new Blob([bom, csvContent], { 
-    type: 'text/csv;charset=utf-8' 
+  const blob = new Blob([bom, csvContent], {
+    type: 'text/csv;charset=utf-8'
   });
-  
+
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
-  
+
   link.setAttribute('href', url);
   link.setAttribute('download', filename);
   document.body.appendChild(link);
@@ -191,6 +191,67 @@ export function exportGainLossToCsv(trades: TradeDetail[]): string {
       '購入日', '購入時為替', '売却日', '売却時為替', '銘柄', '数量',
       '取得価格($)', '売却価格($)', '損益($)',
       '取得価格(¥)', '売却価格(¥)', '損益(¥)', '損益率(¥)'
+    ]
+  });
+}
+
+
+import { SimulatorEntry } from '@/types/simulator';
+import { Holding } from '@/types/portfolio';
+
+// ... (existing helper functions if any need to be exposed or duplicated)
+
+// シミュレーターデータのエクスポート関数
+export function exportSimulatorToCsv(entries: SimulatorEntry[]): string {
+  const csvData = entries.map(entry => ({
+    '銘柄': entry.symbol,
+    '数量': entry.qty.toFixed(4),
+    '取得日': entry.dateAcquired,
+    '取得時レート': entry.exchangeRateAcquired ? entry.exchangeRateAcquired.toFixed(2) : '-',
+    '売却日': entry.dateSold,
+    '売却時レート': entry.exchangeRateSold ? entry.exchangeRateSold.toFixed(2) : '-',
+    '売却額($)': entry.salesProceeds.toFixed(2),
+    '取得額($)': entry.adjustedCost.toFixed(2),
+    '損益($)': entry.netGainLoss.toFixed(2),
+    '売却額(円)': entry.salesProceedsJpy ? Math.round(entry.salesProceedsJpy).toLocaleString() : '-',
+    '取得額(円)': entry.adjustedCostJpy ? Math.round(entry.adjustedCostJpy).toLocaleString() : '-',
+    '損益(円)': entry.netGainLossJpy ? Math.round(entry.netGainLossJpy).toLocaleString() : '-',
+    '区分': entry.termType === 'short' ? '短期' : '長期',
+    'ウォッシュセール': entry.isWashSale ? '対象' : '-'
+  }));
+
+  return Papa.unparse(csvData, {
+    header: true,
+    columns: [
+      '銘柄', '数量', '取得日', '取得時レート', '売却日', '売却時レート',
+      '売却額($)', '取得額($)', '損益($)',
+      '売却額(円)', '取得額(円)', '損益(円)',
+      '区分', 'ウォッシュセール'
+    ]
+  });
+}
+
+// ポートフォリオデータのエクスポート関数
+export function exportPortfolioToCsv(holdings: Holding[]): string {
+  const csvData = holdings.map(holding => ({
+    '銘柄': holding.symbol,
+    '数量': holding.quantity.toFixed(4),
+    '平均取得単価($)': holding.averageCost.toFixed(2),
+    '現在価格($)': holding.currentPrice ? holding.currentPrice.toFixed(2) : '-',
+    '取得総額($)': holding.totalCost.toFixed(2),
+    '評価額($)': holding.currentValue ? holding.currentValue.toFixed(2) : '-',
+    '損益($)': holding.gainLoss ? holding.gainLoss.toFixed(2) : '-',
+    '損益率(%)': holding.gainLossPercent ? `${holding.gainLossPercent.toFixed(2)}%` : '-',
+    'セクター': holding.sector || '-',
+    '資産クラス': holding.assetClass || '-'
+  }));
+
+  return Papa.unparse(csvData, {
+    header: true,
+    columns: [
+      '銘柄', '数量', '平均取得単価($)', '現在価格($)',
+      '取得総額($)', '評価額($)', '損益($)', '損益率(%)',
+      'セクター', '資産クラス'
     ]
   });
 }

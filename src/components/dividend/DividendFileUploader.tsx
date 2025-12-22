@@ -3,9 +3,9 @@ import React, { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Papa from 'papaparse';
 import type { RawDividendData } from '@/types/dividend';
-import { Alert, AlertDescription } from '../ui/alert';
 import { cleanNumber } from '@/utils/common/numberUtils';
 import { logger } from '@/utils/common/logger';
+import { HelpTooltip } from '@/components/common/Tooltip';
 
 interface Props {
   onUpload: (data: RawDividendData[]) => void;
@@ -18,44 +18,25 @@ export const DividendFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
     if (!file) return;
-    
+
     setIsProcessing(true);
-    
+
     Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
-      // 自動型変換を無効化して文字列として読み込む
       dynamicTyping: false,
       complete: (results) => {
         try {
-          logger.log('CSV読み込み完了:', {
-            行数: results.data.length,
-            サンプル: results.data.length > 0 ? results.data[0] : {}
-          });
-
           // 数値フィールドのクリーニングと変換を行う
-          const processedData = (results.data as Record<string, string>[]).map((row, index) => {
-            // デバッグログ（最初の3行のみ）
-            if (index < 3) {
-              logger.debug(`行 ${index + 1} の処理:`, row);
-            }
-
-            // Amount値の数値変換
+          const processedData = (results.data as Record<string, string>[]).map((row) => {
             const amount = cleanNumber(row.Amount);
-
-            // 変換結果をログ出力（最初の3行のみ）
-            if (index < 3) {
-              logger.debug(`数値変換: "${row.Amount}" -> ${amount}`);
-            }
-            
-            // ActionTypeとして有効な値かチェック
             const action = row.Action || '';
             const validActions = ['DIVIDEND', 'INTEREST', 'OTHER', 'BUY', 'SELL'];
             const normalizedAction = validActions.includes(action.toUpperCase())
               ? action.toUpperCase()
               : 'OTHER';
 
-            const record: RawDividendData = {
+            return {
               Symbol: row.Symbol || '',
               TradeDate: row.TradeDate || '',
               Amount: amount,
@@ -63,9 +44,8 @@ export const DividendFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
               Description: row.Description || '',
               RecordType: row.RecordType || ''
             };
-            return record;
           });
-          
+
           logger.log(`処理完了: ${processedData.length}件のデータを処理`);
           onUpload(processedData);
         } catch (err) {
@@ -91,33 +71,62 @@ export const DividendFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
   });
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <div className="grid grid-cols-[3fr_2fr] gap-6">
-        <div
-          {...getRootProps()}
-          className={`border-2 border-dashed p-6 rounded-lg text-center cursor-pointer transition-colors h-32 flex flex-col justify-center
-            ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:bg-gray-50'}
-            ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          <input {...getInputProps()} />
-          {isProcessing ? (
-            <p>処理中...<br />しばらくお待ちください</p>
-          ) : (
-            <>
-              <p>Firstradeの配当金明細CSVをドロップ、<br />またはクリックしてファイルを選択</p>
-              <p className="text-sm text-gray-500 mt-2">
-                ※FT_CSV_(口座番号).csvのみ対応
+    <div className="w-full">
+      <div
+        {...getRootProps()}
+        className={`
+          group relative border-2 border-dashed rounded-xl transition-all duration-200 ease-in-out cursor-pointer h-48 flex flex-col items-center justify-center
+          ${isDragActive
+            ? 'border-blue-500 bg-blue-50/50'
+            : 'border-slate-200 hover:border-blue-400 hover:bg-slate-50'
+          }
+          ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}
+        `}
+      >
+        <input {...getInputProps()} />
+
+        {isProcessing ? (
+          <div className="flex flex-col items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"></div>
+            <p className="text-sm text-slate-600 font-medium">処理中...</p>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center text-center p-6 space-y-3">
+            <div className={`
+              p-3 rounded-full bg-slate-100 text-slate-500 transition-transform duration-200 group-hover:scale-110 group-hover:bg-blue-100 group-hover:text-blue-600
+            `}>
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+            </div>
+
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-slate-700">
+                CSVファイルをドロップ
               </p>
-            </>
-          )}
-        </div>
-        <Alert className="h-32 flex items-center">
-          <AlertDescription>
-            CSVの入手方法：<br />
-            Firstrade管理画面 ＞ Tax Center ＞ Download Account Information
-            から期間を指定してダウンロード
-            </AlertDescription>
-        </Alert>
+              <p className="text-xs text-slate-500">
+                またはクリックして選択
+              </p>
+            </div>
+
+            <div className="pt-2 flex flex-col items-center gap-2">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-600">
+                FT_CSV_(口座番号).csvのみ対応
+              </span>
+
+              <div
+                className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-blue-600 transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>CSVの入手方法</span>
+                <HelpTooltip text="Firstrade管理画面 ＞ Tax Center ＞ Download Account Information から期間を指定してダウンロードしてください。" />
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

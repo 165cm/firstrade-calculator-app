@@ -16,10 +16,22 @@ export interface StockDividendInfo {
 
 /**
  * 配当金レコードから銘柄別の配当金情報を集計する
+ * 直近12ヶ月分のみを対象とする
  */
 export function aggregateDividendsBySymbol(
   dividends: ConvertedDividendRecord[]
 ): StockDividendInfo[] {
+  // 12ヶ月前の日付を計算
+  const now = new Date();
+  const twelveMonthsAgo = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+  const twelveMonthsAgoStr = twelveMonthsAgo.toISOString().split('T')[0];
+
+  // 直近12ヶ月のレコードのみフィルタリング
+  const recentDividends = dividends.filter(record => {
+    const tradeDate = record.TradeDate;
+    return tradeDate >= twelveMonthsAgoStr;
+  });
+
   const symbolMap = new Map<string, {
     totalUSD: number;
     totalJPY: number;
@@ -28,7 +40,7 @@ export function aggregateDividendsBySymbol(
   }>();
 
   // 銘柄ごとに集計
-  dividends.forEach(record => {
+  recentDividends.forEach(record => {
     const current = symbolMap.get(record.Symbol) || {
       totalUSD: 0,
       totalJPY: 0,
