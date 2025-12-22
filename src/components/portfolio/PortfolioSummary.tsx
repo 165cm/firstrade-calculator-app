@@ -154,6 +154,9 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary, children }
                       endAngle={-270}
                       opacity={0.5}
                       stroke="none"
+                      isAnimationActive={true}
+                      animationDuration={800}
+                      animationEasing="ease-out"
                     >
                       {targetAllocationData.map((entry, index) => (
                         <Cell key={`cell-target-${index}`} fill={entry.color} />
@@ -169,8 +172,10 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary, children }
                       dataKey="value"
                       startAngle={90}
                       endAngle={-270}
-                      stroke="white"
-                      strokeWidth={2}
+                      stroke="none"
+                      isAnimationActive={true}
+                      animationDuration={800}
+                      animationEasing="ease-out"
                     >
                       {currentAllocationData.map((entry, index) => (
                         <Cell key={`cell-current-${index}`} fill={entry.color} />
