@@ -23,12 +23,32 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary, children }
     ? ((portfolio.totalGainLoss / portfolio.totalCost) * 100)
     : 0;
 
-  // 円グラフ用データ
-  const allocationData = allocationStatus.map(s => ({
-    name: s.name,
-    value: s.currentValue,
-    percent: s.currentPercent
-  })).filter(d => d.value > 0);
+  // 色の一貫性を保つため、AllocationStatus全体の順序に基づいて色を決定
+  const allocationWithColors = allocationStatus.map((s, index) => ({
+    ...s,
+    color: COLORS[index % COLORS.length]
+  }));
+
+  // 円グラフ用データ（現在）
+  const currentAllocationData = allocationWithColors
+    .filter(s => s.currentValue > 0)
+    .map(s => ({
+      name: s.name,
+      value: s.currentValue,
+      percent: s.currentPercent,
+      color: s.color,
+      type: 'current'
+    }));
+
+  // 円グラフ用データ（目標）
+  const targetAllocationData = allocationWithColors
+    .filter(s => s.targetPercent > 0)
+    .map(s => ({
+      name: s.name,
+      value: s.targetPercent,
+      color: s.color,
+      type: 'target'
+    }));
 
   const sectorData = sectorBreakdown?.map(s => ({
     name: s.sector,
@@ -117,17 +137,51 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary, children }
         {/* 資産配分 */}
         <Card>
           <CardContent className="py-3">
-            <div className="text-xs font-medium text-gray-600 mb-2">資産配分</div>
+            <div className="text-xs font-medium text-gray-600 mb-2">資産配分 (外側:目標 / 内側:現在)</div>
             <div className="flex items-center gap-6">
               <div className="w-32 h-32 flex-shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
-                    <Pie data={allocationData} cx="50%" cy="50%" innerRadius={35} outerRadius={55} dataKey="value" startAngle={90} endAngle={-270}>
-                      {allocationData.map((_, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    {/* 外側の円：目標配分（半透明） */}
+                    <Pie
+                      data={targetAllocationData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={65}
+                      dataKey="value"
+                      startAngle={90}
+                      endAngle={-270}
+                      opacity={0.5}
+                      stroke="none"
+                    >
+                      {targetAllocationData.map((entry, index) => (
+                        <Cell key={`cell-target-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => `$${value.toFixed(0)}`} />
+                    {/* 内側の円：現在配分 */}
+                    <Pie
+                      data={currentAllocationData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={30}
+                      outerRadius={50}
+                      dataKey="value"
+                      startAngle={90}
+                      endAngle={-270}
+                      stroke="white"
+                      strokeWidth={2}
+                    >
+                      {currentAllocationData.map((entry, index) => (
+                        <Cell key={`cell-current-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number, name: string, props: any) => {
+                        if (props.payload.type === 'target') return [`${value.toFixed(1)}%`, `${name} (目標)`];
+                        return [`$${value.toFixed(0)}`, name];
+                      }}
+                    />
                   </PieChart>
                 </ResponsiveContainer>
               </div>

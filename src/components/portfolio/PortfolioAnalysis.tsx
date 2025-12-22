@@ -199,10 +199,35 @@ export const PortfolioAnalysis = React.forwardRef<PortfolioHandle, Props>(({ onD
 
   const handleAllocationUpdate = (allocations: TargetAllocation[]) => {
     setTargetAllocations(allocations);
+
+    // 現在のポートフォリオがある場合は再計算して反映
+    if (summary) {
+      const allocationStatus = calculateAllocationStatus(summary.portfolio, allocations);
+      const suggestions = generateSuggestions(summary.portfolio, allocationStatus);
+
+      setSummary({
+        ...summary,
+        allocationStatus,
+        suggestions
+      });
+    }
   };
 
   const handlePresetChange = (presetKey: keyof typeof ALLOCATION_PRESETS) => {
-    setTargetAllocations([...ALLOCATION_PRESETS[presetKey].allocations]);
+    const newAllocations = [...ALLOCATION_PRESETS[presetKey].allocations];
+    setTargetAllocations(newAllocations);
+
+    // 現在のポートフォリオがある場合は再計算して反映
+    if (summary) {
+      const allocationStatus = calculateAllocationStatus(summary.portfolio, newAllocations);
+      const suggestions = generateSuggestions(summary.portfolio, allocationStatus);
+
+      setSummary({
+        ...summary,
+        allocationStatus,
+        suggestions
+      });
+    }
   };
 
   return (
