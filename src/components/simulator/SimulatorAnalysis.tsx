@@ -6,15 +6,18 @@ import type { SimulatorSummary, SimulatorEntry } from '@/types/simulator';
 import { parseGainLossText, buildGainLossSummary } from '@/utils/simulator/parseGainLoss';
 import { getExchangeRate, DEFAULT_RATE } from '@/data/exchangeRates';
 import { exportSimulatorToCsv, downloadCsv } from '@/utils/export/csvExport';
-import { GainLossInput } from './GainLossInput';
+import { GainLossInput, GainLossInputHandle } from './GainLossInput';
 import { GainLossSummaryComponent } from './GainLossSummary';
 import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+
+import { DEMO_SIMULATOR_DATA } from '@/utils/demoData';
 
 const SUMMARY_STORAGE_KEY = 'simulator-summary';
 
 export interface SimulatorHandle {
     clear: () => void;
     downloadCSV: () => void;
+    loadDemoData: () => void;
 }
 
 interface Props {
@@ -22,6 +25,7 @@ interface Props {
 }
 
 export const SimulatorAnalysis = React.forwardRef<SimulatorHandle, Props>(({ onDataStatusChange }, ref) => {
+    const inputRef = React.useRef<GainLossInputHandle>(null);
     const [summary, setSummary] = useState<SimulatorSummary | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [inputCollapsed, setInputCollapsed] = useState(false);
@@ -95,6 +99,10 @@ export const SimulatorAnalysis = React.forwardRef<SimulatorHandle, Props>(({ onD
             } catch (error) {
                 console.error('Export error:', error);
             }
+        },
+        loadDemoData: () => {
+            inputRef.current?.loadData(DEMO_SIMULATOR_DATA);
+            handleSubmit(DEMO_SIMULATOR_DATA);
         }
     }));
 
@@ -193,6 +201,7 @@ export const SimulatorAnalysis = React.forwardRef<SimulatorHandle, Props>(({ onD
 
             {/* テキスト入力（分析後は折りたたみ） */}
             <GainLossInput
+                ref={inputRef}
                 onSubmit={handleSubmit}
                 onError={handleError}
                 isCollapsed={inputCollapsed}

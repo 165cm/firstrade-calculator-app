@@ -5,6 +5,7 @@ import { GainLossFileUploader } from '@/components/gainloss/GainLossFileUploader
 import { ExportButton } from '@/components/common/ExportButton';
 import { exportGainLossToCsv, downloadCsv } from '@/utils/export/csvExport';
 import GainLossSummary from '@/components/gainloss/GainLossSummary';
+import { DEMO_GAINLOSS_DATA } from '@/utils/demoData';
 
 import { ProgressIndicator, ProgressState, createInitialProgress } from '@/components/common/ProgressIndicator';
 import type { GainLossSummary as GainLossSummaryType, RawGainLossData } from '@/types/gainloss';
@@ -114,6 +115,18 @@ export default function GainLossPage() {
           <p className="text-sm text-slate-500 mt-1">FirstradeのCSVから株式売却益を計算し、確定申告用の円換算レポートを作成</p>
         </div>
         <div className="flex gap-3">
+          {!summary && (
+            <button
+              onClick={() => handleUpload(DEMO_GAINLOSS_DATA)}
+              className="bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium text-blue-700 shadow-sm border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              デモデータをインポート
+            </button>
+          )}
+
           {summary && (
             <ExportButton onClick={() => {
               if (!summary) return;
@@ -170,12 +183,14 @@ export default function GainLossPage() {
           </div>
         )}
 
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-          <GainLossFileUploader
-            onUpload={handleUpload}
-            onError={setError}
-          />
-        </div>
+        {!summary && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+            <GainLossFileUploader
+              onUpload={handleUpload}
+              onError={setError}
+            />
+          </div>
+        )}
 
         {isLoading && (
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">

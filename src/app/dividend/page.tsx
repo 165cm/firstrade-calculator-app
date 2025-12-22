@@ -2,6 +2,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { DividendFileUploader } from '@/components/dividend/DividendFileUploader';
+import { DEMO_DIVIDEND_DATA } from '@/utils/demoData';
 
 import { DividendSummary, processDividendData } from '@/components/dividend/DividendSummary';
 import { ExportButton } from '@/components/common/ExportButton';
@@ -145,6 +146,18 @@ export default function DividendPage() {
           <p className="text-sm text-slate-500 mt-1">FirstradeのCSVから配当・利子収入を集計し、確定申告用の円換算データを作成</p>
         </div>
         <div className="flex gap-3">
+          {!hasData && (
+            <button
+              onClick={() => handleDividendData(DEMO_DIVIDEND_DATA)}
+              className="bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium text-blue-700 shadow-sm border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-2"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              デモデータをインポート
+            </button>
+          )}
+
           {hasData && (
             <ExportButton onClick={() => {
               const timestamp = new Date().toISOString().split('T')[0];
@@ -194,12 +207,14 @@ export default function DividendPage() {
         )}
 
         {/* Upload Area */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-          <DividendFileUploader
-            onUpload={handleDividendData}
-            onError={setError}
-          />
-        </div>
+        {!hasData && (
+          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+            <DividendFileUploader
+              onUpload={handleDividendData}
+              onError={setError}
+            />
+          </div>
+        )}
 
         {isLoading && (
           <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
