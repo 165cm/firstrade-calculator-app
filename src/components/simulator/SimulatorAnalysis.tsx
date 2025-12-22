@@ -173,13 +173,6 @@ export const SimulatorAnalysis = React.forwardRef<SimulatorHandle, Props>(({ onD
 
     return (
         <div className="space-y-4">
-            {/* シミュレーターバナー */}
-            <Alert className="bg-blue-50 border-blue-200">
-                <AlertTitle className="text-blue-800 text-sm">売買シミュレーター</AlertTitle>
-                <AlertDescription className="text-blue-700 text-xs">
-                    Firstradeの Gain/Loss 画面からコピペして損益を計算できます。年度末のCSVファイルを待たずに税金対策が可能です。
-                </AlertDescription>
-            </Alert>
 
             {/* デフォルトレート警告 */}
             {defaultRateWarning && (

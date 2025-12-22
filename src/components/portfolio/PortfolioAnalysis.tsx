@@ -207,13 +207,6 @@ export const PortfolioAnalysis = React.forwardRef<PortfolioHandle, Props>(({ onD
 
   return (
     <div className="space-y-4">
-      {/* ベータ版バナー */}
-      <Alert className="bg-yellow-50 border-yellow-200">
-        <AlertTitle className="text-yellow-800 text-sm">ベータ版</AlertTitle>
-        <AlertDescription className="text-yellow-700 text-xs">
-          Firstradeのポジション画面からコピペしてポートフォリオを分析できます。
-        </AlertDescription>
-      </Alert>
 
       {summary && (
         <div className="space-y-4">
