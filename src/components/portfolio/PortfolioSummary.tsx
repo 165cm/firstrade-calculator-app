@@ -139,7 +139,7 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary, children }
           <CardContent className="py-3">
             <div className="text-xs font-medium text-gray-600 mb-2">資産配分 (外側:目標 / 内側:現在)</div>
             <div className="flex items-center gap-6">
-              <div className="w-32 h-32 flex-shrink-0">
+              <div className="w-40 h-40 flex-shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     {/* 外側の円：目標配分（半透明） */}
@@ -164,8 +164,8 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary, children }
                       data={currentAllocationData}
                       cx="50%"
                       cy="50%"
-                      innerRadius={30}
-                      outerRadius={50}
+                      innerRadius={35}
+                      outerRadius={55}
                       dataKey="value"
                       startAngle={90}
                       endAngle={-270}
@@ -188,7 +188,7 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary, children }
               <div className="flex flex-col gap-1 text-xs">
                 {allocationStatus.map((status, index) => (
                   <div key={status.name} className="flex items-center gap-1">
-                    <span className="font-bold w-8 text-right" style={{ color: COLORS[index % COLORS.length] }}>
+                    <span className="font-bold w-10 text-right" style={{ color: COLORS[index % COLORS.length] }}>
                       {status.currentPercent.toFixed(0)}%
                     </span>
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
