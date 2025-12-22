@@ -71,9 +71,34 @@ export const TargetAllocationSettings: React.FC<Props> = ({ allocations, onUpdat
           </div>
         ))}
 
-        <div className={`text-xs pt-1 border-t ${isValid ? 'text-gray-400' : 'text-red-500'}`}>
-          合計: {total}%
-          {!isValid && ' (100%に調整)'}
+        <div className="flex justify-between items-center text-xs pt-2 border-t mt-2">
+          <span className={`${isValid ? 'text-gray-600' : 'text-red-500 font-bold'}`}>
+            合計: {total.toFixed(1)}%
+          </span>
+          {!isValid && (
+            <button
+              onClick={() => {
+                if (total === 0) return;
+                const factor = 100 / total;
+                const updated = allocations.map(a => ({
+                  ...a,
+                  targetPercent: Number((a.targetPercent * factor).toFixed(1))
+                }));
+
+                // 丸め誤差の調整（最後の項目で吸収）
+                const newTotal = updated.reduce((sum, a) => sum + a.targetPercent, 0);
+                const diff = Number((100 - newTotal).toFixed(1));
+                if (diff !== 0 && updated.length > 0) {
+                  updated[updated.length - 1].targetPercent = Number((updated[updated.length - 1].targetPercent + diff).toFixed(1));
+                }
+
+                onUpdate(updated);
+              }}
+              className="px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition-colors text-xs font-medium"
+            >
+              数値を自動調整して100%にする
+            </button>
+          )}
         </div>
       </CardContent>
     </Card>
