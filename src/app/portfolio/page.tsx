@@ -18,23 +18,20 @@ export default function PortfolioPage() {
           <p className="text-sm text-slate-500 mt-1">保有銘柄の資産配分を可視化し、理想的なリバランス案を提案</p>
         </div>
         <div className="flex gap-3">
-          <ExportButton
-            onClick={() => analysisRef.current?.downloadCSV()}
-            disabled={!hasData}
-          />
-          <button
-            onClick={() => analysisRef.current?.clear()}
-            disabled={!hasData}
-            className={`px-4 py-2 rounded-lg text-sm font-medium shadow-sm border transition-colors flex items-center gap-2 ${hasData
-                ? 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
-                : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
-              }`}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            入力データをリセット
-          </button>
+          {hasData && (
+            <>
+              <ExportButton onClick={() => analysisRef.current?.downloadCSV()} />
+              <button
+                onClick={() => analysisRef.current?.clear()}
+                className="bg-white px-4 py-2 rounded-lg text-sm font-medium text-slate-700 shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                入力データをリセット
+              </button>
+            </>
+          )}
         </div>
       </div>
 
