@@ -69,6 +69,14 @@ export async function verifyGumroadLicense(
   }
 
   try {
+    const trimmedKey = licenseKey.trim();
+
+    // Debug logging for request
+    console.log('=== Gumroad License Verification Request ===');
+    console.log('Product ID:', productId);
+    console.log('License Key:', trimmedKey);
+    console.log('License Key Length:', trimmedKey.length);
+
     const response = await fetch('https://api.gumroad.com/v2/licenses/verify', {
       method: 'POST',
       headers: {
@@ -76,11 +84,16 @@ export async function verifyGumroadLicense(
       },
       body: new URLSearchParams({
         product_id: productId,
-        license_key: licenseKey.trim(),
+        license_key: trimmedKey,
       }),
     });
 
     const data: GumroadLicenseResponse = await response.json();
+
+    // Debug logging for response
+    console.log('=== Gumroad License Verification Response ===');
+    console.log('Response Status:', response.status);
+    console.log('Response Data:', JSON.stringify(data, null, 2));
 
     if (data.success) {
       // 返金済みまたは紛争中の場合は無効
@@ -111,6 +124,7 @@ export async function verifyGumroadLicense(
         isExpired: false,
       };
     } else {
+      console.error('Gumroad Verification Failed:', JSON.stringify(data, null, 2));
       return {
         success: false,
         message: data.message || 'ライセンスキーが正しくありません',

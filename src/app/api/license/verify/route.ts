@@ -14,6 +14,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // クーポンコード（招待コード）の検証
+    // 環境変数に設定するか、ハードコードで対応
+    const COUPON_CODES = ['LHU7PO4', 'MEMBER_FOR_NOTE'];
+
+    if (COUPON_CODES.includes(licenseKey)) {
+      return NextResponse.json({
+        success: true,
+        email: 'coupon-user@example.com',
+        expiryDate: undefined, // 無期限
+        isExpired: false,
+        message: '招待コードが適用されました',
+      });
+    }
+
     const result = await verifyGumroadLicense(licenseKey);
 
     return NextResponse.json({
