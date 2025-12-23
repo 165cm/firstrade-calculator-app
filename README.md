@@ -45,7 +45,7 @@
 
 ※ 2025年版は2026年12月31日まで有効
 
-ライセンスは[Gumroad](https://gumroad.com)で購入できます。
+ライセンスは[Gumroad](https://papazon.gumroad.com/l/firstrade-ja)で購入できます。
 
 ## 開発者向け情報
 
