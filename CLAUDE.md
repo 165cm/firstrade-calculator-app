@@ -25,18 +25,32 @@ Firstrade証券ユーザー向けの確定申告支援Webアプリケーショ�
 ### 環境変数
 
 ```env
-GUMROAD_PRODUCT_ID=商品ID
-NEXT_PUBLIC_GUMROAD_PRODUCT_URL=購入URL
-NEXT_PUBLIC_ANNOUNCEMENT_MODE=true/false
-GUMROAD_LICENSE_EXPIRY=2026-12-31
+# 重要: GUMROAD_PRODUCT_IDはpermalinkではなく、実際のProduct IDを設定
+# 取得方法: Gumroadダッシュボード > 製品編集 > Content > License Keysを展開
+GUMROAD_PRODUCT_ID=WvNatg-21X-yWxjV07CrdQ==  # ← 実際のProduct ID（Base64形式）
+
+NEXT_PUBLIC_GUMROAD_PRODUCT_URL=https://papazon.gumroad.com/l/firstrade-ja
+NEXT_PUBLIC_ANNOUNCEMENT_MODE=true  # true=無料開放、false=ライセンス認証必須
+GUMROAD_LICENSE_EXPIRY=2026-12-31   # 2025年版の有効期限
 ```
+
+> ⚠️ **注意**: `GUMROAD_PRODUCT_ID`に`firstrade-ja`のようなpermalinkを設定しても動作しません。
+> 必ずGumroadダッシュボードから取得した実際のProduct ID（`xxx==`形式）を使用してください。
+
+### Product IDの確認方法
+
+1. [Gumroadダッシュボード](https://app.gumroad.com/dashboard) にログイン
+2. **Products** → 該当製品を選択
+3. **Edit** → **Content** タブ
+4. **License key** セクションを展開
+5. 表示される `Product ID` をコピー（例: `WvNatg-21X-yWxjV07CrdQ==`）
 
 ### ファイル構成
 
-- `src/lib/gumroad.ts` - Gumroad API検証
-- `src/hooks/useLicense.ts` - ライセンス状態管理
-- `src/app/api/license/verify/route.ts` - 検証エンドポイント
-- `src/components/common/ExportButton.tsx` - 認証UI
+- `src/lib/gumroad.ts` - Gumroad API検証ロジック
+- `src/hooks/useLicense.ts` - ライセンス状態管理（localStorage連携）
+- `src/app/api/license/verify/route.ts` - ライセンス検証APIエンドポイント
+- `src/components/common/ExportButton.tsx` - 認証UI・ダイアログ
 
 ---
 
@@ -113,18 +127,45 @@ NEXT_PUBLIC_ANNOUNCEMENT_MODE=true
 
 ### ライセンス認証が通らない
 
-1. `GUMROAD_PRODUCT_ID` が正しいか確認
-2. Gumroadでライセンスキーモジュールが追加されているか確認
-3. 期限切れでないか確認（`GUMROAD_LICENSE_EXPIRY`）
+**よくある原因:**
+
+1. **Product IDがpermalinkになっている（最も多い）**
+   - ❌ `GUMROAD_PRODUCT_ID=firstrade-ja`（これはpermalink）
+   - ✅ `GUMROAD_PRODUCT_ID=WvNatg-21X-yWxjV07CrdQ==`（これが正しいProduct ID）
+
+2. **ライセンスキーモジュールが有効化されていない**
+   - Gumroad製品編集 > Content > License Keysが追加されているか確認
+
+3. **ライセンスキーが別製品に紐付いている**
+   - Gumroad Sales画面でライセンスキーを検索し、どの製品から発行されたか確認
+
+### デバッグ方法
+
+ターミナルで直接APIをテスト:
+```powershell
+Invoke-RestMethod -Uri "https://api.gumroad.com/v2/licenses/verify" `
+  -Method POST `
+  -Body @{product_id="WvNatg-21X-yWxjV07CrdQ=="; license_key="ライセンスキー"}
+```
+
+### Cloud Runの環境変数確認
+
+```bash
+gcloud run services describe firstrade-calculator \
+  --region asia-northeast1 \
+  --format="table(spec.template.spec.containers[0].env.name,spec.template.spec.containers[0].env.value)"
+```
 
 ### 期限切れエラーが出る
 
-- `GUMROAD_LICENSE_EXPIRY` の日付を確認
-- 形式: `YYYY-MM-DD`
+- `GUMROAD_LICENSE_EXPIRY` の日付を確認（形式: `YYYY-MM-DD`）
+- 現在の日付がこの値を超えていないか確認
 
 ---
 
 ## 関連リンク
 
 - [Gumroad License Keys Help](https://gumroad.com/help/article/76-license-keys)
+- [Gumroad API Documentation](https://gumroad.com/api)
 - [本番サイト](https://firstrade.nomadkazoku.com)
+- [Google Cloud Run Console](https://console.cloud.google.com/run)

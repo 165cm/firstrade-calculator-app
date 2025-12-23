@@ -47,11 +47,16 @@ NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
 # Gumroad License Configuration
-GUMROAD_PRODUCT_ID=your_gumroad_product_id
-NEXT_PUBLIC_GUMROAD_PRODUCT_URL=https://yourname.gumroad.com/l/your-product
+# 重要: GUMROAD_PRODUCT_IDはpermalinkではなく、実際のProduct IDを設定
+# 取得方法: Gumroadダッシュボード > 製品編集 > Content > License Keysを展開
+GUMROAD_PRODUCT_ID=WvNatg-21X-yWxjV07CrdQ==
+NEXT_PUBLIC_GUMROAD_PRODUCT_URL=https://papazon.gumroad.com/l/firstrade-ja
 
 # Announcement Mode (true = 告知モード、false = 認証必須)
 NEXT_PUBLIC_ANNOUNCEMENT_MODE=true
+
+# License Expiry Date
+GUMROAD_LICENSE_EXPIRY=2026-12-31
 ```
 
 ### Gumroadセットアップ
@@ -69,6 +74,48 @@ NEXT_PUBLIC_ANNOUNCEMENT_MODE=true
 2. プロジェクトのURLとAnon Keyを取得
 3. `.env`ファイルに設定
 4. Supabaseダッシュボードで認証設定を確認
+
+## Google Cloud Run デプロイ
+
+このプロジェクトはGoogle Cloud Build + Cloud Runでデプロイされています。
+
+### 環境変数の確認・設定方法
+
+1. **Google Cloud Console** にアクセス: https://console.cloud.google.com/run
+2. **Cloud Run サービス一覧**から `firstrade-calculator` を選択
+3. **「新しいリビジョンの編集とデプロイ」** をクリック
+4. **「コンテナ」タブ** → **「変数とシークレット」** セクションを展開
+5. 環境変数を確認・編集
+
+### 必要な環境変数（本番環境）
+
+| 変数名                            | 説明                      | 確認方法                                                  |
+| --------------------------------- | ------------------------- | --------------------------------------------------------- |
+| `GUMROAD_PRODUCT_ID`              | Gumroad製品ID（**重要**） | Gumroadダッシュボード → 製品編集 → Content → License Keys |
+| `NEXT_PUBLIC_GUMROAD_PRODUCT_URL` | Gumroad購入ページURL      | `https://papazon.gumroad.com/l/firstrade-ja`              |
+| `NEXT_PUBLIC_ANNOUNCEMENT_MODE`   | 告知モード                | `true`=無料開放、`false`=ライセンス認証必須               |
+| `GUMROAD_LICENSE_EXPIRY`          | ライセンス有効期限        | 例: `2026-12-31`                                          |
+
+### GumroadのProduct IDの確認方法
+
+> [!IMPORTANT]
+> `GUMROAD_PRODUCT_ID`には、製品のpermalink（`firstrade-ja`）ではなく、**実際のProduct ID**を設定してください。
+
+1. [Gumroadダッシュボード](https://app.gumroad.com/dashboard) にログイン
+2. **Products** → 該当製品を選択
+3. **Edit** → **Content** タブ
+4. **License key** セクションを展開
+5. 表示される `Product ID` をコピー
+
+### gcloudコマンドで環境変数を更新
+
+```bash
+gcloud run services update firstrade-calculator \
+  --region asia-northeast1 \
+  --set-env-vars "GUMROAD_PRODUCT_ID=【実際のProduct ID】" \
+  --set-env-vars "GUMROAD_LICENSE_EXPIRY=2026-12-31" \
+  --set-env-vars "NEXT_PUBLIC_ANNOUNCEMENT_MODE=false"
+```
 
 ### 為替レート管理のセットアップ
 
