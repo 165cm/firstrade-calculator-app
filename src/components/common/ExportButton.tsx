@@ -1,5 +1,5 @@
 // src/components/common/ExportButton.tsx
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { useLicense } from '@/hooks/useLicense';
 interface Props {
   onClick: () => void;
   disabled?: boolean;
+  ignoreAnnouncementMode?: boolean;
 }
 
 // Gumroad購入リンク（環境変数または直接設定）
@@ -15,12 +16,29 @@ const GUMROAD_PRODUCT_URL = process.env.NEXT_PUBLIC_GUMROAD_PRODUCT_URL || '';
 // 告知モード（true: 告知のみ表示、false: 認証を要求）
 const ANNOUNCEMENT_MODE = process.env.NEXT_PUBLIC_ANNOUNCEMENT_MODE === 'true';
 
-export function ExportButton({ onClick, disabled = false }: Props) {
-  const { isVerified, verifyLicense, expiryDate, isLoading: isLicenseLoading } = useLicense();
+export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode = false }: Props) {
+  const { isVerified, verifyLicense, clearLicense, expiryDate, isLoading: isLicenseLoading } = useLicense();
   const [isOpen, setIsOpen] = useState(false);
   const [licenseKey, setLicenseKey] = useState('');
   const [error, setError] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [inviteCode, setInviteCode] = useState('');
+
+  // 招待コードがある場合はURLに付与
+  const purchaseUrl = useMemo(() => {
+    if (!GUMROAD_PRODUCT_URL) return '';
+    if (!inviteCode.trim()) return GUMROAD_PRODUCT_URL;
+
+    // 末尾のスラッシュ処理
+    const baseUrl = GUMROAD_PRODUCT_URL.endsWith('/')
+      ? GUMROAD_PRODUCT_URL.slice(0, -1)
+      : GUMROAD_PRODUCT_URL;
+
+    // https://help.gumroad.com/article/270-url-parameters#Discounts-codes
+    return `${baseUrl}/${inviteCode.trim()}`;
+  }, [inviteCode]);
+
+  const shouldShowAnnouncement = ANNOUNCEMENT_MODE && !ignoreAnnouncementMode;
 
   // ライセンス認証済みユーザーは直接エクスポート可能
   if (isVerified) {
@@ -38,6 +56,18 @@ export function ExportButton({ onClick, disabled = false }: Props) {
             〜{expiryDate}
           </span>
         )}
+        {/* デバッグ/リセット用: 小さなボタンでライセンスクリア機能を提供 */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            if (window.confirm('ライセンス情報をリセットしてもよろしいですか？\nリセットすると再認証が必要になります。')) {
+              clearLicense();
+            }
+          }}
+          className="ml-2 text-xs text-slate-400 hover:text-red-500 underline whitespace-nowrap"
+        >
+          リセット
+        </button>
       </div>
     );
   }
@@ -51,23 +81,16 @@ export function ExportButton({ onClick, disabled = false }: Props) {
     );
   }
 
-  // 告知モード: 認証なしで使えるが、告知を表示
-  if (ANNOUNCEMENT_MODE) {
+  // 告知モード: 認証なしで使えるが、シンプルに表示
+  if (shouldShowAnnouncement) {
     return (
-      <>
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={onClick}
-            disabled={disabled}
-            className={`${disabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
-          >
-            CSVエクスポート
-          </Button>
-          <span className="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded">
-            近日有料化予定
-          </span>
-        </div>
-      </>
+      <Button
+        onClick={onClick}
+        disabled={disabled}
+        className={`${disabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+      >
+        CSVエクスポート
+      </Button>
     );
   }
 
@@ -161,25 +184,43 @@ export function ExportButton({ onClick, disabled = false }: Props) {
             <label className="block text-sm font-medium text-gray-700">
               ライセンスキー
             </label>
-            <Input
-              type="text"
-              value={licenseKey}
-              onChange={(e) => setLicenseKey(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"
-              disabled={isVerifying}
-              className="font-mono text-sm"
-            />
+            <div className="relative">
+              <Input
+                type="text"
+                value={licenseKey}
+                onChange={(e) => setLicenseKey(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"
+                disabled={isVerifying}
+                className="w-full text-center font-mono text-base py-6 uppercase"
+              />
+            </div>
             {error && (
               <p className="text-sm text-red-500">{error}</p>
             )}
           </div>
 
           {/* 購入リンク */}
-          {GUMROAD_PRODUCT_URL && (
-            <div className="text-center pt-2">
+          {/* 購入リンク */}
+          {purchaseUrl && (
+            <div className="text-center pt-2 border-t mt-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1 text-left">
+                  招待コード（お持ちの方）
+                </label>
+                <div className="flex gap-2">
+                  <Input
+                    type="text"
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    placeholder="例: INVITE123"
+                    className="font-mono uppercase text-center tracking-wider"
+                  />
+                </div>
+              </div>
+
               <a
-                href={GUMROAD_PRODUCT_URL}
+                href={purchaseUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg"
@@ -187,10 +228,13 @@ export function ExportButton({ onClick, disabled = false }: Props) {
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" />
                 </svg>
-                2025年版ライセンスを購入（$25）
+                {inviteCode ? '招待コードを適用してライセンスを入手' : '2025年版ライセンスを購入（$25）'}
               </a>
-              <p className="text-xs text-gray-400 mt-2">
-                Gumroadで安全に決済できます
+              <p className="text-xs text-gray-500 mt-2 mb-1">
+                Gumroadのページへ移動します
+              </p>
+              <p className="text-xs text-gray-400 leading-relaxed text-left mx-auto max-w-sm">
+                ※Gumroadは、米国サンフランシスコを拠点とする、世界中のクリエイターが利用する安全な決済プラットフォームです。
               </p>
             </div>
           )}

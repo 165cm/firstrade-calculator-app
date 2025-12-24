@@ -4,6 +4,7 @@
 import React, { useState, useEffect, useImperativeHandle } from 'react';
 import type { TargetAllocation, PortfolioSummary as PortfolioSummaryType, Holding } from '@/types/portfolio';
 import { DEFAULT_TARGET_ALLOCATIONS, ALLOCATION_PRESETS } from '@/types/portfolio';
+import { DEMO_POSITION_DATA } from '@/utils/demoData';
 import { parsePositionText, buildPortfolioFromPositions } from '@/utils/portfolio/parsePosition';
 import {
   calculateAllocationStatus,
@@ -16,7 +17,7 @@ import { exportPortfolioToCsv, downloadCsv } from '@/utils/export/csvExport';
 import { PositionInput } from './PositionInput';
 import { TargetAllocationSettings } from './TargetAllocationSettings';
 import { PortfolioSummaryComponent } from './PortfolioSummary';
-import { Alert, AlertDescription, AlertTitle } from '../ui/alert';
+import { Alert, AlertDescription } from '../ui/alert';
 import { DividendYieldCalculator } from '@/components/dividend/DividendYieldCalculator';
 import { aggregateDividendsBySymbol } from '@/utils/dividend/calculateYield';
 import type { ProcessedDividendData } from '@/types/dividend';
@@ -27,6 +28,7 @@ const DIVIDEND_STORAGE_KEY = 'dividend_data';
 export interface PortfolioHandle {
   clear: () => void;
   downloadCSV: () => void;
+  loadDemoData: () => void;
 }
 
 interface Props {
@@ -128,20 +130,6 @@ export const PortfolioAnalysis = React.forwardRef<PortfolioHandle, Props>(({ onD
     }
   };
 
-  useImperativeHandle(ref, () => ({
-    clear: handleClearResults,
-    downloadCSV: () => {
-      if (!summary) return;
-      try {
-        const timestamp = new Date().toISOString().split('T')[0];
-        const csvContent = exportPortfolioToCsv(summary.portfolio.holdings);
-        downloadCsv(csvContent, `ポートフォリオ分析(Beta)_${timestamp}.csv`);
-      } catch (error) {
-        console.error('Export error:', error);
-      }
-    }
-  }));
-
   const handleSubmit = (text: string, cashAmount: number) => {
     setError(null);
     try {
@@ -192,6 +180,23 @@ export const PortfolioAnalysis = React.forwardRef<PortfolioHandle, Props>(({ onD
       setError(err instanceof Error ? err.message : '分析中にエラーが発生しました');
     }
   };
+
+  useImperativeHandle(ref, () => ({
+    clear: handleClearResults,
+    downloadCSV: () => {
+      if (!summary) return;
+      try {
+        const timestamp = new Date().toISOString().split('T')[0];
+        const csvContent = exportPortfolioToCsv(summary.portfolio.holdings);
+        downloadCsv(csvContent, `ポートフォリオ分析(Beta)_${timestamp}.csv`);
+      } catch (error) {
+        console.error('Export error:', error);
+      }
+    },
+    loadDemoData: () => {
+      handleSubmit(DEMO_POSITION_DATA, 10000);
+    }
+  }));
 
   const handleError = (message: string) => {
     setError(message);
@@ -261,8 +266,6 @@ export const PortfolioAnalysis = React.forwardRef<PortfolioHandle, Props>(({ onD
         isCollapsed={inputCollapsed}
         onToggle={() => setInputCollapsed(!inputCollapsed)}
       />
-
-
 
       {/* エラー表示 */}
       {error && (
