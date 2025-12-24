@@ -1,6 +1,7 @@
 # Firstrade証券 確定申告支援ツール
 
-米国証券会社Firstradeでの取引における確定申告作業を支援するWebアプリケーションです。
+Firstrade証券(Firstrade Securities Inc.)での取引における確定申告作業を支援する非公式Webアプリケーションです。
+※本ツールは、Firstrade公式のツールではありません。
 
 ## 機能
 
@@ -51,6 +52,21 @@
 
 技術的な詳細やローカルでのセットアップ方法については、[DEVELOPER.md](./DEVELOPER.md)を参照してください。
 
+## 開発者・コミュニティについて
+
+本ツールは、米国証券口座Firstradeの情報発信を行うブログ「[Nomad家族](https://www.nomadkazoku.com/firstrade-tax-calculator/)」の運営者と、[noteメンバーシップ](https://note.com/nomadkazoku/membership/info)コミュニティの協力により開発されました。
+
+長年Firstradeを利用しているユーザーの実体験と、コミュニティに寄せられた「確定申告の悩み」を解決するために生まれたプロジェクトです。
+
 ## 免責事項
 
-本ツールは確定申告の計算を補助するものであり、税務アドバイスを提供するものではありません。確定申告の内容については、必ずご自身でご確認ください。不明な点がある場合は、税理士にご相談することをお勧めします。
+- 本ツールはFirstrade証券(Firstrade Securities Inc.)とは一切関係のない、個人開発者による非公式ツールです。
+- 本ツールは確定申告の計算を補助するものであり、税務アドバイスを提供するものではありません。確定申告の内容については、必ずご自身でご確認ください。不明な点がある場合は、税理士にご相談することをお勧めします。
+- 為替レートの取得には外部APIを使用しており、将来的に利用できなくなる可能性があります。
+
+## 関連リンク
+
+- [特定商取引法に基づく表記](https://www.nomadkazoku.com/legal/)
+- [プライバシーポリシー](https://www.nomadkazoku.com/privacy-policy/)
+- [お問い合わせ](https://www.notion.so/2d3e8c4088938053a31df1916c843dd0?pvs=106)
+- [ライセンス購入（Gumroad）](https://papazon.gumroad.com/l/firstrade-ja)
