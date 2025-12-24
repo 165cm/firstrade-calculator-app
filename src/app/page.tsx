@@ -3,6 +3,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Download, TrendingUp, Smartphone, Zap, ShieldCheck, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Globe, Lock } from 'lucide-react';
 
+// キャッシュを無効化し、常に最新のコンテンツを表示
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen font-sans selection:bg-blue-100 selection:text-blue-900">
@@ -349,6 +353,23 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Developer Story Section */}
+      <section className="py-24 bg-slate-50 border-t border-slate-100">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl mx-auto text-center">
+            <span className="text-blue-600 font-bold tracking-wider uppercase text-sm mb-3 block">Developer Story</span>
+            <h2 className="text-3xl font-bold text-slate-900 mb-6 tracking-tight">
+              コミュニティとともに進化するツール
+            </h2>
+            <p className="text-lg text-slate-600 mb-12 leading-relaxed">
+              本ツールは、Firstradeの情報発信を行うブログ「<a href="https://www.nomadkazoku.com/firstrade-tax-calculator/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-500 underline decoration-blue-300 decoration-2 underline-offset-4">Nomad家族</a>」の運営者と、<br className="hidden sm:block" />
+              <a href="https://note.com/nomadkazoku/membership/info" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-500 underline decoration-blue-300 decoration-2 underline-offset-4">noteメンバーシップ</a>コミュニティの協力により開発されました。<br />
+              実際にFirstradeを利用する投資家の「生の声」に基づき、使いやすさを追求しています。
+            </p>
+          </div>
+        </div>
+      </section>
+
       {/* How It Works Section */}
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -414,8 +435,26 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="py-10 bg-slate-950 text-slate-500 text-center text-sm border-t border-slate-900">
-        <p>© 2025 FirstScope. All rights reserved.</p>
+      <footer className="py-12 bg-slate-950 text-slate-400 text-center text-sm border-t border-slate-900">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col md:flex-row justify-between items-center max-w-5xl mx-auto">
+            <div className="mb-6 md:mb-0 text-left">
+              <p className="font-bold text-slate-200 text-lg mb-2">FirstScope</p>
+              <p className="text-xs text-slate-500 max-w-sm leading-relaxed">
+                本ツールはFirstrade証券公式のツールではありません。個人開発者による非公式ツールです。<br />
+                確定申告の内容については、必ずご自身または税理士にご確認ください。
+              </p>
+            </div>
+            <div className="flex gap-8 text-xs font-medium">
+              <a href="https://www.nomadkazoku.com/legal/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">特定商取引法に基づく表記</a>
+              <a href="https://www.nomadkazoku.com/privacy-policy/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">プライバシーポリシー</a>
+              <a href="https://www.notion.so/2d3e8c4088938053a31df1916c843dd0?pvs=106" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">お問い合わせ</a>
+            </div>
+          </div>
+          <div className="mt-12 pt-8 border-t border-slate-900 text-slate-600 text-xs text-center">
+            <p>© 2025 Nomad Family. All rights reserved.</p>
+          </div>
+        </div>
       </footer>
     </div>
   );

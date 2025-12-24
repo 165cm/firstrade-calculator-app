@@ -152,6 +152,15 @@ src/data/
 2. 適切なテストの追加
 3. ドキュメントの更新
 
-## ライセンス
+## 関連リンク
 
-このプロジェクトはMITライセンスの下で公開されています。
+- [本番サイト](https://firstrade.nomadkazoku.com)
+- [特定商取引法に基づく表記](https://www.nomadkazoku.com/legal/)
+- [プライバシーポリシー](https://www.nomadkazoku.com/privacy-policy/)
+- [お問い合わせ](https://www.notion.so/2d3e8c4088938053a31df1916c843dd0?pvs=106)
+- [Gumroad License Keys Help](https://gumroad.com/help/article/76-license-keys)
+- [Google Cloud Run Console](https://console.cloud.google.com/run)
+
+## ライセンス
+本アプリケーションは商用製品であり、無断での複製・再配布・販売を固く禁じます。
+(Copyright © 2025 Nomad Family. All Rights Reserved.)
