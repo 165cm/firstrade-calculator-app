@@ -1,7 +1,7 @@
 // src/app/page.tsx
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Download, TrendingUp, Smartphone, Zap, ShieldCheck, CheckCircle2, XCircle, Database, Quote, AlertTriangle } from 'lucide-react';
+import { ArrowRight, Download, TrendingUp, Smartphone, Zap, ShieldCheck, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Globe, Lock } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -125,27 +125,27 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <FeatureCard
               icon={<Download className="h-6 w-6 text-blue-600" />}
-              title="配当金計算"
+              title="配当金明細"
               description="Tax CenterのCSVをドロップするだけで、TTMレートで日本円に自動換算。月次・年間サマリーも自動生成。"
-              imageSrc="/images/feature_dividend.png"
+              imageSrc="/images/dividend.png"
             />
             <FeatureCard
               icon={<TrendingUp className="h-6 w-6 text-emerald-600" />}
-              title="売買損益計算"
+              title="売却損益"
               description="Gain/Lossファイルから譲渡損益計算書に必要なデータを一発出力。特定口座のような利便性を。"
-              imageSrc="/images/feature_gainloss.png"
+              imageSrc="/images/gainloss.png"
             />
             <FeatureCard
               icon={<Zap className="h-6 w-6 text-amber-500" />}
-              title="コピペで即分析"
-              description="【Beta】CSV不要。Firstradeの画面をコピーして貼り付けるだけで、瞬時に損益やバランスを分析。"
-              imageSrc="/images/feature_portfolio.png"
+              title="損益シミュレーター"
+              description="売却タイミングを仮定した税金計算をシミュレーション。最適な売却戦略を見極められます。"
+              imageSrc="/images/simulator.png"
             />
             <FeatureCard
               icon={<Smartphone className="h-6 w-6 text-violet-600" />}
-              title="損益シミュレーター"
-              description="売却タイミングを仮定した税金計算をシミュレーション。最適な売却戦略を見極められます。"
-              imageSrc="/images/feature_simulator.png"
+              title="ポートフォリオ"
+              description="【Beta】CSV不要。Firstradeの画面をコピーして貼り付けるだけで、瞬時に損益やバランスを分析。"
+              imageSrc="/images/portfolio.png"
             />
           </div>
         </div>
@@ -200,6 +200,77 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Payment Security Section */}
+      <section className="py-24 bg-white border-y border-slate-100 relative overflow-hidden">
+        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-emerald-50 rounded-full blur-3xl opacity-50" />
+        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-blue-50 rounded-full blur-3xl opacity-50" />
+
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="max-w-5xl mx-auto">
+            <div className="flex flex-col md:flex-row items-center gap-12">
+              <div className="flex-1">
+                <span className="text-emerald-600 font-bold tracking-wider uppercase text-sm mb-3 block">Security & Trust</span>
+                <h2 className="text-3xl font-extrabold text-slate-900 mb-6 tracking-tight">
+                  決済システムには、<br />
+                  <span className="text-emerald-600">Gumroad</span>を採用しています。
+                </h2>
+                <p className="text-lg text-slate-600 mb-8 leading-relaxed">
+                  FirstScopeは、決済・ライセンス発行システムとして、
+                  米国サンフランシスコを拠点とするプラットフォーム「Gumroad」を採用しています。
+                  クレジットカード情報は当サイトには一切保存されません。
+                </p>
+
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 bg-emerald-100 rounded-xl text-emerald-600">
+                      <Globe className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 mb-1">世界中で利用される信頼性</h4>
+                      <p className="text-sm text-slate-600 leading-relaxed">クリエイターエコノミーを支える主要プラットフォームとして、世界中の開発者やアーティストに利用されています。</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4">
+                    <div className="p-3 bg-blue-100 rounded-xl text-blue-600">
+                      <Lock className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-slate-900 mb-1">堅牢なセキュリティ</h4>
+                      <p className="text-sm text-slate-600 leading-relaxed">決済処理はStripe等と連携し、高度な暗号化通信で保護されています。安心してお支払いいただけます。</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 w-full max-w-md">
+                <div className="bg-slate-950 rounded-3xl p-8 text-white shadow-2xl shadow-slate-200 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/20 rounded-full blur-2xl" />
+                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl" />
+
+                  <div className="relative z-10 flex flex-col items-center text-center">
+                    <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-sm border border-white/10">
+                      <CreditCard className="w-8 h-8 text-emerald-300" />
+                    </div>
+                    <h3 className="text-xl font-bold mb-2">Secure Payment</h3>
+                    <p className="text-slate-400 text-sm mb-8">Powered by Gumroad</p>
+
+                    <div className="w-full bg-white/5 rounded-xl p-4 border border-white/10 mb-4 flex items-center gap-3">
+                      <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
+                      <span className="text-sm font-medium text-slate-200">256-bit SSL Encryption</span>
+                    </div>
+                    <div className="w-full bg-white/5 rounded-xl p-4 border border-white/10 flex items-center gap-3">
+                      <ShieldCheck className="w-4 h-4 text-blue-300" />
+                      <span className="text-sm font-medium text-slate-200">Fraud Protection</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
       {/* Can/Cannot Section */}
       <section className="py-24 bg-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -248,7 +319,7 @@ export default function Home() {
           <div className="mt-8 max-w-2xl mx-auto">
             <div className="bg-amber-50/50 border border-amber-200/60 rounded-xl p-4 flex gap-4 items-start text-sm text-amber-900/80">
               <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
-              <p><strong>ご注意:</strong> 源泉徴収額の自動取得率は約73%です。FirstradeのCSVに記載がない場合があるため、必ず月次明細(Statement)との突合が必要です。</p>
+              <p><strong>ご注意:</strong> 源泉徴収額の自動取得率は約73%です。これはFirstradeのCSVデータ自体に源泉徴収額が記録されていないケースがあるためです（ツール側の不具合ではありません）。必ず月次明細(Statement)と照合・補完してください。</p>
             </div>
           </div>
         </div>
@@ -376,11 +447,12 @@ function FeatureCard({ icon, title, description, imageSrc }: { icon: React.React
     <div className="group bg-white rounded-3xl p-2 border border-slate-100 shadow-lg shadow-slate-200/50 hover:shadow-xl hover:shadow-slate-200/60 hover:-translate-y-1 transition-all duration-300">
       {imageSrc && (
         <div className="w-full aspect-[4/3] mb-4 rounded-2xl overflow-hidden bg-slate-100 relative">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={imageSrc}
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
           />
         </div>
       )}
