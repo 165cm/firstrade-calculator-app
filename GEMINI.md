@@ -1,8 +1,8 @@
-# CLAUDE.md - Claude Code 用の指示書
+# GEMINI.md - Gemini CLI 用の指示書
 
 ## 🎯 このファイルについて
 
-Claude Code が自動で読み込む設定ファイルです。
+Gemini CLI が自動で読み込む設定ファイルです。
 
 ---
 
@@ -23,7 +23,7 @@ Claude Code が自動で読み込む設定ファイルです。
 
 ---
 
-## ✅ Claude Code への指示
+## ✅ Gemini CLI への指示
 
 ### 必ずやること
 
@@ -76,4 +76,4 @@ git push
 ## 🔗 関連ファイル
 
 - `.ai/RULES.md` - 共通ルール（コーディング規約、コミットルール）
-- `GEMINI.md` - Gemini CLI 用の指示書
+- `CLAUDE.md` - Claude Code 用の指示書
