@@ -4,14 +4,16 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import type { SimulatorSummary, SimulatorEntry, TermSummary } from '@/types/simulator';
-import { HelpTooltip } from '../common/Tooltip';
 import { formatUSD, formatJPY } from '@/utils/common/formatters';
+import { useLicenseContext } from '@/contexts/LicenseContext';
+import { DataRestriction, restrictItems } from '@/components/common/DataRestriction';
 
+const VISIBLE_COUNT = 3; // 未認証時の表示件数（データが少ない場合のフォールバック）
+const VISIBLE_RATIO = 0.5; // 未認証時の表示割合（50%）
 
 interface Props {
     summary: SimulatorSummary;
 }
-
 
 /**
  * コンパクトな期間サマリー行
@@ -40,92 +42,102 @@ const TermSummaryRow: React.FC<{
 /**
  * 取引明細テーブル（コンパクト版）
  */
-const CompactEntriesTable: React.FC<{ entries: SimulatorEntry[] }> = ({ entries }) => {
+const CompactEntriesTable: React.FC<{ entries: SimulatorEntry[]; isLicensed: boolean }> = ({ entries, isLicensed }) => {
     const [showAll, setShowAll] = useState(false);
     const shortTermEntries = entries.filter(e => e.termType === 'short');
     const longTermEntries = entries.filter(e => e.termType === 'long');
 
     const displayLimit = 15;
+    // ライセンス状態で表示件数を制限（データの半分を表示）
     const totalEntries = entries.length;
-    const displayEntries = showAll ? entries : entries.slice(0, displayLimit);
+    const visibleCount = Math.max(VISIBLE_COUNT, Math.ceil(totalEntries * VISIBLE_RATIO));
+    const visibleEntries = restrictItems(entries, isLicensed, visibleCount);
+    const displayEntries = showAll ? visibleEntries : visibleEntries.slice(0, displayLimit);
 
     if (entries.length === 0) return null;
 
     return (
-        <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
-            <table className="w-full text-xs">
-                <thead className="bg-gray-100 sticky top-0 z-10">
-                    <tr>
-                        <th className="px-1.5 py-1.5 text-left w-16">Symbol</th>
-                        <th className="px-1.5 py-1.5 text-center w-8">種別</th>
-                        <th className="px-1.5 py-1.5 text-right w-12">数量</th>
-                        <th className="px-1.5 py-1.5 text-center w-20">取得日</th>
-                        <th className="px-1.5 py-1.5 text-center w-20">売却日</th>
-                        <th className="px-1.5 py-1.5 text-right w-16">売却額</th>
-                        <th className="px-1.5 py-1.5 text-right w-16">取得費</th>
-                        <th className="px-1.5 py-1.5 text-right w-16">損益USD</th>
-                        <th className="px-1.5 py-1.5 text-right w-20">損益JPY</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {displayEntries.map((entry, idx) => (
-                        <tr
-                            key={`${entry.symbol}-${idx}`}
-                            className={`border-b border-gray-100 hover:bg-gray-50 ${entry.termType === 'short' ? 'bg-blue-50/30' : 'bg-green-50/30'
-                                }`}
-                        >
-                            <td className="px-1.5 py-1">
-                                <span className="font-medium">{entry.symbol}</span>
-                                {entry.isWashSale && <span className="ml-0.5 text-orange-500 text-[10px]">WS</span>}
-                            </td>
-                            <td className="px-1.5 py-1 text-center">
-                                <span className={`text-[10px] px-1 py-0.5 rounded ${entry.termType === 'short'
-                                    ? 'bg-blue-100 text-blue-700'
-                                    : 'bg-green-100 text-green-700'
-                                    }`}>
-                                    {entry.termType === 'short' ? '短' : '長'}
-                                </span>
-                            </td>
-                            <td className="px-1.5 py-1 text-right tabular-nums">{entry.qty.toFixed(2)}</td>
-                            <td className="px-1.5 py-1 text-center tabular-nums text-gray-600">{entry.dateAcquired.slice(5)}</td>
-                            <td className="px-1.5 py-1 text-center tabular-nums text-gray-600">{entry.dateSold.slice(5)}</td>
-                            <td className="px-1.5 py-1 text-right tabular-nums">{formatUSD(entry.salesProceeds)}</td>
-                            <td className="px-1.5 py-1 text-right tabular-nums">{formatUSD(entry.adjustedCost)}</td>
-                            <td className={`px-1.5 py-1 text-right tabular-nums font-medium ${entry.netGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {formatUSD(entry.netGainLoss)}
-                            </td>
-                            <td className={`px-1.5 py-1 text-right tabular-nums ${(entry.netGainLossJpy || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                                {entry.netGainLossJpy !== undefined ? formatJPY(entry.netGainLossJpy) : '-'}
-                            </td>
+        <DataRestriction
+            isLicensed={isLicensed}
+            visibleCount={visibleCount}
+            totalCount={totalEntries}
+        >
+            <div className="overflow-x-auto max-h-[400px] overflow-y-auto">
+                <table className="w-full text-xs">
+                    <thead className="bg-gray-100 sticky top-0 z-10">
+                        <tr>
+                            <th className="px-1.5 py-1.5 text-left w-16">Symbol</th>
+                            <th className="px-1.5 py-1.5 text-center w-8">種別</th>
+                            <th className="px-1.5 py-1.5 text-right w-12">数量</th>
+                            <th className="px-1.5 py-1.5 text-center w-20">取得日</th>
+                            <th className="px-1.5 py-1.5 text-center w-20">売却日</th>
+                            <th className="px-1.5 py-1.5 text-right w-16">売却額</th>
+                            <th className="px-1.5 py-1.5 text-right w-16">取得費</th>
+                            <th className="px-1.5 py-1.5 text-right w-16">損益USD</th>
+                            <th className="px-1.5 py-1.5 text-right w-20">損益JPY</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {displayEntries.map((entry, idx) => (
+                            <tr
+                                key={`${entry.symbol}-${idx}`}
+                                className={`border-b border-gray-100 hover:bg-gray-50 ${entry.termType === 'short' ? 'bg-blue-50/30' : 'bg-green-50/30'}`}
+                            >
+                                <td className="px-1.5 py-1">
+                                    <span className="font-medium">{entry.symbol}</span>
+                                    {entry.isWashSale && <span className="ml-0.5 text-orange-500 text-[10px]">WS</span>}
+                                </td>
+                                <td className="px-1.5 py-1 text-center">
+                                    <span className={`text-[10px] px-1 py-0.5 rounded ${entry.termType === 'short' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'}`}>
+                                        {entry.termType === 'short' ? '短' : '長'}
+                                    </span>
+                                </td>
+                                <td className="px-1.5 py-1 text-right tabular-nums">{entry.qty.toFixed(2)}</td>
+                                <td className="px-1.5 py-1 text-center tabular-nums text-gray-600">{entry.dateAcquired.slice(5)}</td>
+                                <td className="px-1.5 py-1 text-center tabular-nums text-gray-600">{entry.dateSold.slice(5)}</td>
+                                <td className="px-1.5 py-1 text-right tabular-nums">{formatUSD(entry.salesProceeds)}</td>
+                                <td className="px-1.5 py-1 text-right tabular-nums">{formatUSD(entry.adjustedCost)}</td>
+                                <td className={`px-1.5 py-1 text-right tabular-nums font-medium ${entry.netGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {formatUSD(entry.netGainLoss)}
+                                </td>
+                                <td className={`px-1.5 py-1 text-right tabular-nums ${(entry.netGainLossJpy || 0) >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                    {entry.netGainLossJpy !== undefined ? formatJPY(entry.netGainLossJpy) : '-'}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
 
-            {/* 展開/折りたたみ & 統計 */}
-            <div className="flex justify-between items-center mt-2 px-1 text-xs text-gray-500">
-                <div className="flex gap-3">
-                    <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
-                        短期: {shortTermEntries.length}件
-                    </span>
-                    <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
-                        長期: {longTermEntries.length}件
-                    </span>
-                </div>
-                {totalEntries > displayLimit && (
-                    <button
-                        onClick={() => setShowAll(!showAll)}
-                        className="text-blue-600 hover:underline"
-                    >
-                        {showAll ? '折りたたむ' : `全${totalEntries}件を表示`}
-                    </button>
+                {/* 展開/折りたたみ & 統計 */}
+                {isLicensed && (
+                    <div className="flex justify-between items-center mt-2 px-1 text-xs text-gray-500">
+                        <div className="flex gap-3">
+                            <span className="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded">
+                                短期: {shortTermEntries.length}件
+                            </span>
+                            <span className="bg-green-100 text-green-700 px-1.5 py-0.5 rounded">
+                                長期: {longTermEntries.length}件
+                            </span>
+                        </div>
+                        {totalEntries > displayLimit && (
+                            <button
+                                onClick={() => setShowAll(!showAll)}
+                                className="text-blue-600 hover:underline"
+                            >
+                                {showAll ? '折りたたむ' : `全${totalEntries}件を表示`}
+                            </button>
+                        )}
+                    </div>
                 )}
             </div>
-        </div>
+        </DataRestriction>
     );
 };
 
 export const GainLossSummaryComponent: React.FC<Props> = ({ summary }) => {
+    const { isVerified, isLoading } = useLicenseContext();
+    const isLicensed = isLoading ? true : isVerified;
+
     const shortTermEntries = summary.entries.filter(e => e.termType === 'short');
     const longTermEntries = summary.entries.filter(e => e.termType === 'long');
 
@@ -195,7 +207,7 @@ export const GainLossSummaryComponent: React.FC<Props> = ({ summary }) => {
                     <CardTitle className="text-sm">取引明細</CardTitle>
                 </CardHeader>
                 <CardContent className="py-2 pt-0">
-                    <CompactEntriesTable entries={summary.entries} />
+                    <CompactEntriesTable entries={summary.entries} isLicensed={isLicensed} />
                 </CardContent>
             </Card>
         </div>

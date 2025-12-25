@@ -1,4 +1,5 @@
 // src/components/dividend/DividendSummary.tsx
+'use client';
 import React, { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
@@ -15,6 +16,11 @@ import type {
   ConvertedDividendRecord
 } from '@/types/dividend';
 import { calculateTotalWithholding, extractWithholdingAmount } from '@/utils/withholding';
+import { useLicenseContext } from '@/contexts/LicenseContext';
+import { DataRestriction } from '@/components/common/DataRestriction';
+
+const VISIBLE_MONTHS = 3; // 未認証時の表示月数（データが少ない場合のフォールバック）
+const VISIBLE_RATIO = 0.5; // 未認証時の表示割合（50%）
 
 interface Props {
   data: ProcessedDividendData;
@@ -152,6 +158,8 @@ export async function processDividendData(records: DividendRecord[]): Promise<Pr
 }
 
 export function DividendSummary({ data }: Props) {
+  const { isVerified, isLoading } = useLicenseContext();
+  const isLicensed = isLoading ? true : isVerified;
 
 
   // 年間・月間の集計
@@ -422,55 +430,71 @@ export function DividendSummary({ data }: Props) {
 
       {/* 明細アコーディオン */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-100">
-        <Accordion type="single">
-          {Array.from({ length: 12 }, (_, i) => {
+        {(() => {
+          // データがある月のリストを作成
+          const monthsWithData = Array.from({ length: 12 }, (_, i) => {
             const month = String(i + 1).padStart(2, '0');
             const monthlyDividends = groupRecordsByMonth(data.dividends).get(month) || [];
             const monthlyInterest = groupRecordsByMonth(data.interest).get(month) || [];
-
             const recordCount = monthlyDividends.length + monthlyInterest.length;
-            if (recordCount === 0) return null;
+            return { month, monthlyDividends, monthlyInterest, recordCount };
+          }).filter(m => m.recordCount > 0);
 
-            // 配当と利子の合計を計算
-            const monthlyTotal = {
-              dividend: monthlyDividends.reduce((sum, r) => sum + r.Amount, 0),
-              interest: monthlyInterest.reduce((sum, r) => sum + r.Amount, 0),
-              withholding: 0
-            };
+          const totalMonths = monthsWithData.length;
+          const visibleCount = Math.max(VISIBLE_MONTHS, Math.ceil(totalMonths * VISIBLE_RATIO));
+          const visibleMonths = isLicensed ? monthsWithData : monthsWithData.slice(0, visibleCount);
 
-            // 源泉徴収額を計算
-            [...monthlyDividends, ...monthlyInterest].forEach(record => {
-              const withholdingAmount = extractWithholdingAmount(record);
-              if (withholdingAmount) {
-                monthlyTotal.withholding -= withholdingAmount;
-              }
-            });
+          return (
+            <DataRestriction
+              isLicensed={isLicensed}
+              visibleCount={visibleCount}
+              totalCount={totalMonths}
+            >
+              <Accordion type="single">
+                {visibleMonths.map(({ month, monthlyDividends, monthlyInterest, recordCount }) => {
+                  // 配当と利子の合計を計算
+                  const monthlyTotal = {
+                    dividend: monthlyDividends.reduce((sum, r) => sum + r.Amount, 0),
+                    interest: monthlyInterest.reduce((sum, r) => sum + r.Amount, 0),
+                    withholding: 0
+                  };
 
-            return (
-              <AccordionItem key={month} value={month}>
-                <AccordionTrigger className="w-full hover:no-underline py-2">
-                  <MonthlyTotalCard
-                    data={monthlyTotal}
-                    month={month}
-                    recordCount={recordCount}
-                  />
-                </AccordionTrigger>
-                <AccordionContent>
-                  {monthlyDividends.length > 0 && (
-                    <div className="px-2 pb-2">
-                      {renderTable(monthlyDividends)}
-                    </div>
-                  )}
-                  {monthlyInterest.length > 0 && (
-                    <div className="px-2 pb-2">
-                      {renderTable(monthlyInterest)}
-                    </div>
-                  )}
-                </AccordionContent>
-              </AccordionItem>
-            );
-          })}
-        </Accordion>
+                  // 源泉徴収額を計算
+                  [...monthlyDividends, ...monthlyInterest].forEach(record => {
+                    const withholdingAmount = extractWithholdingAmount(record);
+                    if (withholdingAmount) {
+                      monthlyTotal.withholding -= withholdingAmount;
+                    }
+                  });
+
+                  return (
+                    <AccordionItem key={month} value={month}>
+                      <AccordionTrigger className="w-full hover:no-underline py-2">
+                        <MonthlyTotalCard
+                          data={monthlyTotal}
+                          month={month}
+                          recordCount={recordCount}
+                        />
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        {monthlyDividends.length > 0 && (
+                          <div className="px-2 pb-2">
+                            {renderTable(monthlyDividends)}
+                          </div>
+                        )}
+                        {monthlyInterest.length > 0 && (
+                          <div className="px-2 pb-2">
+                            {renderTable(monthlyInterest)}
+                          </div>
+                        )}
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            </DataRestriction>
+          );
+        })()}
       </div>
     </div>
   );

@@ -1,17 +1,21 @@
 // src/components/gainloss/GainLossSummary.tsx
+'use client';
 import React from 'react';
 import type { GainLossSummary, SymbolSummary, TradeDetail } from '@/types/gainloss';
 import { HelpTooltip } from '@/components/common/Tooltip';
 import { formatJPY, formatExchangeRate } from '@/utils/common/formatters';
+import { useLicenseContext } from '@/contexts/LicenseContext';
+import { DataRestriction, restrictItems } from '@/components/common/DataRestriction';
+
+const VISIBLE_COUNT = 3; // 未認証時の表示件数（データが少ない場合のフォールバック）
+const VISIBLE_RATIO = 0.5; // 未認証時の表示割合（50%）
 
 interface Props {
   summary: GainLossSummary;
 }
 
 const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
-
-
-
+  const { isVerified, isLoading } = useLicenseContext();
 
   // 平均為替レートの計算
   const calculateWeightedAverageRate = (trades: TradeDetail[]): {
@@ -53,8 +57,13 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
     sum + symbol.trades.reduce((acc, trade) => acc + trade.proceedsJPY, 0), 0);
   const gainLossRateJPY = (summary.totalGainLossJPY / totalSalesJPY) * 100;
 
-  return (
+  // ライセンス状態に応じて表示する銘柄を制限（データの半分を表示）
+  const isLicensed = isLoading ? true : isVerified; // ローディング中は全件表示
+  const totalSymbols = summary.symbolSummary.length;
+  const visibleCount = Math.max(VISIBLE_COUNT, Math.ceil(totalSymbols * VISIBLE_RATIO));
+  const visibleSymbols = restrictItems(summary.symbolSummary, isLicensed, visibleCount);
 
+  return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-bold">年間損益サマリー</h2>
@@ -98,14 +107,20 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
       {/* 銘柄別実績（詳細付き） */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4">
         <h2 className="text-lg font-bold mb-4">銘柄別実績</h2>
-        <div className="space-y-3">
-          {summary.symbolSummary.map((symbolData) => (
-            <SymbolDetailsSection
-              key={symbolData.symbol}
-              symbolData={symbolData}
-            />
-          ))}
-        </div>
+        <DataRestriction
+          isLicensed={isLicensed}
+          visibleCount={visibleCount}
+          totalCount={summary.symbolSummary.length}
+        >
+          <div className="space-y-3">
+            {visibleSymbols.map((symbolData) => (
+              <SymbolDetailsSection
+                key={symbolData.symbol}
+                symbolData={symbolData}
+              />
+            ))}
+          </div>
+        </DataRestriction>
       </div>
     </div>
   );
@@ -118,9 +133,9 @@ const SymbolDetailsSection: React.FC<{
 
   // 銘柄全体の合計を計算
   const totalProceedsJPY = symbolData.trades.reduce((sum, trade) =>
-    sum + (trade.proceeds * trade.saleRate), 0);  // exchangeRateをsaleRateに変更
+    sum + (trade.proceeds * trade.saleRate), 0);
   const totalCostJPY = symbolData.trades.reduce((sum, trade) =>
-    sum + (trade.cost * trade.purchaseRate), 0);  // exchangeRateをpurchaseRateに変更
+    sum + (trade.cost * trade.purchaseRate), 0);
 
   const totalGainLossJPY = totalProceedsJPY - totalCostJPY;
   const totalGainLossRateJPY = ((totalProceedsJPY / totalCostJPY) - 1) * 100;
@@ -185,14 +200,9 @@ const SymbolDetailsSection: React.FC<{
             </thead>
             <tbody>
               {symbolData.trades.map((trade, index) => {
-                // 日本円での取得価格と売却価格
                 const costJPY = trade.cost * trade.purchaseRate;
                 const proceedsJPY = trade.proceeds * trade.saleRate;
-
-                // 損益(円)
                 const gainLossJPY = proceedsJPY - costJPY;
-
-                // 損益率(%)
                 const gainLossRateJPY = (proceedsJPY / costJPY - 1) * 100;
 
                 return (
