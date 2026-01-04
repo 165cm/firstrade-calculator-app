@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Download, TrendingUp, Smartphone, Zap, ShieldCheck, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Globe, Lock } from 'lucide-react';
+import { ChatSupport } from '@/components/common/ChatSupport';
 
 // キャッシュを無効化し、常に最新のコンテンツを表示
 export const dynamic = 'force-dynamic';
@@ -424,6 +425,9 @@ export default function Home() {
           </p>
         </div>
       </section>
+
+      {/* Chat Support */}
+      <ChatSupport />
 
       {/* Footer */}
       <footer className="py-12 bg-slate-950 text-slate-400 text-center text-sm border-t border-slate-900">
