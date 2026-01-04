@@ -1,4 +1,3 @@
-// src/app/page.tsx
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Download, TrendingUp, Smartphone, Zap, ShieldCheck, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Globe, Lock } from 'lucide-react';
@@ -68,10 +67,6 @@ export default function Home() {
                 無料で試す (配当金)
               </Link>
             </div>
-
-            <p className="mt-6 text-sm text-slate-400/80 font-medium">
-              ※2025年内はベータ機能（損益分析）も無料開放中
-            </p>
           </div>
         </div>
       </section>
@@ -399,22 +394,18 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Campaign Section */}
+      {/* CTA Section */}
       <section className="py-24 bg-slate-900 text-white text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('/images/grid.svg')] opacity-10" />
         <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 to-transparent" />
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="inline-flex items-center justify-center px-4 py-2 bg-white/10 rounded-full backdrop-blur-md mb-8 ring-1 ring-white/20">
-            <ShieldCheck className="h-5 w-5 text-yellow-300 mr-2" />
-            <span className="text-sm font-bold text-yellow-200 tracking-wide uppercase">2025 Campaign Free</span>
-          </div>
           <h2 className="text-4xl md:text-5xl font-extrabold mb-8 tracking-tight">
-            今ならベータ機能が無料
+            確定申告の準備を始めましょう
           </h2>
           <p className="text-lg md:text-xl text-slate-300 mb-12 max-w-2xl mx-auto leading-relaxed">
-            損益計算およびポートフォリオ分析機能（CSV出力含む）は、<br className="hidden sm:block" />
-            2025年末までライセンス未購入でもご自由にお使いいただけます。
+            面倒な為替計算と集計作業を自動化して、<br className="hidden sm:block" />
+            大切な時間を守りましょう。
           </p>
           <a
             href="https://papazon.gumroad.com/l/firstrade-ja"
