@@ -16,7 +16,7 @@ const MAX_MESSAGE_LENGTH = 500;
 // 許可するオリジン（本番環境では適切なドメインに変更）
 const ALLOWED_ORIGINS = [
     'http://localhost:3000',
-    'https://firstscope.vercel.app', // 本番ドメインに置き換え
+    'https://firstrade.nomadkazoku.com',
     'https://www.nomadkazoku.com',
 ];
 
