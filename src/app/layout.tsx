@@ -139,7 +139,7 @@ export default function RootLayout({
       </head>
       <body suppressHydrationWarning={true} className="bg-slate-50">
         <ClientLayout>
-          <div className="min-h-screen">
+          <div className="flex flex-col min-h-screen">
             <Navigation />
             {children}
           </div>

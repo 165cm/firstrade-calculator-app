@@ -13,6 +13,7 @@ import { processGainLossData } from '@/utils/gainloss/processGainLoss';
 import { calculateGainLossSummary } from '@/utils/gainloss/calculateSummary';
 import { getDefaultRateUsedDates, clearDefaultRateTracking, DEFAULT_RATE } from '@/data/exchangeRates';
 import { HelpTooltip } from '@/components/common/Tooltip';
+import { Footer } from '@/components/common/Footer';
 
 const STORAGE_KEY = 'gainloss_data';
 
@@ -107,105 +108,108 @@ export default function GainLossPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Page Header */}
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">売却損益</h1>
-          <p className="text-sm text-slate-500 mt-1">FirstradeのCSVから株式売却益を計算し、確定申告用の円換算レポートを作成</p>
+    <>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+        {/* Page Header */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-slate-900">売却損益</h1>
+            <p className="text-sm text-slate-500 mt-1">FirstradeのCSVから株式売却益を計算し、確定申告用の円換算レポートを作成</p>
+          </div>
+          <div className="flex gap-3">
+            {!summary && (
+              <button
+                onClick={() => handleUpload(DEMO_GAINLOSS_DATA)}
+                className="bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium text-blue-700 shadow-sm border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                デモデータをインポート
+              </button>
+            )}
+
+            {summary && (
+              <ExportButton onClick={() => {
+                if (!summary) return;
+                try {
+                  const timestamp = new Date().toISOString().split('T')[0];
+                  const allTrades = summary.symbolSummary.flatMap(symbolData =>
+                    symbolData.trades.map(trade => ({
+                      ...trade,
+                      symbol: symbolData.symbol
+                    }))
+                  ).sort((a, b) =>
+                    new Date(a.saleDate).getTime() - new Date(b.saleDate).getTime()
+                  );
+                  const csvContent = exportGainLossToCsv(allTrades);
+                  downloadCsv(csvContent, `損益計算書_${timestamp}.csv`);
+                } catch (error) {
+                  console.error('Export error:', error);
+                }
+              }} />
+            )}
+            {hasCachedData && (
+              <button
+                onClick={handleClearCache}
+                className="bg-white px-4 py-2 rounded-lg text-sm font-medium text-slate-700 shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors flex items-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                入力データをリセット
+              </button>
+            )}
+          </div>
         </div>
-        <div className="flex gap-3">
+
+        <div className="space-y-6">
+          {error && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-sm" role="alert">
+              {error}
+            </div>
+          )}
+
+          {defaultRateDates.length > 0 && (
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg shadow-sm" role="alert">
+              <p className="text-sm flex items-start gap-2">
+                <span>⚠️</span>
+                <span>
+                  デフォルト為替レート({DEFAULT_RATE}円)使用: {defaultRateDates.map(d => {
+                    const date = new Date(d);
+                    return `${date.getMonth() + 1}/${date.getDate()}`;
+                  }).join(', ')}
+                  <HelpTooltip text="確定申告時は、三菱UFJ銀行等のTTM（仲値）を確認し、必要に応じて手動で修正してください。差額は通常数百円程度です。" />
+                </span>
+              </p>
+            </div>
+          )}
+
           {!summary && (
-            <button
-              onClick={() => handleUpload(DEMO_GAINLOSS_DATA)}
-              className="bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium text-blue-700 shadow-sm border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-              </svg>
-              デモデータをインポート
-            </button>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+              <GainLossFileUploader
+                onUpload={handleUpload}
+                onError={setError}
+              />
+            </div>
           )}
 
-          {summary && (
-            <ExportButton onClick={() => {
-              if (!summary) return;
-              try {
-                const timestamp = new Date().toISOString().split('T')[0];
-                const allTrades = summary.symbolSummary.flatMap(symbolData =>
-                  symbolData.trades.map(trade => ({
-                    ...trade,
-                    symbol: symbolData.symbol
-                  }))
-                ).sort((a, b) =>
-                  new Date(a.saleDate).getTime() - new Date(b.saleDate).getTime()
-                );
-                const csvContent = exportGainLossToCsv(allTrades);
-                downloadCsv(csvContent, `損益計算書_${timestamp}.csv`);
-              } catch (error) {
-                console.error('Export error:', error);
-              }
-            }} />
+          {isLoading && (
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+              <ProgressIndicator progress={progress} />
+            </div>
           )}
-          {hasCachedData && (
-            <button
-              onClick={handleClearCache}
-              className="bg-white px-4 py-2 rounded-lg text-sm font-medium text-slate-700 shadow-sm border border-slate-200 hover:bg-slate-50 transition-colors flex items-center gap-2"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              入力データをリセット
-            </button>
+
+          {!isLoading && summary && (
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
+              <GainLossSummary summary={summary} />
+            </div>
           )}
         </div>
+
+
       </div>
-
-      <div className="space-y-6">
-        {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-sm" role="alert">
-            {error}
-          </div>
-        )}
-
-        {defaultRateDates.length > 0 && (
-          <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded-lg shadow-sm" role="alert">
-            <p className="text-sm flex items-start gap-2">
-              <span>⚠️</span>
-              <span>
-                デフォルト為替レート({DEFAULT_RATE}円)使用: {defaultRateDates.map(d => {
-                  const date = new Date(d);
-                  return `${date.getMonth() + 1}/${date.getDate()}`;
-                }).join(', ')}
-                <HelpTooltip text="確定申告時は、三菱UFJ銀行等のTTM（仲値）を確認し、必要に応じて手動で修正してください。差額は通常数百円程度です。" />
-              </span>
-            </p>
-          </div>
-        )}
-
-        {!summary && (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-            <GainLossFileUploader
-              onUpload={handleUpload}
-              onError={setError}
-            />
-          </div>
-        )}
-
-        {isLoading && (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-            <ProgressIndicator progress={progress} />
-          </div>
-        )}
-
-        {!isLoading && summary && (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-            <GainLossSummary summary={summary} />
-          </div>
-        )}
-      </div>
-
-
-    </div>
+      <Footer />
+    </>
   );
 }
