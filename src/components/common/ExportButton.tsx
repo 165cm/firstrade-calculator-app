@@ -43,32 +43,13 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
   // ライセンス認証済みユーザーは直接エクスポート可能
   if (isVerified) {
     return (
-      <div className="flex items-center gap-2">
-        <Button
-          onClick={onClick}
-          disabled={disabled}
-          className={`${disabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
-        >
-          CSVエクスポート
-        </Button>
-        {expiryDate && (
-          <span className="text-xs text-gray-500">
-            〜{expiryDate}
-          </span>
-        )}
-        {/* デバッグ/リセット用: 小さなボタンでライセンスクリア機能を提供 */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (window.confirm('ライセンス情報をリセットしてもよろしいですか？\nリセットすると再認証が必要になります。')) {
-              clearLicense();
-            }
-          }}
-          className="ml-2 text-xs text-slate-400 hover:text-red-500 underline whitespace-nowrap"
-        >
-          リセット
-        </button>
-      </div>
+      <Button
+        onClick={onClick}
+        disabled={disabled}
+        className={`${disabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+      >
+        CSVエクスポート
+      </Button>
     );
   }
 
