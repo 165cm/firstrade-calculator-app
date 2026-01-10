@@ -42,14 +42,23 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
 
   // ライセンス認証済みユーザーは直接エクスポート可能
   if (isVerified) {
+    // 有効期限を「YYYY末まで」形式に変換
+    const expiryYear = expiryDate ? expiryDate.split('-')[0] : null;
+
     return (
-      <Button
-        onClick={onClick}
-        disabled={disabled}
-        className={`${disabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
-      >
-        CSVエクスポート
-      </Button>
+      <div className="flex items-center gap-3">
+        <div className="text-xs text-right">
+          <div className="text-green-600 font-semibold">✓ 認証済み</div>
+          {expiryYear && <div className="text-slate-500">{expiryYear}末まで</div>}
+        </div>
+        <Button
+          onClick={onClick}
+          disabled={disabled}
+          className={`${disabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
+        >
+          CSVエクスポート
+        </Button>
+      </div>
     );
   }
 
