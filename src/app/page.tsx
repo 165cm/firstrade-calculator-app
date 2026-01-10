@@ -170,6 +170,7 @@ export default function Home() {
                 </h3>
                 <p className="text-slate-600 mb-6 leading-relaxed">
                   本ツールは、<strong className="text-slate-900 font-semibold bg-blue-50 px-1 py-0.5 rounded">欧州中央銀行(ECB)</strong>が公表する為替レートをソースとするオープンソースAPI「Frankfurter」を採用しています。
+                  <span className="block mt-2 text-sm text-slate-500">※為替レートは毎週土曜 09:00（日本時間）に自動更新されます。</span>
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="bg-slate-50 rounded-xl p-4 border border-slate-100/50">

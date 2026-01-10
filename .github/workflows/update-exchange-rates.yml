@@ -1,38 +1,16 @@
-# .github/workflows/update-exchange-rates.yml
-# 為替レート自動更新ワークフロー
-
 name: Update Exchange Rates
 
 on:
-  # 毎週土曜日の08:00（UTC）= CET 09:00-10:00 / JST 17:00
-  # Frankfurter API は金曜 16:00 CET に更新されるため、土曜朝に取得
   schedule:
-    - cron: '0 8 * * 6'
-
-  # 手動実行も可能
+    # 毎週土曜 09:00 JST (00:00 UTC)
+    - cron: '0 0 * * 6'
   workflow_dispatch:
-    inputs:
-      year:
-        description: '取得する年（空欄で現在の年）'
-        required: false
-        type: string
-      quarter:
-        description: '取得する四半期（1-4、空欄で現在の四半期）'
-        required: false
-        type: string
-      force:
-        description: '上書きモード（既存データを上書き）'
-        required: false
-        type: boolean
-        default: false
+    # 手動実行も可能
 
 jobs:
   update-rates:
     runs-on: ubuntu-latest
-
-    permissions:
-      contents: write
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -44,37 +22,19 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Get current date info
-        id: date
-        run: |
-          echo "year=$(date +%Y)" >> $GITHUB_OUTPUT
-          echo "quarter=$(( ($(date +%-m) - 1) / 3 + 1 ))" >> $GITHUB_OUTPUT
-
-      - name: Fetch exchange rates
-        run: |
-          YEAR="${{ github.event.inputs.year || steps.date.outputs.year }}"
-          QUARTER="${{ github.event.inputs.quarter || steps.date.outputs.quarter }}"
-          FORCE_FLAG=""
-          if [ "${{ github.event.inputs.force }}" == "true" ]; then
-            FORCE_FLAG="--force"
-          fi
-          echo "📊 Fetching rates for ${YEAR} Q${QUARTER} ${FORCE_FLAG}"
-          node scripts/fetchRates.cjs $YEAR $QUARTER $FORCE_FLAG
+      - name: Run exchange rate update script
+        run: node scripts/update-exchange-rates.mjs
 
       - name: Check for changes
-        id: changes
+        id: git-check
         run: |
-          git diff --quiet public/data || echo "changed=true" >> $GITHUB_OUTPUT
+          git diff --quiet public/data/ || echo "changes=true" >> $GITHUB_OUTPUT
 
       - name: Commit and push changes
-        if: steps.changes.outputs.changed == 'true'
+        if: steps.git-check.outputs.changes == 'true'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add public/data/
-          git commit -m "🔄 為替レート自動更新: $(date +%Y-%m-%d)"
+          git commit -m "chore: 為替レートを自動更新 ($(date +'%Y-%m-%d'))"
           git push
-
-      - name: No changes detected
-        if: steps.changes.outputs.changed != 'true'
-        run: echo "✅ No new exchange rate data to update"
