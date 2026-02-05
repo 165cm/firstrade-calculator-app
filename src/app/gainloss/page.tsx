@@ -1,6 +1,8 @@
 // src/app/gainloss/page.tsx
 'use client';
 import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Dialog } from '@/components/ui/dialog';
 import { GainLossFileUploader } from '@/components/gainloss/GainLossFileUploader';
 import { ExportButton } from '@/components/common/ExportButton';
 import { exportGainLossToCsv, downloadCsv } from '@/utils/export/csvExport';
@@ -24,15 +26,22 @@ export default function GainLossPage() {
   const [summary, setSummary] = useState<GainLossSummaryType | null>(null);
   const [defaultRateDates, setDefaultRateDates] = useState<string[]>([]);
   const [hasCachedData, setHasCachedData] = useState(false);
+  const [isDemoData, setIsDemoData] = useState(false);
+  const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
 
   // 初回マウント時にlocalStorageからデータを復元
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
+      const storedDemoFlag = localStorage.getItem(STORAGE_KEY + '_isDemoData');
       if (stored) {
         const parsed = JSON.parse(stored);
         setSummary(parsed);
         setHasCachedData(true);
+        // デモデータフラグも復元
+        if (storedDemoFlag === 'true') {
+          setIsDemoData(true);
+        }
       }
     } catch (e) {
       console.error('Failed to restore gainloss data from localStorage:', e);
@@ -46,6 +55,9 @@ export default function GainLossPage() {
     try {
       // デフォルト値追跡をクリア
       clearDefaultRateTracking();
+      // デモデータかどうか判定
+      const isDemo = data === DEMO_GAINLOSS_DATA;
+      setIsDemoData(isDemo);
 
       const total = data.length;
 
@@ -86,6 +98,8 @@ export default function GainLossPage() {
       // localStorageに保存
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(calculatedSummary));
+        // デモデータフラグも保存
+        localStorage.setItem(STORAGE_KEY + '_isDemoData', isDemo ? 'true' : 'false');
       } catch (e) {
         console.error('Failed to save gainloss data to localStorage:', e);
       }
@@ -102,9 +116,11 @@ export default function GainLossPage() {
 
   const handleClearCache = () => {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY + '_isDemoData');
     setSummary(null);
     setDefaultRateDates([]);
     setHasCachedData(false);
+    setIsDemoData(false);
   };
 
   return (
@@ -130,24 +146,89 @@ export default function GainLossPage() {
             )}
 
             {summary && (
-              <ExportButton onClick={() => {
-                if (!summary) return;
-                try {
-                  const timestamp = new Date().toISOString().split('T')[0];
-                  const allTrades = summary.symbolSummary.flatMap(symbolData =>
-                    symbolData.trades.map(trade => ({
-                      ...trade,
-                      symbol: symbolData.symbol
-                    }))
-                  ).sort((a, b) =>
-                    new Date(a.saleDate).getTime() - new Date(b.saleDate).getTime()
-                  );
-                  const csvContent = exportGainLossToCsv(allTrades);
-                  downloadCsv(csvContent, `損益計算書_${timestamp}.csv`);
-                } catch (error) {
-                  console.error('Export error:', error);
-                }
-              }} />
+              <>
+                <ExportButton
+                  bypassLicense={isDemoData}
+                  onClick={() => setIsExportDialogOpen(true)}
+                />
+
+                <Dialog
+                  isOpen={isExportDialogOpen}
+                  onClose={() => setIsExportDialogOpen(false)}
+                  title="CSVエクスポート形式の選択"
+                >
+                  <div className="flex flex-col space-y-4">
+                    <p className="text-sm text-slate-500">
+                      用途に合わせて出力形式を選択してください。
+                    </p>
+
+                    {/* 日本方式ボタン (上・目立つ配置) */}
+                    <Button
+                      className="w-full h-auto p-4 flex flex-col items-start space-y-1 bg-slate-900 hover:bg-slate-800"
+                      onClick={() => {
+                        if (!summary) return;
+                        try {
+                          const timestamp = new Date().toISOString().split('T')[0];
+                          const allTrades = summary.symbolSummary.flatMap(symbolData =>
+                            symbolData.trades.map(trade => ({
+                              ...trade,
+                              symbol: symbolData.symbol
+                            }))
+                          ).sort((a, b) =>
+                            new Date(a.saleDate).getTime() - new Date(b.saleDate).getTime()
+                          );
+                          const csvContent = exportGainLossToCsv(allTrades, 'JP');
+                          downloadCsv(csvContent, `損益計算書_${timestamp}.csv`);
+                          setIsExportDialogOpen(false);
+                        } catch (error) {
+                          console.error('Export error:', error);
+                        }
+                      }}
+                    >
+                      <div className="font-bold text-base">🇯🇵 日本方式</div>
+                      <span className="text-xs text-slate-300 font-normal text-left block">
+                        シンプルな「売却額 - 取得額」で計算します。
+                      </span>
+                    </Button>
+
+                    {/* 米国方式ボタン (下・控えめ) */}
+                    <Button
+                      variant="outline"
+                      className="w-full h-auto p-4 flex flex-col items-start space-y-1 text-slate-600 border-slate-300 hover:bg-slate-50"
+                      onClick={() => {
+                        if (!summary) return;
+                        try {
+                          const timestamp = new Date().toISOString().split('T')[0];
+                          const allTrades = summary.symbolSummary.flatMap(symbolData =>
+                            symbolData.trades.map(trade => ({
+                              ...trade,
+                              symbol: symbolData.symbol
+                            }))
+                          ).sort((a, b) =>
+                            new Date(a.saleDate).getTime() - new Date(b.saleDate).getTime()
+                          );
+                          const csvContent = exportGainLossToCsv(allTrades, 'US');
+                          downloadCsv(csvContent, `損益計算書_米国方式_${timestamp}.csv`);
+                          setIsExportDialogOpen(false);
+                        } catch (error) {
+                          console.error('Export error:', error);
+                        }
+                      }}
+                    >
+                      <div className="font-bold text-base text-slate-600">🇺🇸 米国方式</div>
+                      <span className="text-xs text-slate-400 font-normal text-left block">
+                        Wash Sale調整を含みます。明細と照合したい方向け。
+                      </span>
+                    </Button>
+
+                    <div className="pt-2 text-center text-xs text-slate-500">
+                      <a href="/guide/washsale" className="text-blue-600 hover:underline">
+                        計算方法の違いについて（Wash Sale解説ページ）
+                      </a>
+                    </div>
+                  </div>
+                </Dialog>
+              </>
             )}
             {hasCachedData && (
               <button

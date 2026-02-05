@@ -1,6 +1,6 @@
 // src/utils/gainloss/calculateSummary.ts
 import { getExchangeRate } from '@/data/exchangeRates';
-import type { GainLossRecord, GainLossSummary, MonthlyGainLoss　} from '@/types/gainloss';
+import type { GainLossRecord, GainLossSummary, MonthlyGainLoss } from '@/types/gainloss';
 import { groupBy } from 'lodash';
 
 export async function calculateGainLossSummary(records: GainLossRecord[]): Promise<GainLossSummary> {
@@ -16,7 +16,7 @@ export async function calculateGainLossSummary(records: GainLossRecord[]): Promi
       const costJPY = trade.cost * purchaseRate;
       const proceedsJPY = trade.proceeds * saleRate;
       const gainLossJPY = proceedsJPY - costJPY;
-  
+
       return {
         symbol: trade.symbol,
         purchaseDate: trade.purchaseDate,
@@ -24,6 +24,7 @@ export async function calculateGainLossSummary(records: GainLossRecord[]): Promi
         quantity: trade.quantity,
         proceeds: trade.proceeds,
         cost: trade.cost,
+        washSale: trade.washSale,
         gainLoss: trade.gainLoss,
         purchaseRate,
         saleRate,

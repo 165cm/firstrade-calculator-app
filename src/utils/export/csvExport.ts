@@ -161,37 +161,96 @@ export function downloadCsv(csvContent: string, filename: string): void {
 }
 
 // 損益計算データのエクスポート関数
-export function exportGainLossToCsv(trades: TradeDetail[]): string {
-  const csvData = trades.map(trade => ({
-    '購入日': formatDate(trade.purchaseDate),
-    '購入時為替': trade.purchaseRate.toFixed(2),
-    '売却日': formatDate(trade.saleDate),
-    '売却時為替': trade.saleRate.toFixed(2),
-    '銘柄': trade.symbol,
-    '数量': trade.quantity.toFixed(4),
-    '取得価格($)': trade.cost.toFixed(2),
-    '売却価格($)': trade.proceeds.toFixed(2),
-    '損益($)': trade.gainLoss.toFixed(2),
-    '取得価格(¥)': Math.round(trade.costJPY).toLocaleString(),
-    '売却価格(¥)': Math.round(trade.proceedsJPY).toLocaleString(),
-    '損益(¥)': Math.round(trade.gainLossJPY).toLocaleString(),
-    '損益率(¥)': `${Math.round((trade.proceedsJPY / trade.costJPY - 1) * 100)}%`
-  }));
+export function exportGainLossToCsv(trades: TradeDetail[], mode: 'US' | 'JP' = 'US'): string {
+  const csvData = trades.map(trade => {
+    const baseData = {
+      '購入日': formatDate(trade.purchaseDate),
+      '購入時為替': trade.purchaseRate.toFixed(2),
+      '売却日': formatDate(trade.saleDate),
+      '売却時為替': trade.saleRate.toFixed(2),
+      '銘柄': trade.symbol,
+      '数量': trade.quantity.toFixed(4),
+      '取得価格($)': trade.cost.toFixed(2),
+      '売却価格($)': trade.proceeds.toFixed(2),
+    };
+
+    if (mode === 'US') {
+      // 米国方式: Wash Saleを考慮した損益
+      // trade.gainLoss は既に WS込み (Proceeds - Cost + WS)
+      // JPYも同様に計算する: (ProceedsJPY - CostJPY) + (WS * Rate)
+      // WSのレートは売却時レートを採用（損失が繰り延べられる＝売却時点の損失が減るため）
+      const wsJPY = trade.washSale ? trade.washSale * trade.saleRate : 0;
+      const gainLossJPY_US = (trade.proceedsJPY - trade.costJPY) + wsJPY;
+
+      return {
+        ...baseData,
+        'Wash Sale(調整額)': trade.washSale ? trade.washSale.toFixed(2) : '0.00',
+        '損益($)': trade.gainLoss.toFixed(2),
+        '取得価格(¥)': Math.round(trade.costJPY).toLocaleString(),
+        '売却価格(¥)': Math.round(trade.proceedsJPY).toLocaleString(),
+        '損益(¥)': Math.round(gainLossJPY_US).toLocaleString(),
+        '損益率(¥)': `${Math.round((trade.proceedsJPY / trade.costJPY - 1) * 100)}%`
+      };
+    } else {
+      // 日本方式 (簡易計算: 売却 - 取得)
+      const profit = trade.proceeds - trade.cost;
+      const profitJPY = trade.proceedsJPY - trade.costJPY;
+
+      return {
+        ...baseData,
+        '損益($)': profit.toFixed(2),
+        '取得価格(¥)': Math.round(trade.costJPY).toLocaleString(),
+        '売却価格(¥)': Math.round(trade.proceedsJPY).toLocaleString(),
+        '損益(¥)': Math.round(profitJPY).toLocaleString(),
+        '損益率(¥)': `${Math.round((trade.proceedsJPY / trade.costJPY - 1) * 100)}%`
+      };
+    }
+  });
+
+  // フッター行の追加
+  const footerRows = [
+    { '購入日': '' }, // 空行
+    { '購入日': '【注記】' },
+  ];
+
+  if (mode === 'US') {
+    footerRows.push(
+      { '購入日': '・損益(米国方式): Firstradeの明細(Statement)と一致します。Wash Saleは「損失不許可」として処理されます。' }
+    );
+  } else {
+    footerRows.push(
+      { '購入日': '・損益(日本方式): 建値と売値の差額による簡易計算です。Wash Sale調整は行われません。' }
+    );
+  }
+
+  footerRows.push({ '購入日': '詳しくはこちら: https://firstrade.nomadkazoku.com/faq' });
+
+  // データ行とフッターを結合
+  const allRows = [...csvData, ...footerRows];
 
   // データの存在確認とデバッグログ
   console.log('Export GainLoss Data:', {
     recordCount: trades.length,
+    mode,
     firstRecord: trades[0],
     csvData: csvData[0]
   });
 
-  return Papa.unparse(csvData, {
-    header: true,
-    columns: [
+  const columns = mode === 'US'
+    ? [
+      '購入日', '購入時為替', '売却日', '売却時為替', '銘柄', '数量',
+      '取得価格($)', '売却価格($)', 'Wash Sale(調整額)', '損益($)',
+      '取得価格(¥)', '売却価格(¥)', '損益(¥)', '損益率(¥)'
+    ]
+    : [
       '購入日', '購入時為替', '売却日', '売却時為替', '銘柄', '数量',
       '取得価格($)', '売却価格($)', '損益($)',
       '取得価格(¥)', '売却価格(¥)', '損益(¥)', '損益率(¥)'
-    ]
+    ];
+
+  return Papa.unparse(allRows, {
+    header: true,
+    columns
   });
 }
 

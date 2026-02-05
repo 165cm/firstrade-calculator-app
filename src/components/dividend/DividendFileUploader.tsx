@@ -27,22 +27,28 @@ export const DividendFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
       dynamicTyping: false,
       complete: (results) => {
         try {
+          // 文字列のクリーニング関数（引用符と前後の空白を削除）
+          const cleanString = (val: string | undefined): string => {
+            if (!val) return '';
+            return val.replace(/['"]+/g, '').trim();
+          };
+
           // 数値フィールドのクリーニングと変換を行う
           const processedData = (results.data as Record<string, string>[]).map((row) => {
             const amount = cleanNumber(row.Amount);
-            const action = row.Action || '';
+            const rawAction = cleanString(row.Action);
             const validActions = ['DIVIDEND', 'INTEREST', 'OTHER', 'BUY', 'SELL'];
-            const normalizedAction = validActions.includes(action.toUpperCase())
-              ? action.toUpperCase()
+            const normalizedAction = validActions.includes(rawAction.toUpperCase())
+              ? rawAction.toUpperCase()
               : 'OTHER';
 
             return {
-              Symbol: row.Symbol || '',
-              TradeDate: row.TradeDate || '',
+              Symbol: cleanString(row.Symbol),
+              TradeDate: cleanString(row.TradeDate),
               Amount: amount,
               Action: normalizedAction as RawDividendData['Action'],
-              Description: row.Description || '',
-              RecordType: row.RecordType || ''
+              Description: cleanString(row.Description),
+              RecordType: cleanString(row.RecordType)
             };
           });
 

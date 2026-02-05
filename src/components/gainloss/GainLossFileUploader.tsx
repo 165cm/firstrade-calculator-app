@@ -56,12 +56,22 @@ export const GainLossFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
               throw new Error(`必須フィールドが不足しています: ${missingFields.join(', ')}`);
             }
 
+            // 文字列のクリーニング関数
+            const cleanString = (val: string | undefined): string => {
+              if (!val) return '';
+              return val.replace(/['"]+/g, '').trim();
+            };
+
             const processedData = rawData.map((row) => ({
               ...row,
+              Symbol: cleanString(row.Symbol),
+              TradeDate: cleanString(row.TradeDate),
+              PurchaseDate: cleanString(row.PurchaseDate),
               Quantity: safeParseNumber(row.Quantity),
               Proceeds: safeParseNumber(row.Proceeds),
               Cost: safeParseNumber(row.Cost),
-              Amount: safeParseNumber(row.Amount)
+              Amount: safeParseNumber(row.Amount),
+              WashSale: safeParseNumber(row.WashSale)
             }));
 
             onUpload(processedData);

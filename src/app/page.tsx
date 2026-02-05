@@ -65,7 +65,7 @@ export default function Home() {
                 href="/dividend"
                 className="inline-flex items-center justify-center px-8 py-4 text-base font-bold text-slate-200 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 transition-all backdrop-blur-md shadow-lg hover:shadow-xl hover:-translate-y-0.5"
               >
-                無料で試す (配当金)
+                無料で試す
               </Link>
             </div>
           </div>

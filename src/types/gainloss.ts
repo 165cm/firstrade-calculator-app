@@ -7,6 +7,7 @@ export interface BaseGainLossRecord {
   quantity: number;
   proceeds: number;
   cost: number;
+  washSale?: number;
   gainLoss: number;
 }
 
@@ -27,7 +28,7 @@ export interface RawGainLossData {
   Proceeds: number;
   Cost: number;
   Amount: number;
-  WashSale: string;
+  WashSale: string | number;
   Term: string;
 }
 
@@ -59,6 +60,7 @@ export interface TradeDetail {
   quantity: number;
   proceeds: number;
   cost: number;
+  washSale?: number;
   gainLoss: number;
   purchaseRate: number;
   saleRate: number;
@@ -76,7 +78,8 @@ export type HeaderKey =
   | 'Quantity'
   | 'Proceeds'
   | 'Cost'
-  | 'Amount';
+  | 'Amount'
+  | 'WashSale';
 
 export type StandardizedHeaders = {
   [K in HeaderKey]: string;
@@ -89,7 +92,8 @@ export const HEADER_MAPPINGS: Record<HeaderKey, readonly string[]> = {
   'Quantity': ['Quantity'],
   'Proceeds': ['Sales Proceeds'],
   'Cost': ['Adjust Cost'],
-  'Amount': ['Net Gain/Loss']
+  'Amount': ['Net Gain/Loss'],
+  'WashSale': ['Wash Sale', 'Wash Sale Loss Disallowed', 'WS Loss Disallowed']
 } as const;
 
 // ヘッダーの正規化用ユーティリティ関数

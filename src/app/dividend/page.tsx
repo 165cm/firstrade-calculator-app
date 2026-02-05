@@ -30,6 +30,7 @@ export default function DividendPage() {
   });
   const [defaultRateDates, setDefaultRateDates] = useState<string[]>([]);
   const [hasCachedData, setHasCachedData] = useState(false);
+  const [isDemoData, setIsDemoData] = useState(false);
 
   // 初回マウント時にlocalStorageからデータを復元
   useEffect(() => {
@@ -134,6 +135,7 @@ export default function DividendPage() {
     });
     setDefaultRateDates([]);
     setHasCachedData(false);
+    setIsDemoData(false);
   };
 
   const hasData = dividendData.dividends.length > 0 || dividendData.interest.length > 0;
@@ -150,7 +152,10 @@ export default function DividendPage() {
           <div className="flex gap-3">
             {!hasData && (
               <button
-                onClick={() => handleDividendData(DEMO_DIVIDEND_DATA)}
+                onClick={() => {
+                  handleDividendData(DEMO_DIVIDEND_DATA);
+                  setIsDemoData(true);
+                }}
                 className="bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium text-blue-700 shadow-sm border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-2"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -161,7 +166,7 @@ export default function DividendPage() {
             )}
 
             {hasData && (
-              <ExportButton onClick={() => {
+              <ExportButton bypassLicense={isDemoData} onClick={() => {
                 const timestamp = new Date().toISOString().split('T')[0];
                 const exportData = [
                   ...dividendData.dividends,

@@ -9,14 +9,16 @@ interface Props {
   onClick: () => void;
   disabled?: boolean;
   ignoreAnnouncementMode?: boolean;
+  bypassLicense?: boolean;
 }
+
 
 // Gumroad購入リンク（環境変数または直接設定）
 const GUMROAD_PRODUCT_URL = process.env.NEXT_PUBLIC_GUMROAD_PRODUCT_URL || '';
 // 告知モード（true: 告知のみ表示、false: 認証を要求）
 const ANNOUNCEMENT_MODE = process.env.NEXT_PUBLIC_ANNOUNCEMENT_MODE === 'true';
 
-export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode = false }: Props) {
+export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode = false, bypassLicense = false }: Props) {
   const { isVerified, verifyLicense, clearLicense, expiryDate, isLoading: isLicenseLoading } = useLicense();
   const [isOpen, setIsOpen] = useState(false);
   const [licenseKey, setLicenseKey] = useState('');
@@ -39,17 +41,24 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
   }, [inviteCode]);
 
   const shouldShowAnnouncement = ANNOUNCEMENT_MODE && !ignoreAnnouncementMode;
+  const isLicenseBypassed = bypassLicense;
 
-  // ライセンス認証済みユーザーは直接エクスポート可能
-  if (isVerified) {
+  // ライセンス認証済みユーザー、またはバイパス許可（デモデータ等）の場合は直接エクスポート可能
+  if (isVerified || isLicenseBypassed) {
     // 有効期限を「YYYY末まで」形式に変換
     const expiryYear = expiryDate ? expiryDate.split('-')[0] : null;
 
     return (
       <div className="flex items-center gap-3">
         <div className="text-xs text-right">
-          <div className="text-green-600 font-semibold">✓ 認証済み</div>
-          {expiryYear && <div className="text-slate-500">{expiryYear}末まで</div>}
+          {isVerified ? (
+            <>
+              <div className="text-green-600 font-semibold">✓ 認証済み</div>
+              {expiryYear && <div className="text-slate-500">{expiryYear}末まで</div>}
+            </>
+          ) : (
+            <div className="text-blue-600 font-semibold">デモモード</div>
+          )}
         </div>
         <Button
           onClick={onClick}

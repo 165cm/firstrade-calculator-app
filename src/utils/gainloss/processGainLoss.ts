@@ -29,6 +29,7 @@ export async function processGainLossData(data: RawGainLossData[]): Promise<Gain
       const quantity = typeof record.Quantity === 'number' ? record.Quantity : cleanNumber(String(record.Quantity));
       const proceeds = typeof record.Proceeds === 'number' ? record.Proceeds : cleanNumber(String(record.Proceeds));
       const cost = typeof record.Cost === 'number' ? record.Cost : cleanNumber(String(record.Cost));
+      const washSale = typeof record.WashSale === 'number' ? record.WashSale : cleanNumber(String(record.WashSale || '0'));
 
       // 数値変換の結果をログ出力（デバッグ用）
       logger.debug('数値変換結果:', {
@@ -37,11 +38,15 @@ export async function processGainLossData(data: RawGainLossData[]): Promise<Gain
         元の売却額: record.Proceeds,
         変換後売却額: proceeds,
         元のコスト: record.Cost,
-        変換後コスト: cost
+        変換後コスト: cost,
+        元のWashSale: record.WashSale,
+        変換後WashSale: washSale
       });
 
       // 基本データの計算
-      const gainLoss = proceeds - cost;
+      // Wash Saleによる損失不許可額は利益（または損失の減少）として加算する必要がある
+      // gainLoss = Proceeds - Cost + WashSaleDisallowed
+      const gainLoss = proceeds - cost + washSale;
 
       // GainLossRecordの基本情報のみを設定（為替関連はオプショナル）
       const processedRecord: GainLossRecord = {
@@ -51,6 +56,7 @@ export async function processGainLossData(data: RawGainLossData[]): Promise<Gain
         quantity,
         proceeds,
         cost,
+        washSale,
         gainLoss
       };
       processedRecords.push(processedRecord);
@@ -71,13 +77,13 @@ export async function processGainLossData(data: RawGainLossData[]): Promise<Gain
 function formatDate(dateStr: string): string {
   try {
     if (!dateStr) return '';
-    
+
     // 空白を削除
     dateStr = dateStr.trim();
-    
+
     // 日付区切り文字対応（'/'や'-'など）
     const parts = dateStr.split(/[\/\-\.]/);
-    
+
     // パターン判定
     if (parts.length === 3) {
       // MM/DD/YYYY形式チェック - 最後の部分が4桁の年
@@ -91,7 +97,7 @@ function formatDate(dateStr: string): string {
         return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
       }
     }
-    
+
     // 上記の判定に失敗した場合、Dateオブジェクトを使用して変換を試みる
     const date = new Date(dateStr);
     if (!isNaN(date.getTime())) {

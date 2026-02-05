@@ -26,6 +26,12 @@ export function Footer() {
                         >
                             プライバシーポリシー
                         </a>
+                        <Link
+                            href="/faq"
+                            className="hover:text-slate-700 transition-colors"
+                        >
+                            よくある質問
+                        </Link>
                         <a
                             href="https://www.notion.so/2d3e8c4088938053a31df1916c843dd0?pvs=106"
                             target="_blank"

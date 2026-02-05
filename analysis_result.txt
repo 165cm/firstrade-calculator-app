@@ -1,0 +1,158 @@
+Headers: ["Symbol","Quantity","Price","Action","Description","TradeDate","SettledDate","Interest","Amount","Commission","Fee","CUSIP","RecordType"]
+
+--- Action Counts (Raw) ---
+{
+  "\"Dividend\"": 95,
+  "\"Other\"": 72,
+  "\"Interest\"": 25,
+  "\"SELL\"": 51,
+  "\"BUY\"": 1
+}
+
+--- Symbol Counts (Top 10) ---
+[
+  [
+    "\"            \"",
+    56
+  ],
+  [
+    "\"EMLC        \"",
+    26
+  ],
+  [
+    "\"TLT         \"",
+    25
+  ],
+  [
+    "\"AGG         \"",
+    25
+  ],
+  [
+    "\"BNDX        \"",
+    12
+  ],
+  [
+    "\"HDV         \"",
+    7
+  ],
+  [
+    "\"BKCH        \"",
+    6
+  ],
+  [
+    "\"VYM         \"",
+    6
+  ],
+  [
+    "\"NKE         \"",
+    5
+  ],
+  [
+    "\"VEU         \"",
+    5
+  ]
+]
+
+--- Examples ---
+[
+  {
+    "index": 0,
+    "Symbol": "\"NKE         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 3,
+    "Symbol": "\"BKCH        \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 7,
+    "Symbol": "\"DIS         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 9,
+    "Symbol": "\"BNDX        \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 10,
+    "Symbol": "\"TLT         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 11,
+    "Symbol": "\"AGG         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 12,
+    "Symbol": "\"EMLC        \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 15,
+    "Symbol": "\"BNDX        \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 16,
+    "Symbol": "\"TLT         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 17,
+    "Symbol": "\"EMLC        \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 18,
+    "Symbol": "\"AGG         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 21,
+    "Symbol": "\"HDV         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 22,
+    "Symbol": "\"HDV         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 25,
+    "Symbol": "\"SUSA        \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 26,
+    "Symbol": "\"VEU         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 27,
+    "Symbol": "\"VYM         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 28,
+    "Symbol": "\"SIXG        \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 29,
+    "Symbol": "\"VOO         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 30,
+    "Symbol": "\"NKE         \"",
+    "Action": "\"Dividend\""
+  },
+  {
+    "index": 31,
+    "Symbol": "\"BNDX        \"",
+    "Action": "\"Dividend\""
+  }
+]

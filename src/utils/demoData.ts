@@ -134,6 +134,8 @@ export const DEMO_GAINLOSS_DATA = [
     { Symbol: 'PLTR', Quantity: 200, PurchaseDate: '2023/08/12', TradeDate: '2024/05/20', Proceeds: 5200.00, Cost: 3000.00, Amount: 2200.00, WashSale: '', Term: 'Short Term' },
     { Symbol: 'PLTR', Quantity: 300, PurchaseDate: '2022/11/20', TradeDate: '2024/02/15', Proceeds: 7800.00, Cost: 3600.00, Amount: 4200.00, WashSale: '', Term: 'Long Term' },
     { Symbol: 'PLTR', Quantity: 150, PurchaseDate: '2023/06/10', TradeDate: '2024/09/25', Proceeds: 3900.00, Cost: 2250.00, Amount: 1650.00, WashSale: '', Term: 'Long Term' },
+    // TEST - Wash Sale Sample
+    { Symbol: 'TEST', Quantity: 10, PurchaseDate: '2024/01/10', TradeDate: '2024/01/20', Proceeds: 900.00, Cost: 1000.00, Amount: 0.00, WashSale: '100.00', Term: 'Short Term' },
 ];
 
 // シミュレーター用のデモデータ（コピペ形式）- 20件
