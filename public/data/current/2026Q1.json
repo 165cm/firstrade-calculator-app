@@ -112,7 +112,7 @@
         "JPY": 158.1
       },
       "source": "Frankfurter",
-      "timestamp": 1768747661663
+      "timestamp": 1769215842950
     },
     "2026-01-17": {
       "date": "2026-01-17",
@@ -121,6 +121,110 @@
       },
       "source": "Frankfurter",
       "timestamp": 1768747661663
+    },
+    "2026-01-18": {
+      "date": "2026-01-18",
+      "rate": {
+        "JPY": 158.1
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769215842950
+    },
+    "2026-01-19": {
+      "date": "2026-01-19",
+      "rate": {
+        "JPY": 157.93
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769215842950
+    },
+    "2026-01-20": {
+      "date": "2026-01-20",
+      "rate": {
+        "JPY": 157.9
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769215842950
+    },
+    "2026-01-21": {
+      "date": "2026-01-21",
+      "rate": {
+        "JPY": 157.79
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769215842950
+    },
+    "2026-01-22": {
+      "date": "2026-01-22",
+      "rate": {
+        "JPY": 158.79
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769215842950
+    },
+    "2026-01-23": {
+      "date": "2026-01-23",
+      "rate": {
+        "JPY": 158.16
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769821067970
+    },
+    "2026-01-24": {
+      "date": "2026-01-24",
+      "rate": {
+        "JPY": 158.16
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769821067970
+    },
+    "2026-01-25": {
+      "date": "2026-01-25",
+      "rate": {
+        "JPY": 158.16
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769821067970
+    },
+    "2026-01-26": {
+      "date": "2026-01-26",
+      "rate": {
+        "JPY": 154.21
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769821067970
+    },
+    "2026-01-27": {
+      "date": "2026-01-27",
+      "rate": {
+        "JPY": 153.34
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769821067970
+    },
+    "2026-01-28": {
+      "date": "2026-01-28",
+      "rate": {
+        "JPY": 152.63
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769821067970
+    },
+    "2026-01-29": {
+      "date": "2026-01-29",
+      "rate": {
+        "JPY": 153.31
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769821067970
+    },
+    "2026-01-30": {
+      "date": "2026-01-30",
+      "rate": {
+        "JPY": 154.03
+      },
+      "source": "Frankfurter",
+      "timestamp": 1769821067970
     }
   },
   "hash": "2026Q1-1768033890016"
