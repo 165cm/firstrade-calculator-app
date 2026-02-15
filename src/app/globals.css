@@ -4,9 +4,9 @@
 @tailwind utilities;
 
 :root {
-  /* Enforce Dark Theme for "Precision Instrument" design */
-  --background: #0a0f1e;
-  --foreground: #f8fafc;
+  /* Default Theme (Light Mode for App) */
+  --background: #ffffff;
+  --foreground: #0f172a;
 
   /* Brand Colors */
   --brand-500: #0ea5e9;
@@ -58,14 +58,14 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0f1e;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1f2937;
+  background: #cbd5e1;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: #94a3b8;
 }

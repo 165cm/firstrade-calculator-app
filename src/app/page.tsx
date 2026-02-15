@@ -505,35 +505,47 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-navy-950 text-slate-400 py-12 border-t border-white/5">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div className="col-span-1 md:col-span-2">
-              <span className="text-xl font-bold text-white font-heading tracking-tight mb-4 block">FirstScope</span>
-              <p className="text-sm font-light leading-relaxed max-w-xs">
-                Firstradeユーザーのための確定申告支援ツール。<br />
-                複雑な為替計算を自動化し、投資家の時間を創出します。
-              </p>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4 font-heading">Product</h4>
-              <ul className="space-y-2 text-sm font-light">
-                <li><Link href="/" className="hover:text-brand-300 transition-colors">Home</Link></li>
-                <li><Link href="/dividend" className="hover:text-brand-300 transition-colors">Free Trial</Link></li>
-                <li><a href="https://papazon.gumroad.com/l/firstrade-ja" target="_blank" rel="noopener noreferrer" className="hover:text-brand-300 transition-colors">Buy Now</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-bold mb-4 font-heading">Legal</h4>
-              <ul className="space-y-2 text-sm font-light">
-                <li><Link href="/privacy" className="hover:text-brand-300 transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-brand-300 transition-colors">Terms of Service</Link></li>
-                <li><Link href="/tokusho" className="hover:text-brand-300 transition-colors">特定商取引法に基づく表記</Link></li>
-              </ul>
+      <footer className="py-8 bg-navy-900/80 text-slate-400 text-center text-sm border-t border-white/5 mt-auto">
+        <div className="container mx-auto px-4">
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8">
+            <Link href="/" className="font-bold text-white hover:text-slate-300 transition-colors">
+              FirstScope
+            </Link>
+            <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs font-medium text-slate-400">
+              <a
+                href="https://www.nomadkazoku.com/legal/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                特定商取引法に基づく表記
+              </a>
+              <a
+                href="https://www.nomadkazoku.com/privacy-policy/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                プライバシーポリシー
+              </a>
+              <Link
+                href="/faq"
+                className="hover:text-white transition-colors"
+              >
+                よくある質問
+              </Link>
+              <a
+                href="https://www.notion.so/2d3e8c4088938053a31df1916c843dd0?pvs=106"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-white transition-colors"
+              >
+                お問い合わせ
+              </a>
             </div>
           </div>
-          <div className="border-t border-white/5 pt-8 text-center text-sm font-light text-slate-500">
-            &copy; {new Date().getFullYear()} FirstScope (Papazon). All rights reserved.
+          <div className="mt-4 text-slate-500 text-xs text-center font-light">
+            <p>© 2025 Nomad Family. All rights reserved.</p>
           </div>
         </div>
       </footer>
