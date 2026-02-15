@@ -13,7 +13,7 @@ export const metadata: Metadata = {
     template: '%s | FirstScope 2025',
   },
   description: 'Firstrade証券の確定申告を効率化。配当金・売却損益の自動計算、為替レート自動取得、CSVエクスポート機能を提供するプロフェッショナル分析ツール。',
-  keywords: ['Firstrade', '確定申告', '配当金', '売却損益', '為替レート', 'TTM', 'ポートフォリオ', '米国株', '外国税額控除'],
+  keywords: ['Firstrade', '確定申告', '配当金', '売却損益', '為替レート', 'ECB', 'ポートフォリオ', '米国株', '外国税額控除'],
   authors: [{ name: 'Nomad Family' }],
   creator: 'Nomad Family',
   publisher: 'Nomad Family',
@@ -84,6 +84,9 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;500;700&family=Noto+Serif+JP:wght@400;700&family=Sora:wght@400;600;800&display=swap" rel="stylesheet" />
         <script dangerouslySetInnerHTML={{ __html: swCleanupScript }} />
         <script
           type="application/ld+json"
@@ -127,7 +130,7 @@ export default function RootLayout({
                   featureList: [
                     '配当金明細の自動計算',
                     '売却損益の日本円換算',
-                    'TTM為替レート自動取得',
+                    'ECB為替レート自動取得',
                     'CSVエクスポート',
                     'ポートフォリオ分析',
                   ],

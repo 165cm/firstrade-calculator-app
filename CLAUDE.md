@@ -1,79 +1,23 @@
-# CLAUDE.md - Claude Code 用の指示書
+# Plan Creation
 
-## 🎯 このファイルについて
+Whenever you create a markdown file in the ./plans directory, please make sure to have it reviewed by Codex using the codex-review skill.
 
-Claude Code が自動で読み込む設定ファイルです。
+# ExecPlans
 
----
+When writing complex features or significant refactors, use an ExecPlan (as described in .agent/PLANS.md) from design to implementation.
 
-## 📖 共通ルールを読んでください
+# Review gate (codex-review)
 
-**重要**: まず `.ai/RULES.md` を読んで、ルールに従ってください。
+At key milestones—after updating specs/plans, after major implementation steps (≥5 files / public API / infra-config), and before commit/PR/release—run the codex-review SKILL and iterate review→fix→re-review until clean.
 
----
+# Task Management
 
-## 👤 開発者について
+When implementing features or making code changes, use the Tasks feature to manage and track progress. Break down the work into clear steps and update task status as you proceed.
 
-- **スキルレベル**: プログラミング初心者
-- **Git運用**: コミット＆プッシュのみ（プルリクエストは使わない）
-- **サポートが必要なこと**:
-  - エラーメッセージの解読
-  - コードの修正方法
-  - コマンドの実行手順
+# Other
 
----
+When asking for a decision, use "AskUserQuestion".
 
-## ✅ Claude Code への指示
+# Default Language
 
-### 必ずやること
-
-1. **コードは完成版で提供**
-   - 部分的な修正ではなく、ファイル全体を提供する
-
-2. **手順は超具体的に**
-   - 「コピペしてEnter」レベルで説明
-
-3. **専門用語は説明つき**
-   - 使う場合は必ず（）で簡単な説明を入れる
-
-4. **エラー時は3点セット**
-   - 何が起きたか → なぜ起きたか → どう直すか
-
-5. **コミット時のルール**
-   - `.ai/RULES.md` のフォーマットに従う
-   - 日本語で分かりやすく
-   - 種類（feat, fix など）を必ずつける
-
-### やってはいけないこと
-
-- ❌ 「〜は省略します」
-- ❌ 説明なしの専門用語
-- ❌ 「update」「修正」など曖昧なコミットメッセージ
-
----
-
-## 📝 コミット時のテンプレート
-
-作業完了時は以下の形式で報告：
-
-```
-## ✅ 完了しました
-
-### 変更内容
-- 〇〇を追加しました
-- △△を修正しました
-
-### コミット＆プッシュするには
-以下を順番にコピペしてください：
-
-git add .
-git commit -m "feat: ○○を追加"
-git push
-```
-
----
-
-## 🔗 関連ファイル
-
-- `.ai/RULES.md` - 共通ルール（コーディング規約、コミットルール）
-- `GEMINI.md` - Gemini CLI 用の指示書
+日本語
