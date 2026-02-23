@@ -46,7 +46,11 @@ export const GainLossFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
         complete: (results: ParseResult<RawGainLossData>) => {
           try {
             const rawData = results.data;
-            if (!rawData || rawData.length === 0) throw new Error('データが空です');
+            if (!rawData || rawData.length === 0) {
+              // 売却0件（ヘッダーのみ）のCSVの場合、空配列として正常処理
+              onUpload([]);
+              return;
+            }
 
             const firstRow = rawData[0];
             const requiredFields = ['Symbol', 'TradeDate', 'PurchaseDate', 'Quantity', 'Proceeds', 'Cost', 'Amount'] as const;

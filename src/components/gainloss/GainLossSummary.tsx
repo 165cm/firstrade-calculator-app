@@ -48,14 +48,14 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
   const allTrades = summary.symbolSummary.flatMap(s => s.trades);
   const averageRates = calculateWeightedAverageRate(allTrades);
 
-  // 総合損益率の計算（年間サマリー用）
+  // 総合損益率の計算（年間サマリー用）- ゼロ除算ガード
   const totalSalesUSD = summary.symbolSummary.reduce((sum, symbol) =>
     sum + symbol.trades.reduce((acc, trade) => acc + trade.proceeds, 0), 0);
-  const gainLossRateUSD = (summary.totalGainLossUSD / totalSalesUSD) * 100;
+  const gainLossRateUSD = totalSalesUSD !== 0 ? (summary.totalGainLossUSD / totalSalesUSD) * 100 : 0;
 
   const totalSalesJPY = summary.symbolSummary.reduce((sum, symbol) =>
     sum + symbol.trades.reduce((acc, trade) => acc + trade.proceedsJPY, 0), 0);
-  const gainLossRateJPY = (summary.totalGainLossJPY / totalSalesJPY) * 100;
+  const gainLossRateJPY = totalSalesJPY !== 0 ? (summary.totalGainLossJPY / totalSalesJPY) * 100 : 0;
 
   // ライセンス状態に応じて表示する銘柄を制限（データの半分を表示）
   const isLicensed = isLoading ? true : isVerified; // ローディング中は全件表示
@@ -107,20 +107,26 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
       {/* 銘柄別実績（詳細付き） */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4">
         <h2 className="text-lg font-bold mb-4">銘柄別実績</h2>
-        <DataRestriction
-          isLicensed={isLicensed}
-          visibleCount={visibleCount}
-          totalCount={summary.symbolSummary.length}
-        >
-          <div className="space-y-3">
-            {visibleSymbols.map((symbolData) => (
-              <SymbolDetailsSection
-                key={symbolData.symbol}
-                symbolData={symbolData}
-              />
-            ))}
+        {summary.symbolSummary.length === 0 ? (
+          <div className="text-center py-8 text-slate-500">
+            <p className="text-sm">この期間に売却取引はありません。</p>
           </div>
-        </DataRestriction>
+        ) : (
+          <DataRestriction
+            isLicensed={isLicensed}
+            visibleCount={visibleCount}
+            totalCount={summary.symbolSummary.length}
+          >
+            <div className="space-y-3">
+              {visibleSymbols.map((symbolData) => (
+                <SymbolDetailsSection
+                  key={symbolData.symbol}
+                  symbolData={symbolData}
+                />
+              ))}
+            </div>
+          </DataRestriction>
+        )}
       </div>
     </div>
   );
@@ -138,7 +144,7 @@ const SymbolDetailsSection: React.FC<{
     sum + (trade.cost * trade.purchaseRate), 0);
 
   const totalGainLossJPY = totalProceedsJPY - totalCostJPY;
-  const totalGainLossRateJPY = ((totalProceedsJPY / totalCostJPY) - 1) * 100;
+  const totalGainLossRateJPY = totalCostJPY !== 0 ? ((totalProceedsJPY / totalCostJPY) - 1) * 100 : 0;
 
   return (
     <div className="mb-3 border rounded-lg overflow-hidden">
