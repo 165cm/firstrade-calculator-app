@@ -33,7 +33,7 @@ export function Footer() {
                             よくある質問
                         </Link>
                         <a
-                            href="https://www.notion.so/2d3e8c4088938053a31df1916c843dd0?pvs=106"
+                            href="https://majestic-gateway-e4a.notion.site/2d3e8c4088938053a31df1916c843dd0?pvs=105"
                             target="_blank"
                             rel="noopener noreferrer"
                             className="hover:text-slate-700 transition-colors"

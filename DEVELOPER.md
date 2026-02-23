@@ -248,7 +248,7 @@ src/data/
 - [本番サイト](https://firstrade.nomadkazoku.com)
 - [特定商取引法に基づく表記](https://www.nomadkazoku.com/legal/)
 - [プライバシーポリシー](https://www.nomadkazoku.com/privacy-policy/)
-- [お問い合わせ](https://www.notion.so/2d3e8c4088938053a31df1916c843dd0?pvs=106)
+- [お問い合わせ](https://majestic-gateway-e4a.notion.site/2d3e8c4088938053a31df1916c843dd0?pvs=105)
 - [Gumroad License Keys Help](https://gumroad.com/help/article/76-license-keys)
 - [Gumroad API Documentation](https://gumroad.com/api)
 - [Google Cloud Run Console](https://console.cloud.google.com/run)

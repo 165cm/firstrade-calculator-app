@@ -13,7 +13,7 @@ interface Message {
 }
 
 const MAX_EXCHANGES = 5;
-const CONTACT_FORM_URL = 'https://www.notion.so/2d3e8c4088938053a31df1916c843dd0?pvs=106';
+const CONTACT_FORM_URL = 'https://majestic-gateway-e4a.notion.site/2d3e8c4088938053a31df1916c843dd0?pvs=105';
 
 export function ChatSupport() {
     const [isOpen, setIsOpen] = useState(false);

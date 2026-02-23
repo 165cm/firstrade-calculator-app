@@ -73,5 +73,5 @@ Firstrade証券(Firstrade Securities Inc.)での取引における確定申告�
 
 - [特定商取引法に基づく表記](https://www.nomadkazoku.com/legal/)
 - [プライバシーポリシー](https://www.nomadkazoku.com/privacy-policy/)
-- [お問い合わせ](https://www.notion.so/2d3e8c4088938053a31df1916c843dd0?pvs=106)
+- [お問い合わせ](https://majestic-gateway-e4a.notion.site/2d3e8c4088938053a31df1916c843dd0?pvs=105)
 - [ライセンス購入（Gumroad）](https://papazon.gumroad.com/l/firstrade-ja)
