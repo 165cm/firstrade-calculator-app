@@ -67,6 +67,7 @@
     "typescript": "^5.7.3"
   },
   "overrides": {
-    "lodash": ">=4.17.23"
+    "lodash": ">=4.17.23",
+    "rollup": ">=4.59.0"
   }
 }
