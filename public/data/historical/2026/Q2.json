@@ -1,0 +1,23 @@
+{
+  "startDate": "2026-04-01",
+  "endDate": "2026-06-30",
+  "rates": {
+    "2026-04-02": {
+      "date": "2026-04-02",
+      "rate": {
+        "JPY": 159.6
+      },
+      "source": "Frankfurter",
+      "timestamp": 1775264750077
+    },
+    "2026-04-03": {
+      "date": "2026-04-03",
+      "rate": {
+        "JPY": 159.6
+      },
+      "source": "Frankfurter",
+      "timestamp": 1775264750078
+    }
+  },
+  "hash": ""
+}
