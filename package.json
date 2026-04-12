@@ -71,11 +71,8 @@
     "rollup": ">=4.59.0",
     "yaml": ">=2.8.3",
     "flatted": ">=3.4.2",
-    "dependency-cruiser": {
-      "picomatch": ">=4.0.4"
-    },
-    "tinyglobby": {
-      "picomatch": ">=4.0.4"
-    }
+    "picomatch": ">=4.0.4",
+    "http-proxy-agent": ">=7.0.0",
+    "brace-expansion": ">=1.1.13"
   }
 }
