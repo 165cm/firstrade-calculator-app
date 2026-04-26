@@ -73,6 +73,7 @@
     "flatted": ">=3.4.2",
     "picomatch": ">=4.0.4",
     "http-proxy-agent": ">=7.0.0",
-    "brace-expansion": "2.1.0"
+    "brace-expansion": "2.1.0",
+    "protobufjs": ">=7.5.5"
   }
 }
