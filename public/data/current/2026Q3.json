@@ -576,7 +576,63 @@
         "JPY": 154.04
       },
       "source": "Frankfurter",
-      "timestamp": 1789177836473
+      "timestamp": 1789782965825
+    },
+    "2026-09-12": {
+      "date": "2026-09-12",
+      "rate": {
+        "JPY": 154.04
+      },
+      "source": "Frankfurter",
+      "timestamp": 1789782965825
+    },
+    "2026-09-13": {
+      "date": "2026-09-13",
+      "rate": {
+        "JPY": 154.04
+      },
+      "source": "Frankfurter",
+      "timestamp": 1789782965825
+    },
+    "2026-09-14": {
+      "date": "2026-09-14",
+      "rate": {
+        "JPY": 154.55
+      },
+      "source": "Frankfurter",
+      "timestamp": 1789782965825
+    },
+    "2026-09-15": {
+      "date": "2026-09-15",
+      "rate": {
+        "JPY": 155
+      },
+      "source": "Frankfurter",
+      "timestamp": 1789782965825
+    },
+    "2026-09-16": {
+      "date": "2026-09-16",
+      "rate": {
+        "JPY": 155.05
+      },
+      "source": "Frankfurter",
+      "timestamp": 1789782965825
+    },
+    "2026-09-17": {
+      "date": "2026-09-17",
+      "rate": {
+        "JPY": 155.69
+      },
+      "source": "Frankfurter",
+      "timestamp": 1789782965825
+    },
+    "2026-09-18": {
+      "date": "2026-09-18",
+      "rate": {
+        "JPY": 157.89
+      },
+      "source": "Frankfurter",
+      "timestamp": 1789782965825
     }
   },
   "hash": ""
