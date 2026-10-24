@@ -1,77 +1,38 @@
 // src/app/api/chat/route.ts
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
+import { createRateLimiter, getClientIP } from '@/lib/rateLimit';
+import { CURRENT_EDITION } from '@/config/license';
 
 // =============================================
 // セキュリティ設定
 // =============================================
 
-// レートリミット設定（1分あたりのリクエスト数）
-const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1分
-const RATE_LIMIT_MAX_REQUESTS = 5; // 1分あたり5リクエスト
+// レートリミット設定（IPごと: 1分あたり5リクエスト）
+const checkRateLimit = createRateLimiter({ windowMs: 60 * 1000, max: 5 });
+
+// コスト上限（インスタンス全体: 1日あたりのリクエスト数）
+const DAILY_LIMIT = Number(process.env.CHAT_DAILY_LIMIT) || 500;
+const checkDailyLimit = createRateLimiter({ windowMs: 24 * 60 * 60 * 1000, max: DAILY_LIMIT });
 
 // メッセージ長制限
 const MAX_MESSAGE_LENGTH = 500;
 
+// 会話履歴の制限（直近のみ送信し、トークン消費を抑える）
+const MAX_HISTORY_MESSAGES = 10;
+const MAX_HISTORY_MESSAGE_LENGTH = 1500;
+
 // 許可するオリジン（本番環境では適切なドメインに変更）
+// ※ Referer/Origin は偽装可能なため、ブラウザ以外からの悪用はレート制限で抑止する
 const ALLOWED_ORIGINS = [
     'http://localhost:3000',
     'https://firstrade.nomadkazoku.com',
     'https://www.nomadkazoku.com',
 ];
 
-// レートリミット用のメモリストア（本番環境ではRedisなど推奨）
-const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
-
 // =============================================
 // ヘルパー関数
 // =============================================
-
-// IPアドレスを取得
-function getClientIP(request: NextRequest): string {
-    const forwarded = request.headers.get('x-forwarded-for');
-    if (forwarded) {
-        return forwarded.split(',')[0].trim();
-    }
-    const realIP = request.headers.get('x-real-ip');
-    if (realIP) {
-        return realIP;
-    }
-    return 'unknown';
-}
-
-// レートリミットチェック
-function checkRateLimit(ip: string): { allowed: boolean; remaining: number; resetIn: number } {
-    const now = Date.now();
-    const record = rateLimitStore.get(ip);
-
-    if (!record || now > record.resetTime) {
-        // 新しいウィンドウを開始
-        rateLimitStore.set(ip, {
-            count: 1,
-            resetTime: now + RATE_LIMIT_WINDOW_MS
-        });
-        return { allowed: true, remaining: RATE_LIMIT_MAX_REQUESTS - 1, resetIn: RATE_LIMIT_WINDOW_MS };
-    }
-
-    if (record.count >= RATE_LIMIT_MAX_REQUESTS) {
-        // 制限超過
-        return {
-            allowed: false,
-            remaining: 0,
-            resetIn: record.resetTime - now
-        };
-    }
-
-    // カウント増加
-    record.count++;
-    rateLimitStore.set(ip, record);
-    return {
-        allowed: true,
-        remaining: RATE_LIMIT_MAX_REQUESTS - record.count,
-        resetIn: record.resetTime - now
-    };
-}
 
 // リファラーチェック
 function checkReferer(request: NextRequest): boolean {
@@ -84,26 +45,53 @@ function checkReferer(request: NextRequest): boolean {
     }
 
     // リファラーまたはオリジンが許可リストに含まれているかチェック
-    const checkUrl = referer || origin;
+    const checkUrl = origin || referer;
     if (!checkUrl) {
         return false;
     }
 
-    return ALLOWED_ORIGINS.some(allowed => checkUrl.startsWith(allowed));
-}
-
-// 古いレートリミットレコードをクリーンアップ（メモリリーク防止）
-function cleanupRateLimitStore() {
-    const now = Date.now();
-    for (const [ip, record] of rateLimitStore.entries()) {
-        if (now > record.resetTime) {
-            rateLimitStore.delete(ip);
-        }
+    try {
+        const requestOrigin = new URL(checkUrl).origin;
+        return ALLOWED_ORIGINS.includes(requestOrigin);
+    } catch {
+        return false;
     }
 }
 
-// 定期的にクリーンアップ（5分ごと）
-setInterval(cleanupRateLimitStore, 5 * 60 * 1000);
+type ChatHistoryEntry = { role: 'user' | 'model'; parts: { text: string }[] };
+
+// クライアントから受け取った会話履歴を検証・整形
+function sanitizeHistory(history: unknown, currentMessage: string): ChatHistoryEntry[] {
+    if (!Array.isArray(history)) return [];
+
+    // 巨大な配列を処理しないよう、先に直近分だけに絞る
+    const entries: ChatHistoryEntry[] = history
+        .slice(-(MAX_HISTORY_MESSAGES + 1))
+        .filter((msg): msg is { type: string; content: string } =>
+            typeof msg === 'object' && msg !== null &&
+            typeof (msg as { content?: unknown }).content === 'string' &&
+            ((msg as { type?: unknown }).type === 'user' || (msg as { type?: unknown }).type === 'bot')
+        )
+        .map(msg => ({
+            role: msg.type === 'user' ? 'user' as const : 'model' as const,
+            parts: [{ text: msg.content.slice(0, MAX_HISTORY_MESSAGE_LENGTH) }],
+        }));
+
+    // 末尾が今回の質問と同じなら重複して送らない
+    const last = entries[entries.length - 1];
+    if (last && last.role === 'user' && last.parts[0].text === currentMessage) {
+        entries.pop();
+    }
+
+    const recent = entries.slice(-MAX_HISTORY_MESSAGES);
+
+    // Gemini の履歴は user から始まる必要がある
+    while (recent.length > 0 && recent[0].role !== 'user') {
+        recent.shift();
+    }
+
+    return recent;
+}
 
 // =============================================
 // Gemini API設定
@@ -127,7 +115,8 @@ FirstScopeは以下の4つの機能を持つ非公式ツールです：
 
 【ライセンス】
 - Gumroadで販売
-- 2025年版は2026年末まで有効
+- ${CURRENT_EDITION.label}は${CURRENT_EDITION.validUntil}末まで有効
+- ライセンスキーまたは招待コードは、CSVエクスポート画面の各入力欄に入力して認証する
 - 配当金明細の計算は無料で試用可能
 - CSVエクスポートは有料機能
 
@@ -179,9 +168,18 @@ export async function POST(request: NextRequest) {
 
         // 3. APIキーの確認
         if (!process.env.GEMINI_API_KEY) {
+            console.error('GEMINI_API_KEY is not configured');
             return NextResponse.json(
-                { error: 'Gemini APIキーが設定されていません' },
-                { status: 500 }
+                { error: 'チャット機能は現在ご利用いただけません' },
+                { status: 503 }
+            );
+        }
+
+        // 全体の1日上限
+        if (!checkDailyLimit('global').allowed) {
+            return NextResponse.json(
+                { error: '本日の利用上限に達しました。時間をおいて再度お試しください。' },
+                { status: 429 }
             );
         }
 
@@ -205,14 +203,11 @@ export async function POST(request: NextRequest) {
 
         // 6. Gemini APIを呼び出し
         const model = genAI.getGenerativeModel({
-            model: 'gemini-2.0-flash-exp',
+            model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
             systemInstruction: SYSTEM_PROMPT,
         });
 
-        const chatHistory = history?.map((msg: { type: string; content: string }) => ({
-            role: msg.type === 'user' ? 'user' : 'model',
-            parts: [{ text: msg.content }],
-        })) || [];
+        const chatHistory = sanitizeHistory(history, message);
 
         const chat = model.startChat({
             history: chatHistory,
@@ -237,14 +232,11 @@ export async function POST(request: NextRequest) {
         );
 
     } catch (error) {
-        console.error('Gemini API error:', error);
+        console.error('Gemini API error:', error instanceof Error ? error.message : error);
 
-        const errorMessage = error instanceof Error
-            ? error.message
-            : '予期しないエラーが発生しました';
-
+        // 内部エラーの詳細はクライアントに返さない
         return NextResponse.json(
-            { error: errorMessage },
+            { error: '回答の生成中にエラーが発生しました。時間をおいて再度お試しください。' },
             { status: 500 }
         );
     }

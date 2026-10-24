@@ -1,6 +1,6 @@
 // src/app/api/exchange-rates/update/route.ts
-import { NextResponse } from 'next/server';
-// .jsを削除
+import { NextRequest, NextResponse } from 'next/server';
+import { requireCronAuth } from '@/lib/cronAuth';
 import { FrankfurterAPI } from '@/services/exchangeService/api/frankfurter';
 import { ExchangeStorageService } from '@/services/exchangeService/storage';
 import { ExchangeRateUpdater } from '@/services/exchangeService/updater';
@@ -9,7 +9,10 @@ export async function GET() {
   return NextResponse.json({ message: 'Exchange rates API endpoint' });
 }
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+  const authError = requireCronAuth(request);
+  if (authError) return authError;
+
   try {
     console.log('為替レート更新: 開始', {
       timestamp: new Date().toISOString()
@@ -38,7 +41,7 @@ export async function POST() {
 
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : '為替レート更新に失敗しました',
+      error: '為替レート更新に失敗しました',
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
