@@ -1,0 +1,41 @@
+# cloudbuild.staging.yaml
+# お試し用（ステージング）サイトへのデプロイ設定
+# 本番（cloudbuild.yaml / firstrade-calculator）とは別の Cloud Run サービスに配置するため、本番の利用者には影響しない
+
+steps:
+  # ステップ1: Dockerイメージをビルド
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/firstrade-calculator-staging:$COMMIT_SHA'
+      - '.'
+
+  # ステップ2: Artifact Registryにプッシュ
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/firstrade-calculator-staging:$COMMIT_SHA'
+
+  # ステップ3: ステージング用の Cloud Run サービスにデプロイ
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - 'firstrade-calculator-staging'
+      - '--image'
+      - 'asia-northeast1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/firstrade-calculator-staging:$COMMIT_SHA'
+      - '--region'
+      - 'asia-northeast1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+      # アクセスが少ないため最大1インスタンスに制限（費用とレート制限の一貫性のため）
+      - '--max-instances'
+      - '1'
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+timeout: '900s'
