@@ -66,9 +66,9 @@ export function issueLicenseToken(
   let exp = Date.now() + TOKEN_TTL_MS;
   if (licenseExpiry) {
     const expiryTime = expiryToTime(licenseExpiry);
-    if (!isNaN(expiryTime)) {
-      exp = Math.min(exp, expiryTime);
-    }
+    // 期限を解釈できない場合はトークンを発行しない（無期限にしない）
+    if (isNaN(expiryTime)) return null;
+    exp = Math.min(exp, expiryTime);
   }
 
   const payload: LicenseTokenPayload = {
