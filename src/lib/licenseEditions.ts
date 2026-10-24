@@ -9,6 +9,9 @@ export interface GumroadProduct {
   expiry: string | null;
 }
 
+/** 有効期限の設定値が不正な場合に入る値（認証を拒否するために「無期限」と区別する） */
+export const INVALID_EXPIRY = 'INVALID' as const;
+
 export interface CouponCode {
   code: string;
   expiry: string | null;
@@ -23,18 +26,39 @@ export function expiryToTime(expiry: string): number {
   return new Date(`${expiry}T23:59:59.999+09:00`).getTime();
 }
 
+/**
+ * 実在する日付の YYYY-MM-DD か（2026-13-31 や 2026-02-31 は不正）
+ */
+export function isValidExpiry(expiry: string): boolean {
+  if (!DATE_PATTERN.test(expiry)) return false;
+  const [year, month, day] = expiry.split('-').map(Number);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day;
+}
+
+/**
+ * 有効期限の設定値が不正か（設定ミス。認証は拒否すべき）
+ */
+export function isInvalidExpiry(expiry: string | null): boolean {
+  return expiry !== null && !isValidExpiry(expiry);
+}
+
+/**
+ * 期限切れか。null（無期限）は期限切れにならない
+ * 不正な設定値は安全側に倒して期限切れとして扱う
+ */
 export function isExpired(expiry: string | null, now: number = Date.now()): boolean {
   if (!expiry) return false;
-  const time = expiryToTime(expiry);
-  return !isNaN(time) && now > time;
+  if (!isValidExpiry(expiry)) return true;
+  return now > expiryToTime(expiry);
 }
 
 function parseExpiry(value: string | undefined): string | null {
   const trimmed = value?.trim();
   if (!trimmed) return null;
-  if (!DATE_PATTERN.test(trimmed) || isNaN(expiryToTime(trimmed))) {
-    console.error(`Invalid license expiry date: "${trimmed}" (YYYY-MM-DD 形式で指定してください)`);
-    return null;
+  if (!isValidExpiry(trimmed)) {
+    console.error(`Invalid license expiry date: "${trimmed}" (YYYY-MM-DD 形式の実在する日付で指定してください)`);
+    return INVALID_EXPIRY;
   }
   return trimmed;
 }

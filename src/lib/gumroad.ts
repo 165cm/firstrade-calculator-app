@@ -1,5 +1,5 @@
 // src/lib/gumroad.ts
-import { getGumroadProducts, isExpired, type GumroadProduct } from '@/lib/licenseEditions';
+import { getGumroadProducts, isExpired, isInvalidExpiry, type GumroadProduct } from '@/lib/licenseEditions';
 
 export interface GumroadLicenseResponse {
   success: boolean;
@@ -68,6 +68,12 @@ async function checkProduct(product: GumroadProduct, licenseKey: string): Promis
     // 返金済みまたは紛争中の場合は無効
     if (data.purchase.refunded || data.purchase.disputed) {
       return { status: 'invalid', message: 'このライセンスは無効です' };
+    }
+
+    // 有効期限の設定ミスは「無期限」扱いにせず、認証を拒否する
+    if (isInvalidExpiry(product.expiry)) {
+      console.error('Gumroad product has an invalid expiry setting:', { edition: product.edition });
+      return { status: 'error' };
     }
 
     const editionLabel = product.edition || 'このライセンス';

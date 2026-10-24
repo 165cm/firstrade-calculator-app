@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyGumroadLicense } from '@/lib/gumroad';
 import { issueLicenseToken, isTokenSecretConfigured } from '@/lib/licenseToken';
 import { createRateLimiter, getClientIP } from '@/lib/rateLimit';
-import { findCouponCode, isExpired } from '@/lib/licenseEditions';
+import { findCouponCode, isExpired, isInvalidExpiry } from '@/lib/licenseEditions';
 
 // 総当たり対策（1分あたり10回まで）
 const checkRateLimit = createRateLimiter({ windowMs: 60 * 1000, max: 10 });
@@ -41,6 +41,14 @@ export async function POST(request: NextRequest) {
     // 招待コード欄から送られた場合は Gumroad には問い合わせない
     const coupon = findCouponCode(trimmedKey);
     if (coupon) {
+      // 有効期限の設定ミスは「無期限」扱いにせず、認証を拒否する
+      if (isInvalidExpiry(coupon.expiry)) {
+        console.error('Coupon code has an invalid expiry setting');
+        return NextResponse.json(
+          { success: false, message: 'サーバー設定エラー' },
+          { status: 500 }
+        );
+      }
       if (isExpired(coupon.expiry)) {
         return NextResponse.json({
           success: false,
