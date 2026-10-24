@@ -117,27 +117,8 @@ export async function processDividendData(records: DividendRecord[]): Promise<Pr
 
     const processedRecords = await Promise.all(processPromises);
 
-    // withholdingRecordsの抽出を改善
-    const withholdingRecords = processedRecords.filter(r => {
-      // Description内の"WITHHELD"文字列を確認
-      if (!r.Description.includes('WITHHELD')) return false;
-
-      // 金額の抽出
-      const match = r.Description.match(/WITHHELD\s+\$(\d+\.\d+)/);
-      if (!match) return false;
-
-      // 金額を検証
-      const amount = -parseFloat(match[1]); // マイナス値として設定
-
-      console.log('源泉徴収レコード判定:', {
-        銘柄: r.Symbol,
-        Description: r.Description,
-        抽出金額: amount,
-        元の金額: r.Amount
-      });
-
-      return true;
-    });
+    // Descriptionに源泉徴収額の記載があるレコードを抽出
+    const withholdingRecords = processedRecords.filter(r => extractWithholdingAmount(r) !== null);
 
     return {
       dividends: processedRecords.filter(r => r.Action.toUpperCase() === 'DIVIDEND'),

@@ -5,20 +5,15 @@ import Papa, { ParseResult, ParseConfig } from 'papaparse';
 import { preprocessCsv } from '@/utils/gainloss/preprocessCsv';
 import type { RawGainLossData } from '@/types/gainloss';
 import { HelpTooltip } from '@/components/common/Tooltip';
+import { cleanNumber } from '@/utils/common/numberUtils';
 
 interface Props {
   onUpload: (data: RawGainLossData[]) => void;
   onError: (message: string) => void;
 }
 
-function safeParseNumber(value: string | number): number {
-  if (typeof value === 'number') return value;
-  if (!value || value === '') return 0;
-  const cleaned = value.toString().replace(/[,\s$¥]/g, '');
-  const num = Number(cleaned);
-  if (isNaN(num)) return 0;
-  return num;
-}
+// 括弧表記などの負数にも対応した共通の数値変換を使用（変換失敗時は0）
+const safeParseNumber = cleanNumber;
 
 export const GainLossFileUploader: React.FC<Props> = ({ onUpload, onError }) => {
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
