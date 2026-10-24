@@ -102,6 +102,9 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
             </p>
           </div>
         </div>
+        <p className="mt-3 text-xs text-gray-500">
+          ※ 損益は日本方式（売却額 − 取得額、Wash Sale調整なし）で計算しています。米国方式の損益はCSVエクスポートで確認できます。
+        </p>
       </div>
 
       {/* 銘柄別実績（詳細付き） */}

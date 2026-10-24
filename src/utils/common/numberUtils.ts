@@ -1,26 +1,43 @@
 // src/utils/common/numberUtils.ts
 
 /**
+ * 文字列を数値に変換する（変換できない場合は NaN）
+ * - カンマ、空白、通貨記号（$ ¥）を除去
+ * - 会計表記の負数に対応: "(1,234.56)" / "1,234.56-" / "−1,234.56"（全角・Unicodeマイナス）
+ * - 空の値は 0
+ */
+export function parseNumber(value: string | number | null | undefined): number {
+  if (typeof value === 'number') return value;
+  if (value === null || value === undefined) return 0;
+
+  let cleaned = String(value).replace(/[,\s$¥￥]/g, '').replace(/[−－]/g, '-');
+  if (cleaned === '') return 0;
+
+  let negative = false;
+  if (/^\(.*\)$/.test(cleaned)) {
+    negative = true;
+    cleaned = cleaned.slice(1, -1);
+  } else if (/^[^-].*-$/.test(cleaned)) {
+    negative = true;
+    cleaned = cleaned.slice(0, -1);
+  }
+
+  if (cleaned === '') return NaN;
+  const num = Number(cleaned);
+  if (isNaN(num)) return NaN;
+  return negative ? -num : num;
+}
+
+/**
  * 文字列からカンマや通貨記号を取り除き、数値に変換する関数
  * @param value - 変換する値（文字列または数値）
  * @returns 変換された数値（変換失敗時は0）
  */
 export function cleanNumber(value: string | number): number {
-  // すでに数値の場合はそのまま返す
-  if (typeof value === 'number') return value;
+  const num = parseNumber(value);
 
-  // 空の値は0として扱う
-  if (!value || value === '') return 0;
-
-  // カンマ、スペース、通貨記号を削除
-  const cleaned = value.toString().replace(/[,\s$¥]/g, '');
-  const num = Number(cleaned);
-
-  // NaNチェック
   if (isNaN(num)) {
-    if (process.env.NODE_ENV === 'development') {
-      console.warn(`数値変換失敗: "${value}" -> NaN`);
-    }
+    console.warn(`数値変換失敗: "${value}" -> 0 として扱います`);
     return 0;
   }
 

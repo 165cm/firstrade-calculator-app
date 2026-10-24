@@ -1,35 +1,26 @@
 // src/utils/withholding.ts
 import type { ConvertedDividendRecord } from '@/types/dividend';
 
-// Descriptionから源泉徴収額を抽出 - 複数フォーマットに対応
-export function extractWithholdingAmount(record: ConvertedDividendRecord): number | null {
-  // "WITHHELD" の後に任意の文字列、そして "$数字.数字" というパターンを検索
-  const match = record.Description.match(/WITHHELD.*\$(\d+\.\d+)/);
-  if (match && match[1]) {
-    const amount = parseFloat(match[1]);
-    
-    // デバッグログ
-    console.log('源泉徴収額抽出:', {
-      Description: record.Description,
-      検出金額: amount,
-      マッチ部分: match[0]
-    });
-    
-    return amount;
-  }
-  return null;
+// "WITHHELD" の後に続く金額を抽出する
+// 例: "NON-RES TAX WITHHELD  $0.53" / "WITHHELD $1,234.56" / "WITHHELD $5"
+const WITHHOLDING_PATTERN = /WITHHELD\s*\$?\s*(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)/i;
+
+/**
+ * Description文字列から源泉徴収額（正の値）を抽出する
+ * @returns 金額。記載がない場合は null
+ */
+export function parseWithholdingFromDescription(description: string | undefined | null): number | null {
+  if (!description) return null;
+  const match = description.match(WITHHOLDING_PATTERN);
+  if (!match) return null;
+
+  const amount = Number(match[1].replace(/,/g, ''));
+  return Number.isFinite(amount) && amount > 0 ? amount : null;
 }
 
-// デバッグ用ログ出力を追加
-function logWithholdingExtraction(record: ConvertedDividendRecord, amount: number | null) {
-  console.log('源泉徴収額抽出:', {
-    日付: record.TradeDate,
-    銘柄: record.Symbol,
-    種別: record.Action,
-    Description: record.Description,
-    抽出額: amount,
-    マッチ: amount !== null ? '成功' : '失敗'
-  });
+// Descriptionから源泉徴収額を抽出
+export function extractWithholdingAmount(record: Pick<ConvertedDividendRecord, 'Description'>): number | null {
+  return parseWithholdingFromDescription(record.Description);
 }
 
 // 源泉徴収の合計を計算
@@ -42,19 +33,9 @@ export function calculateTotalWithholding(records: ConvertedDividendRecord[]): {
 
   records.forEach(record => {
     const withholdingAmount = extractWithholdingAmount(record);
-    logWithholdingExtraction(record, withholdingAmount);
-
     if (withholdingAmount) {
       totalUSD += withholdingAmount;
       totalJPY += withholdingAmount * record.exchangeRate;
-
-      console.log('源泉徴収集計:', {
-        日付: record.TradeDate,
-        種別: record.Action,
-        源泉徴収額: withholdingAmount,
-        為替レート: record.exchangeRate,
-        円換算額: withholdingAmount * record.exchangeRate
-      });
     }
   });
 

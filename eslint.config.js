@@ -2,6 +2,7 @@
 import { FlatCompat } from '@eslint/eslintrc';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import jestPlugin from 'eslint-plugin-jest';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,6 +21,7 @@ const config = [
       '**/dist/**',
       '**/build/**',
       '**/jest.config.js',
+      '**/jest.config.cjs',
       '**/jest.setup.js',
       '**/*.d.ts'
     ]
@@ -44,8 +46,9 @@ const config = [
   },
   {
     files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
-    ...compat.extends('plugin:jest/recommended')[0],
+    ...jestPlugin.configs['flat/recommended'],
     rules: {
+      ...jestPlugin.configs['flat/recommended'].rules,
       'jest/no-disabled-tests': 'warn',
       'jest/no-focused-tests': 'error',
       'jest/no-identical-title': 'error',

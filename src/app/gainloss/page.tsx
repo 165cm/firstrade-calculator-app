@@ -12,7 +12,7 @@ import { DEMO_GAINLOSS_DATA } from '@/utils/demoData';
 import { ProgressIndicator, ProgressState, createInitialProgress } from '@/components/common/ProgressIndicator';
 import type { GainLossSummary as GainLossSummaryType, RawGainLossData } from '@/types/gainloss';
 import { processGainLossData } from '@/utils/gainloss/processGainLoss';
-import { calculateGainLossSummary } from '@/utils/gainloss/calculateSummary';
+import { calculateGainLossSummary, summarizeTrades } from '@/utils/gainloss/calculateSummary';
 import { getDefaultRateUsedDates, clearDefaultRateTracking, DEFAULT_RATE } from '@/data/exchangeRates';
 import { HelpTooltip } from '@/components/common/Tooltip';
 import { Footer } from '@/components/common/Footer';
@@ -35,8 +35,10 @@ export default function GainLossPage() {
       const stored = localStorage.getItem(STORAGE_KEY);
       const storedDemoFlag = localStorage.getItem(STORAGE_KEY + '_isDemoData');
       if (stored) {
-        const parsed = JSON.parse(stored);
-        setSummary(parsed);
+        const parsed = JSON.parse(stored) as GainLossSummaryType;
+        // 保存済みの取引明細から集計し直し、計算方法の変更を既存データにも反映する
+        const trades = parsed.symbolSummary?.flatMap(item => item.trades ?? []) ?? [];
+        setSummary(trades.length > 0 ? summarizeTrades(trades) : parsed);
         setHasCachedData(true);
         // デモデータフラグも復元
         if (storedDemoFlag === 'true') {
