@@ -1,5 +1,6 @@
 // src/app/dividend/layout.tsx
 import type { Metadata } from 'next';
+import { PRODUCT_NAME } from '@/config/license';
 
 export const metadata: Metadata = {
     title: '配当金明細 - Firstrade確定申告ツール',
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
         canonical: 'https://firstrade.nomadkazoku.com/dividend',
     },
     openGraph: {
-        title: '配当金明細 - Firstrade確定申告ツール | FirstScope 2025',
+        title: `配当金明細 - Firstrade確定申告ツール | ${PRODUCT_NAME}`,
         description: 'Firstrade証券の配当金・利子収入を自動集計。CSVアップロードでECB為替レート自動換算。',
         url: 'https://firstrade.nomadkazoku.com/dividend',
     },

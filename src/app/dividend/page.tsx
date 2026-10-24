@@ -15,6 +15,7 @@ import type {
 import { getExchangeRate, getDefaultRateUsedDates, clearDefaultRateTracking, DEFAULT_RATE } from '@/data/exchangeRates';
 import { HelpTooltip } from '@/components/common/Tooltip';
 import { Footer } from '@/components/common/Footer';
+import { trackEvent } from '@/lib/analytics';
 
 const STORAGE_KEY = 'dividend_data';
 
@@ -33,16 +34,29 @@ export default function DividendPage() {
   const [isDemoData, setIsDemoData] = useState(false);
 
   // 初回マウント時にlocalStorageからデータを復元
+  // LPの「デモで体験」（?demo=1）から来た場合は、保存済みデータがなければデモデータを読み込む
   useEffect(() => {
+    let hasStoredData = false;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
         setDividendData(parsed);
         setHasCachedData(true);
+        hasStoredData = true;
       }
     } catch (e) {
       console.error('Failed to restore dividend data from localStorage:', e);
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('demo') === '1') {
+      window.history.replaceState(null, '', window.location.pathname);
+      if (!hasStoredData) {
+        trackEvent('demo_start', { placement: 'lp' });
+        handleDividendData(DEMO_DIVIDEND_DATA);
+        setIsDemoData(true);
+      }
     }
   }, []);
 

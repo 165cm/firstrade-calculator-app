@@ -5,6 +5,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useLicenseContext } from '@/contexts/LicenseContext';
 import { CURRENT_EDITION, PURCHASE_URL } from '@/config/license';
+import { trackEvent } from '@/lib/analytics';
 
 interface Props {
   onClick: () => void;
@@ -151,7 +152,10 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
   return (
     <>
       <Button
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          trackEvent('export_dialog_open');
+          setIsOpen(true);
+        }}
         disabled={disabled}
         className={`${disabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
       >

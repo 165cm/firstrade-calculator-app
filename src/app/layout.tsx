@@ -3,14 +3,16 @@ import './globals.css';
 import type { Metadata } from 'next';
 import Navigation from '@/components/Navigation';
 import ClientLayout from '@/components/ClientLayout';
+import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
+import { CURRENT_EDITION, PRODUCT_NAME } from '@/config/license';
 
 const BASE_URL = 'https://firstrade.nomadkazoku.com';
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: 'FirstScope 2025 | Firstrade確定申告サポートツール',
-    template: '%s | FirstScope 2025',
+    default: `${PRODUCT_NAME} | Firstrade確定申告サポートツール`,
+    template: `%s | ${PRODUCT_NAME}`,
   },
   description: 'Firstrade証券の確定申告を効率化。配当金・売却損益の自動計算、為替レート自動取得、CSVエクスポート機能を提供するプロフェッショナル分析ツール。',
   keywords: ['Firstrade', '確定申告', '配当金', '売却損益', '為替レート', 'ECB', 'ポートフォリオ', '米国株', '外国税額控除'],
@@ -33,8 +35,8 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    siteName: 'FirstScope 2025',
-    title: 'FirstScope 2025 | Firstrade確定申告サポートツール',
+    siteName: PRODUCT_NAME,
+    title: `${PRODUCT_NAME} | Firstrade確定申告サポートツール`,
     description: 'Firstrade証券の確定申告を効率化。配当金・売却損益の自動計算、為替レート自動取得、CSVエクスポート機能を提供。',
     url: BASE_URL,
     locale: 'ja_JP',
@@ -43,13 +45,13 @@ export const metadata: Metadata = {
         url: '/images/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'FirstScope 2025 - Firstrade確定申告サポートツール',
+        alt: `${PRODUCT_NAME} - Firstrade確定申告サポートツール`,
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'FirstScope 2025 | Firstrade確定申告サポートツール',
+    title: `${PRODUCT_NAME} | Firstrade確定申告サポートツール`,
     description: 'Firstrade証券の確定申告を効率化。配当金・売却損益の自動計算、為替レート自動取得機能を提供。',
     images: ['/images/og-image.png'],
   },
@@ -98,7 +100,7 @@ export default function RootLayout({
                   '@type': 'WebSite',
                   '@id': `${BASE_URL}/#website`,
                   url: BASE_URL,
-                  name: 'FirstScope 2025',
+                  name: PRODUCT_NAME,
                   description: 'Firstrade証券の確定申告を効率化するプロフェッショナル分析ツール',
                   publisher: {
                     '@id': `${BASE_URL}/#organization`,
@@ -117,14 +119,14 @@ export default function RootLayout({
                 },
                 {
                   '@type': 'SoftwareApplication',
-                  name: 'FirstScope 2025',
+                  name: PRODUCT_NAME,
                   applicationCategory: 'FinanceApplication',
                   operatingSystem: 'Web Browser',
                   offers: {
                     '@type': 'Offer',
-                    price: '0',
-                    priceCurrency: 'JPY',
-                    description: '2025年末までベータ機能無料開放中',
+                    price: CURRENT_EDITION.priceValue,
+                    priceCurrency: 'USD',
+                    description: `${CURRENT_EDITION.label}（${CURRENT_EDITION.validUntil}まで利用可）`,
                   },
                   description: 'Firstrade証券の確定申告をサポートするツール。配当金明細、売却損益計算、ポートフォリオ分析機能を提供。',
                   featureList: [
@@ -141,6 +143,7 @@ export default function RootLayout({
         />
       </head>
       <body suppressHydrationWarning={true} className="bg-slate-50">
+        <GoogleAnalytics />
         <ClientLayout>
           <div className="flex flex-col min-h-screen">
             <Navigation />
