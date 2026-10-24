@@ -1,4 +1,4 @@
-import { calculateGainLossSummary } from '@/utils/gainloss/calculateSummary';
+import { calculateGainLossSummary, summarizeTrades } from '@/utils/gainloss/calculateSummary';
 import type { GainLossRecord } from '@/types/gainloss';
 
 const RATES: Record<string, number> = {
@@ -56,5 +56,22 @@ describe('calculateGainLossSummary', () => {
     expect(monthlyJPY).toBe(summary.totalGainLossJPY);
     expect(monthlyUSD).toBe(summary.totalGainLossUSD);
     expect(summary.monthlyGainLoss.map(m => m.month)).toEqual(['2024-03', '2024-07']);
+  });
+});
+
+describe('summarizeTrades', () => {
+  it('re-summarizes cached data saved with the old (US method) totals', () => {
+    // 旧バージョンで保存されたサマリー（ドル建て損益が米国方式の 0）
+    const cachedTrade = {
+      symbol: 'BBB', purchaseDate: '2024-01-10', saleDate: '2024-03-01', quantity: 10,
+      proceeds: 900, cost: 1000, washSale: 100, gainLoss: 0,
+      purchaseRate: 145, saleRate: 150, costJPY: 145000, proceedsJPY: 135000,
+      gainLossJPY: -10000, exchangeRate: 150,
+    };
+    const summary = summarizeTrades([cachedTrade]);
+    expect(summary.totalGainLossUSD).toBe(-100);
+    expect(summary.symbolSummary[0].gainLossUSD).toBe(-100);
+    expect(summary.totalGainLossJPY).toBe(-10000);
+    expect(summary.monthlyGainLoss).toEqual([{ month: '2024-03', gainLossUSD: -100, gainLossJPY: -10000 }]);
   });
 });
