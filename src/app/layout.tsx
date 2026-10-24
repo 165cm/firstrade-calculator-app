@@ -1,6 +1,6 @@
 // src/app/layout.tsx
 import './globals.css';
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
 import Navigation from '@/components/Navigation';
 import ClientLayout from '@/components/ClientLayout';
 

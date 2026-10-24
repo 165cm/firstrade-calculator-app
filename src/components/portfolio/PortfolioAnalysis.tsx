@@ -269,7 +269,7 @@ export const PortfolioAnalysis = React.forwardRef<PortfolioHandle, Props>(({ onD
 
       {/* エラー表示 */}
       {error && (
-        <Alert variant="destructive">
+        <Alert variant="error">
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}

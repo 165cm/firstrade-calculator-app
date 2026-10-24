@@ -17,6 +17,8 @@ interface AccordionProps {
   children: React.ReactNode;
   className?: string;
   defaultValue?: string; // 追加
+  /** Radix UI 互換のための指定（single では常に開閉可能） */
+  collapsible?: boolean;
 }
 
 export function Accordion({ 

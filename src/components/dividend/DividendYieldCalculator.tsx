@@ -8,7 +8,6 @@ import {
   calculateDividendYield,
   getDividendYieldLevel,
   saveStockPrice,
-  removeStockPrice,
   getStoredStockPrices
 } from '@/utils/dividend/calculateYield';
 import {
@@ -165,16 +164,6 @@ export function DividendYieldCalculator({ stockDividends, holdings = [] }: Props
     }
     setEditingSymbol(null);
     setTempPrice('');
-  };
-
-  // 株価を削除
-  const handleRemove = (symbol: string) => {
-    removeStockPrice(symbol);
-    setStockPrices(prev => {
-      const newPrices = { ...prev };
-      delete newPrices[symbol];
-      return newPrices;
-    });
   };
 
   // キャンセル

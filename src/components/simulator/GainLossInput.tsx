@@ -1,7 +1,7 @@
 // src/components/simulator/GainLossInput.tsx
 'use client';
 
-import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useImperativeHandle } from 'react';
 import { Alert, AlertDescription } from '../ui/alert';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
@@ -11,6 +11,13 @@ interface Props {
     isCollapsed?: boolean;
     onToggle?: () => void;
     isLoading?: boolean;
+}
+
+// 入力内容の保存先（ページを離れても入力が残るようにする）
+const STORAGE_KEY = 'simulator_gainloss_input';
+
+interface TermSection {
+    pages: string[];
 }
 
 export interface GainLossInputHandle {

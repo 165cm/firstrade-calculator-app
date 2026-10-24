@@ -1,11 +1,11 @@
 # Dockerfile
-FROM node:18-slim AS builder
+FROM node:22-slim AS builder
 
 WORKDIR /app
 
 # 依存関係のインストール
 COPY package*.json ./
-RUN npm install
+RUN npm ci
 
 # ソースコードのコピー
 COPY . .
@@ -15,11 +15,11 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # 実行用の軽量イメージ
-FROM node:18-slim AS runner
+FROM node:22-slim AS runner
 WORKDIR /app
 
-ENV NODE_ENV production
-ENV PORT 3000
+ENV NODE_ENV=production
+ENV PORT=3000
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # 非rootユーザーを作成（Cloud Runセキュリティ更新対応）
