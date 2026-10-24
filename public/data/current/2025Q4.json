@@ -489,6 +489,62 @@
       },
       "source": "frankfurter",
       "timestamp": 1766824311815
+    },
+    "2025-12-25": {
+      "date": "2025-12-25",
+      "rate": {
+        "JPY": 155.96
+      },
+      "source": "Frankfurter",
+      "timestamp": 1792850491075
+    },
+    "2025-12-26": {
+      "date": "2025-12-26",
+      "rate": {
+        "JPY": 155.96
+      },
+      "source": "Frankfurter",
+      "timestamp": 1792850491075
+    },
+    "2025-12-27": {
+      "date": "2025-12-27",
+      "rate": {
+        "JPY": 155.96
+      },
+      "source": "Frankfurter",
+      "timestamp": 1792850491075
+    },
+    "2025-12-28": {
+      "date": "2025-12-28",
+      "rate": {
+        "JPY": 155.96
+      },
+      "source": "Frankfurter",
+      "timestamp": 1792850491075
+    },
+    "2025-12-29": {
+      "date": "2025-12-29",
+      "rate": {
+        "JPY": 156.36
+      },
+      "source": "Frankfurter",
+      "timestamp": 1792850491074
+    },
+    "2025-12-30": {
+      "date": "2025-12-30",
+      "rate": {
+        "JPY": 156.06
+      },
+      "source": "Frankfurter",
+      "timestamp": 1792850491074
+    },
+    "2025-12-31": {
+      "date": "2025-12-31",
+      "rate": {
+        "JPY": 156.67
+      },
+      "source": "Frankfurter",
+      "timestamp": 1792850491075
     }
   },
   "hash": "2025Q4-1766824311815"
