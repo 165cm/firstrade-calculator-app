@@ -13,7 +13,7 @@ const FILES: Record<string, unknown> = {
 
 const fetchMock = jest.fn(async (path: string) => {
   const body = FILES[path];
-  return { ok: body !== undefined, json: async () => body } as Response;
+  return { ok: body !== undefined, status: body !== undefined ? 200 : 404, json: async () => body } as Response;
 });
 
 beforeAll(() => { global.fetch = fetchMock as unknown as typeof fetch; });
@@ -52,5 +52,15 @@ describe('getExchangeRate', () => {
     await Promise.all(['2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05'].map(getExchangeRate));
     const q4Requests = fetchMock.mock.calls.filter(([path]) => path === '/data/current/2026Q4.json');
     expect(q4Requests).toHaveLength(1);
+  });
+
+  it('does not cache a transient HTTP failure as missing data', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    fetchMock.mockImplementationOnce(async () => ({ ok: false, status: 503 }) as Response);
+    // 1回目: current が 503、historical が 404 → 一時エラーとしてデフォルト値（利用者に警告される）
+    expect(await getExchangeRate('2026-10-05')).toBe(DEFAULT_RATE);
+    expect(getDefaultRateUsedDates()).toEqual(['2026-10-05']);
+    // 2回目: 復旧後は同じ日付でも正しいレートを取得できる（代替値をキャッシュしない）
+    expect(await getExchangeRate('2026-10-05')).toBe(152);
   });
 });

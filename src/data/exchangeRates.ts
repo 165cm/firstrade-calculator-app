@@ -90,20 +90,24 @@ async function fetchQuarterData(year: number, quarter: number): Promise<QuarterD
     `/data/historical/${year}/Q${quarter}.json`
   ];
 
-  let networkError = false;
+  let transientError = false;
   for (const filePath of pathCandidates) {
     try {
       const response = await fetch(filePath);
-      if (!response.ok) {
-        continue; // 次のパスを試行
+      if (response.ok) {
+        return await response.json() as QuarterData;
       }
-      return await response.json() as QuarterData;
+      // 404 以外（503 など）は一時的なエラーの可能性がある
+      if (response.status !== 404) {
+        transientError = true;
+      }
     } catch {
-      networkError = true;
+      transientError = true;
     }
   }
 
-  if (networkError) {
+  // 「ファイルがない」と確定した場合（すべて 404）のみ null をキャッシュする
+  if (transientError) {
     // 一時的な通信エラーの可能性があるため、結果をキャッシュしない
     throw new Error(`Failed to load exchange rates for ${year}Q${quarter}`);
   }
@@ -117,9 +121,10 @@ function loadQuarterData(year: number, quarter: number): Promise<QuarterData | n
   const key = `${year}Q${quarter}`;
   let cached = quarterCache.get(key);
   if (!cached) {
-    cached = fetchQuarterData(year, quarter).catch(() => {
+    // 一時的なエラーは再試行できるようキャッシュから外し、呼び出し元にエラーを伝える
+    cached = fetchQuarterData(year, quarter).catch((error: unknown) => {
       quarterCache.delete(key);
-      return null;
+      throw error;
     });
     quarterCache.set(key, cached);
   }
