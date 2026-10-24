@@ -2,6 +2,7 @@
 'use client';
 
 import React from 'react';
+import { PURCHASE_URL } from '@/config/license';
 
 interface DataRestrictionProps {
     isLicensed: boolean;
@@ -21,7 +22,7 @@ export function DataRestriction({
     visibleCount,
     totalCount,
     children,
-    productUrl = process.env.NEXT_PUBLIC_GUMROAD_PRODUCT_URL || '#'
+    productUrl = PURCHASE_URL
 }: DataRestrictionProps) {
     const hiddenCount = totalCount - visibleCount;
 

@@ -4,6 +4,7 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
+import { PURCHASE_URL } from '@/config/license';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -57,7 +58,7 @@ export default function Navigation() {
           <div className="flex items-center gap-4">
             <div className="hidden md:flex items-center gap-3">
               <a
-                href="https://papazon.gumroad.com/l/firstrade-ja"
+                href={PURCHASE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="bg-amber-400 text-blue-900 hover:bg-amber-300 px-4 py-2 rounded-md text-sm font-bold transition-colors shadow-sm flex items-center gap-2"
@@ -113,7 +114,7 @@ export default function Navigation() {
             })}
             <div className="pt-4 pb-2 border-t border-white/10 px-3 space-y-3">
               <a
-                href="https://papazon.gumroad.com/l/firstrade-ja"
+                href={PURCHASE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full text-center bg-amber-400 text-blue-900 hover:bg-amber-300 px-4 py-2 rounded-md text-base font-bold transition-colors shadow-sm flex items-center justify-center gap-2"

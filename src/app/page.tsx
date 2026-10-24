@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Download, TrendingUp, Smartphone, Zap, ShieldCheck, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Globe, Lock } from 'lucide-react';
 import { ChatSupport } from '@/components/common/ChatSupport';
+import { PURCHASE_URL } from '@/config/license';
 
 // キャッシュを無効化し、常に最新のコンテンツを表示
 export const dynamic = 'force-dynamic';
@@ -47,7 +48,7 @@ export default function Home() {
             {/* CTA Buttons */}
             <div className="animate-fade-up opacity-0 [animation-delay:300ms] flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
               <a
-                href="https://papazon.gumroad.com/l/firstrade-ja"
+                href={PURCHASE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-navy-900 bg-white rounded-full hover:bg-brand-50 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:-translate-y-0.5 overflow-hidden"
@@ -483,7 +484,7 @@ export default function Home() {
 
             <div className="flex flex-col sm:flex-row gap-5 justify-center">
               <a
-                href="https://papazon.gumroad.com/l/firstrade-ja"
+                href={PURCHASE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-navy-900 bg-white rounded-full hover:bg-brand-50 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:-translate-y-0.5 overflow-hidden"

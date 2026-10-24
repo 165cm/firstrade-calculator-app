@@ -2,15 +2,17 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useLicense } from '@/hooks/useLicense';
+import { useLicense, type LicenseInputType } from '@/hooks/useLicense';
 
 interface LicenseContextType {
     isVerified: boolean;
     licenseKey: string | null;
     expiryDate: string | null;
+    edition: string | null;
+    notice: string | null;
     isLoading: boolean;
     error: string | null;
-    verifyLicense: (key: string) => Promise<boolean>;
+    verifyLicense: (key: string, type?: LicenseInputType) => Promise<boolean>;
     clearLicense: () => void;
 }
 

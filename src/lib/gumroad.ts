@@ -1,4 +1,5 @@
 // src/lib/gumroad.ts
+import { getGumroadProducts, isExpired, type GumroadProduct } from '@/lib/licenseEditions';
 
 export interface GumroadLicenseResponse {
   success: boolean;
@@ -30,101 +31,123 @@ export interface VerifyLicenseResult {
   message?: string;
   expiryDate?: string;
   isExpired?: boolean;
+  /** 表示用の版名（例: 2026年版） */
+  edition?: string;
 }
 
-/**
- * ライセンスの有効期限を取得
- * 環境変数 GUMROAD_LICENSE_EXPIRY で設定（例: 2026-12-31）
- */
-function getLicenseExpiryDate(): string | null {
-  return process.env.GUMROAD_LICENSE_EXPIRY || null;
-}
+type ProductCheck =
+  | { status: 'valid'; result: VerifyLicenseResult }
+  | { status: 'expired'; result: VerifyLicenseResult }
+  | { status: 'invalid'; message: string }
+  | { status: 'not_found' }
+  | { status: 'error' };
 
 /**
- * ライセンスが期限切れかどうかをチェック
+ * 1つの商品に対してライセンスキーを確認
  */
-function isLicenseExpired(expiryDate: string | null): boolean {
-  if (!expiryDate) return false; // 期限設定がなければ永久ライセンス
-
-  const now = new Date();
-  const expiry = new Date(expiryDate);
-  return now > expiry;
-}
-
-/**
- * Gumroad APIでライセンスキーを検証
- * サーバーサイドでのみ使用（APIキーを秘匿するため）
- */
-export async function verifyGumroadLicense(
-  licenseKey: string
-): Promise<VerifyLicenseResult> {
-  const productId = process.env.GUMROAD_PRODUCT_ID;
-
-  if (!productId) {
-    console.error('GUMROAD_PRODUCT_ID is not configured');
-    return {
-      success: false,
-      message: 'サーバー設定エラー',
-    };
-  }
-
+async function checkProduct(product: GumroadProduct, licenseKey: string): Promise<ProductCheck> {
   try {
-    const trimmedKey = licenseKey.trim();
-
     const response = await fetch('https://api.gumroad.com/v2/licenses/verify', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: new URLSearchParams({
-        product_id: productId,
-        license_key: trimmedKey,
+        product_id: product.productId,
+        license_key: licenseKey,
       }),
     });
 
     const data: GumroadLicenseResponse = await response.json();
 
-    if (data.success) {
-      // 返金済みまたは紛争中の場合は無効
-      if (data.purchase.refunded || data.purchase.disputed) {
-        return {
-          success: false,
-          message: 'このライセンスは無効です',
-        };
-      }
+    if (!data.success) {
+      // 別の年度版のキーの場合もここに来るため、警告ログは呼び出し側でまとめて出す
+      return response.status === 404 ? { status: 'not_found' } : { status: 'error' };
+    }
 
-      // 有効期限チェック
-      const expiryDate = getLicenseExpiryDate();
-      const expired = isLicenseExpired(expiryDate);
+    // 返金済みまたは紛争中の場合は無効
+    if (data.purchase.refunded || data.purchase.disputed) {
+      return { status: 'invalid', message: 'このライセンスは無効です' };
+    }
 
-      if (expired) {
-        return {
+    const editionLabel = product.edition || 'このライセンス';
+
+    if (isExpired(product.expiry)) {
+      return {
+        status: 'expired',
+        result: {
           success: false,
-          message: `ライセンスの有効期限が切れています（${expiryDate}まで有効）`,
-          expiryDate: expiryDate || undefined,
+          message: `${editionLabel}の有効期限が切れています（${product.expiry}まで有効）。新しい年度版のライセンスキーを入力してください`,
+          expiryDate: product.expiry || undefined,
           isExpired: true,
-        };
-      }
-
-      return {
-        success: true,
-        email: data.purchase.email,
-        expiryDate: expiryDate || undefined,
-        isExpired: false,
-      };
-    } else {
-      // ライセンスキーや購入者情報はログに残さない
-      console.warn('Gumroad verification failed:', { status: response.status, message: data.message });
-      return {
-        success: false,
-        message: data.message || 'ライセンスキーが正しくありません',
+          edition: product.edition || undefined,
+        },
       };
     }
+
+    return {
+      status: 'valid',
+      result: {
+        success: true,
+        email: data.purchase.email,
+        expiryDate: product.expiry || undefined,
+        isExpired: false,
+        edition: product.edition || undefined,
+      },
+    };
   } catch (error) {
     console.error('Gumroad API error:', error instanceof Error ? error.message : error);
+    return { status: 'error' };
+  }
+}
+
+/**
+ * Gumroad APIでライセンスキーを検証
+ * 設定された年度版の商品を順に確認し、有効なものが見つかればそれを採用する
+ * サーバーサイドでのみ使用
+ */
+export async function verifyGumroadLicense(
+  licenseKey: string
+): Promise<VerifyLicenseResult> {
+  const products = getGumroadProducts();
+
+  if (products.length === 0) {
+    console.error('GUMROAD_PRODUCTS / GUMROAD_PRODUCT_ID is not configured');
     return {
       success: false,
-      message: '検証中にエラーが発生しました',
+      message: 'サーバー設定エラー',
     };
   }
+
+  const trimmedKey = licenseKey.trim();
+  const checks = await Promise.all(products.map(product => checkProduct(product, trimmedKey)));
+
+  const valid = checks.find(check => check.status === 'valid');
+  if (valid && valid.status === 'valid') {
+    return valid.result;
+  }
+
+  const invalid = checks.find(check => check.status === 'invalid');
+  if (invalid && invalid.status === 'invalid') {
+    return { success: false, message: invalid.message };
+  }
+
+  const expired = checks.find(check => check.status === 'expired');
+  if (expired && expired.status === 'expired') {
+    return expired.result;
+  }
+
+  if (checks.some(check => check.status === 'error')) {
+    // ライセンスキーや購入者情報はログに残さない
+    console.warn('Gumroad verification failed with errors:', checks.map(check => check.status));
+    return {
+      success: false,
+      message: '検証中にエラーが発生しました。時間をおいて再度お試しください',
+    };
+  }
+
+  return {
+    success: false,
+    message: 'ライセンスキーが正しくありません',
+  };
 }

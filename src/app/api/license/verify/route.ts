@@ -3,20 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyGumroadLicense } from '@/lib/gumroad';
 import { issueLicenseToken, isTokenSecretConfigured } from '@/lib/licenseToken';
 import { createRateLimiter, getClientIP } from '@/lib/rateLimit';
+import { findCouponCode, isExpired } from '@/lib/licenseEditions';
 
 // 総当たり対策（1分あたり10回まで）
 const checkRateLimit = createRateLimiter({ windowMs: 60 * 1000, max: 10 });
-
-/**
- * 招待コード一覧を環境変数から取得
- * LICENSE_COUPON_CODES にカンマ区切りで設定（例: CODE_A,CODE_B）
- */
-function getCouponCodes(): string[] {
-  return (process.env.LICENSE_COUPON_CODES || '')
-    .split(',')
-    .map(code => code.trim())
-    .filter(code => code.length > 0);
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -48,14 +38,31 @@ export async function POST(request: NextRequest) {
     const trimmedKey = licenseKey.trim();
 
     // クーポンコード（招待コード）の検証
-    if (getCouponCodes().includes(trimmedKey)) {
+    // 招待コード欄から送られた場合は Gumroad には問い合わせない
+    const coupon = findCouponCode(trimmedKey);
+    if (coupon) {
+      if (isExpired(coupon.expiry)) {
+        return NextResponse.json({
+          success: false,
+          message: `この招待コードの有効期限が切れています（${coupon.expiry}まで有効）`,
+          expiryDate: coupon.expiry,
+          isExpired: true,
+        });
+      }
       return NextResponse.json({
         success: true,
         email: 'coupon-user@example.com',
-        expiryDate: undefined, // 無期限
+        expiryDate: coupon.expiry ?? undefined,
         isExpired: false,
         message: '招待コードが適用されました',
-        token: issueLicenseToken(trimmedKey, 'coupon'),
+        token: issueLicenseToken(coupon.code, 'coupon', coupon.expiry ?? undefined),
+      });
+    }
+
+    if (body.type === 'coupon') {
+      return NextResponse.json({
+        success: false,
+        message: '招待コードが正しくありません',
       });
     }
 
@@ -63,9 +70,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       ...result,
-      expiryDate: result.expiryDate,
-      isExpired: result.isExpired,
-      ...(result.success ? { token: issueLicenseToken(trimmedKey, 'gumroad', result.expiryDate) } : {}),
+      ...(result.success
+        ? { token: issueLicenseToken(trimmedKey, 'gumroad', result.expiryDate, result.edition) }
+        : {}),
     });
   } catch (error) {
     console.error('License verification error:', error instanceof Error ? error.message : error);

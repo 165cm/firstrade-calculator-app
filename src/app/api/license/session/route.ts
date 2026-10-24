@@ -23,6 +23,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       valid: true,
       expiryDate: payload.licenseExpiry ?? null,
+      edition: payload.edition ?? null,
     });
   } catch {
     return NextResponse.json({ valid: false }, { status: 400 });

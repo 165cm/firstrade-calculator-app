@@ -1,6 +1,7 @@
 // src/lib/licenseToken.ts
 // ライセンス認証済みであることを示す署名付きトークン（サーバーサイド専用）
 import crypto from 'crypto';
+import { expiryToTime } from '@/lib/licenseEditions';
 
 export interface LicenseTokenPayload {
   v: 1;
@@ -11,6 +12,8 @@ export interface LicenseTokenPayload {
   exp: number;
   /** 画面表示用のライセンス有効期限（YYYY-MM-DD） */
   licenseExpiry?: string;
+  /** 画面表示用の版名（例: 2026年版） */
+  edition?: string;
 }
 
 // トークンの最大有効期間。期限切れ後は保存済みキーで自動的に再認証される
@@ -49,19 +52,20 @@ export function isTokenSecretConfigured(): boolean {
 
 /**
  * トークンを発行
- * @param licenseExpiry ライセンス有効期限（YYYY-MM-DD）。指定時はトークン期限もこれを超えない
+ * @param licenseExpiry ライセンス有効期限（YYYY-MM-DD）。指定時はトークン期限もこれ（日本時間の日末）を超えない
  */
 export function issueLicenseToken(
   licenseKey: string,
   kind: LicenseTokenPayload['kind'],
-  licenseExpiry?: string
+  licenseExpiry?: string,
+  edition?: string
 ): string | null {
   const secret = getSecret();
   if (!secret) return null;
 
   let exp = Date.now() + TOKEN_TTL_MS;
   if (licenseExpiry) {
-    const expiryTime = new Date(licenseExpiry).getTime();
+    const expiryTime = expiryToTime(licenseExpiry);
     if (!isNaN(expiryTime)) {
       exp = Math.min(exp, expiryTime);
     }
@@ -73,6 +77,7 @@ export function issueLicenseToken(
     kind,
     exp,
     ...(licenseExpiry ? { licenseExpiry } : {}),
+    ...(edition ? { edition } : {}),
   };
 
   const body = Buffer.from(JSON.stringify(payload)).toString('base64url');
