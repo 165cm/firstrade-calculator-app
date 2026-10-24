@@ -91,15 +91,3 @@ function calculateMonthlyGainLoss(trades: TradeDetail[]): MonthlyGainLoss[] {
     }))
     .sort((a, b) => a.month.localeCompare(b.month));
 }
-
-// エラーハンドリング用のユーティリティ関数
-export function handleCalculationError(error: unknown): string {
-  if (error instanceof Error) {
-    // 為替レートが見つからない場合
-    if (error.message.includes('exchange rate not found')) {
-      return '一部の取引日の為替レートが見つかりませんでした。サポートへお問い合わせください。';
-    }
-    return error.message;
-  }
-  return '計算処理中にエラーが発生しました。';
-}
