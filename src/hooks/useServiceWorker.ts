@@ -1,5 +1,6 @@
 // src/hooks/useServiceWorker.ts
 import { useEffect } from 'react';
+import { logger } from '@/utils/common/logger';
 
 // StackBlitz環境を検出する関数
 const isStackBlitz = () => {
@@ -22,7 +23,7 @@ export const useServiceWorker = () => {
      navigator.serviceWorker
        .register('/service-worker.js')
        .then(registration => {
-         console.log('Service Worker registered with scope:', registration.scope);
+         logger.log('Service Worker registered with scope:', registration.scope);
          
          // 新しいService Workerが見つかった時
          registration.addEventListener('controllerchange', () => {
@@ -35,7 +36,7 @@ export const useServiceWorker = () => {
          console.error('Service Worker registration failed:', error);
        });
    } else if (isStackBlitz()) {
-     console.log('StackBlitz環境のため、Service Workerの登録をスキップしました');
+     logger.log('StackBlitz環境のため、Service Workerの登録をスキップしました');
    }
  }, []);
 
@@ -43,11 +44,11 @@ export const useServiceWorker = () => {
  useEffect(() => {
    if (process.env.NODE_ENV === 'development') {
      const handleOffline = () => {
-       console.log('アプリケーションがオフラインモードに移行');
+       logger.log('アプリケーションがオフラインモードに移行');
      };
 
      const handleOnline = () => {
-       console.log('アプリケーションがオンラインモードに復帰');
+       logger.log('アプリケーションがオンラインモードに復帰');
      };
 
      window.addEventListener('offline', handleOffline);

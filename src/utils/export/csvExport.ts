@@ -229,7 +229,7 @@ export function exportGainLossToCsv(trades: TradeDetail[], mode: 'US' | 'JP' = '
   const allRows = [...csvData, ...footerRows];
 
   // データの存在確認とデバッグログ
-  console.log('Export GainLoss Data:', {
+  logger.log('Export GainLoss Data:', {
     recordCount: trades.length,
     mode,
     firstRecord: trades[0],
@@ -257,6 +257,7 @@ export function exportGainLossToCsv(trades: TradeDetail[], mode: 'US' | 'JP' = '
 
 import { SimulatorEntry } from '@/types/simulator';
 import { Holding } from '@/types/portfolio';
+import { logger } from '@/utils/common/logger';
 
 // ... (existing helper functions if any need to be exposed or duplicated)
 

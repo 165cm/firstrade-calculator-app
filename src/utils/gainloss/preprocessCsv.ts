@@ -1,6 +1,7 @@
 // src/utils/gainloss/preprocessCsv.ts
 import Papa, { ParseConfig } from 'papaparse';
 import { HeaderKey, HEADER_MAPPINGS, normalizeHeader } from '@/types/gainloss';
+import { logger } from '@/utils/common/logger';
 
 interface PreprocessResult {
   success: boolean;
@@ -26,7 +27,7 @@ const numericFields: HeaderKey[] = ['Quantity', 'Proceeds', 'Cost', 'Amount', 'W
 export function preprocessCsv(csvContent: string): PreprocessResult {
   try {
     // デバッグ情報（処理前）
-    console.log('CSV処理開始: 文字数', csvContent.length);
+    logger.log('CSV処理開始: 文字数', csvContent.length);
 
     const config: ParseConfig<string[]> = {
       skipEmptyLines: 'greedy',
@@ -56,7 +57,7 @@ export function preprocessCsv(csvContent: string): PreprocessResult {
 
     // ヘッダー行の取得と検証
     const headers = rows[0].map(h => normalizeHeader(h));
-    console.log('正規化されたヘッダー:', headers);
+    logger.log('正規化されたヘッダー:', headers);
 
     const headerIndexMap = new Map<HeaderKey, number>();
 
@@ -65,9 +66,9 @@ export function preprocessCsv(csvContent: string): PreprocessResult {
 
       if (index !== -1) {
         headerIndexMap.set(key as HeaderKey, index);
-        console.log(`マッピング成功: ${headers[index]} -> ${key}`);
+        logger.log(`マッピング成功: ${headers[index]} -> ${key}`);
       } else {
-        console.log(`マッピング失敗: ${key}. 許容値:`, allowedNames);
+        logger.log(`マッピング失敗: ${key}. 許容値:`, allowedNames);
       }
     });
 
@@ -107,7 +108,7 @@ export function preprocessCsv(csvContent: string): PreprocessResult {
 
             // デバッグログ（変換前後の比較）
             if (beforeNormalize !== value) {
-              console.log(`数値正規化: ${key}, 元の値: "${beforeNormalize}" -> 変換後: "${value}"`);
+              logger.log(`数値正規化: ${key}, 元の値: "${beforeNormalize}" -> 変換後: "${value}"`);
             }
           }
 
@@ -119,11 +120,11 @@ export function preprocessCsv(csvContent: string): PreprocessResult {
     const processedCsv = Papa.unparse(processedRows);
 
     // デバッグ情報（処理後）
-    console.log('CSV処理完了: 行数', processedRows.length);
+    logger.log('CSV処理完了: 行数', processedRows.length);
 
     // サンプルデータのログ（最初の2行）
     if (processedRows.length > 2) {
-      console.log('処理後のサンプルデータ (最初の行):', processedRows[1]);
+      logger.log('処理後のサンプルデータ (最初の行):', processedRows[1]);
     }
 
     return { success: true, data: processedCsv };

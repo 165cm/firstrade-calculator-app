@@ -99,9 +99,12 @@ function formatDate(dateStr: string): string {
     }
 
     // 上記の判定に失敗した場合、Dateオブジェクトを使用して変換を試みる
+    // toISOString() は UTC に変換するため、日本時間では日付が1日前にずれる。ローカル日付で組み立てる
     const date = new Date(dateStr);
     if (!isNaN(date.getTime())) {
-      return date.toISOString().split('T')[0];
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${date.getFullYear()}-${month}-${day}`;
     }
 
     logger.warn(`無効な日付形式: "${dateStr}"`);
@@ -109,54 +112,5 @@ function formatDate(dateStr: string): string {
   } catch (error) {
     logger.error(`日付フォーマットエラー: "${dateStr}"`, error);
     return '';
-  }
-}
-
-/**
- * バリデーション関数を更新
- * より詳細なバリデーションチェックを追加
- */
-export function validateGainLossRecord(record: GainLossRecord): boolean {
-  try {
-    // 基本的なデータの存在チェック
-    if (!record.symbol || !record.purchaseDate || !record.saleDate) {
-      logger.warn('必須項目が不足:', { record });
-      return false;
-    }
-
-    // 数値の妥当性チェック
-    if (
-      isNaN(record.quantity) ||
-      isNaN(record.proceeds) ||
-      isNaN(record.cost) ||
-      isNaN(record.gainLoss)
-    ) {
-      logger.warn('無効な数値:', {
-        quantity: record.quantity,
-        proceeds: record.proceeds,
-        cost: record.cost,
-        gainLoss: record.gainLoss
-      });
-      return false;
-    }
-
-    // 数値が0より大きいことを確認（数量はマイナスの場合もあるため除外）
-    if (record.proceeds < 0 || record.cost < 0) {
-      logger.warn('無効な負の値:', { proceeds: record.proceeds, cost: record.cost });
-      return false;
-    }
-
-    // 日付の順序チェック
-    const purchase = new Date(record.purchaseDate);
-    const sale = new Date(record.saleDate);
-    if (purchase >= sale) {
-      logger.warn('無効な日付順序:', { purchaseDate: record.purchaseDate, saleDate: record.saleDate });
-      return false;
-    }
-
-    return true;
-  } catch (error) {
-    logger.error('バリデーションエラー:', error);
-    return false;
   }
 }

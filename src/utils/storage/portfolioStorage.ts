@@ -5,6 +5,7 @@
  */
 
 import type { Holding } from '@/types/portfolio';
+import { logger } from '@/utils/common/logger';
 
 const STORAGE_KEY = 'firstrade_portfolio_holdings';
 
@@ -33,7 +34,7 @@ export function savePortfolioHoldings(holdings: Holding[]): void {
     }));
 
     localStorage.setItem(STORAGE_KEY, JSON.stringify(storedData));
-    console.log(`✓ ポートフォリオデータを保存しました (${holdings.length}銘柄)`);
+    logger.log(`✓ ポートフォリオデータを保存しました (${holdings.length}銘柄)`);
   } catch (error) {
     console.error('ポートフォリオデータの保存に失敗:', error);
   }
@@ -99,7 +100,7 @@ export function clearPortfolioData(): void {
 
   try {
     localStorage.removeItem(STORAGE_KEY);
-    console.log('✓ ポートフォリオデータをクリアしました');
+    logger.log('✓ ポートフォリオデータをクリアしました');
   } catch (error) {
     console.error('ポートフォリオデータのクリアに失敗:', error);
   }

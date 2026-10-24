@@ -1,5 +1,5 @@
 // src/data/exchangeRates.ts
-import { parse, format, isValid, isSunday, isSaturday } from 'date-fns';
+import { parse, format, isValid } from 'date-fns';
 import type { QuarterData } from '@/types/exchange';
 
 
@@ -27,25 +27,15 @@ export function clearDefaultRateTracking(): void {
 }
 
 /**
- * 日付が休日（土日）かどうかを判定
- */
-function isHoliday(dateStr: string): boolean {
-  const date = new Date(dateStr);
-  return isSaturday(date) || isSunday(date);
-}
-
-/**
- * 直前の営業日を取得
+ * 直前の営業日（土日を除く）を取得
+ * タイムゾーンの影響を受けないよう UTC で計算する
  */
 function getPreviousBusinessDay(dateStr: string): string {
-  const date = new Date(dateStr);
-  let prevDate = new Date(date.getTime() - 24 * 60 * 60 * 1000);
-
-  while (isHoliday(format(prevDate, 'yyyy-MM-dd'))) {
-    prevDate = new Date(prevDate.getTime() - 24 * 60 * 60 * 1000);
-  }
-
-  return format(prevDate, 'yyyy-MM-dd');
+  const date = new Date(`${dateStr}T00:00:00Z`);
+  do {
+    date.setUTCDate(date.getUTCDate() - 1);
+  } while (date.getUTCDay() === 0 || date.getUTCDay() === 6);
+  return date.toISOString().slice(0, 10);
 }
 
 /**
@@ -208,22 +198,4 @@ export async function getExchangeRate(dateStr: string): Promise<number> {
 export function clearRatesCache(): void {
   ratesCache = {};
   quarterCache.clear();
-}
-
-// 開発用のバリデーション関数
-export async function validateExchangeRates(startDate: string, endDate: string): Promise<void> {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-  const current = new Date(start);
-
-  while (current <= end) {
-    const dateStr = format(current, 'yyyy-MM-dd');
-    const rate = await getExchangeRate(dateStr);
-
-    if (rate <= 0 || rate > 1000) {
-      console.error(`Invalid rate for ${dateStr}: ${rate}`);
-    }
-
-    current.setDate(current.getDate() + 1);
-  }
 }
