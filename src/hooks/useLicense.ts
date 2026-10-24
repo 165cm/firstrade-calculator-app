@@ -2,8 +2,11 @@
 import { useState, useEffect, useCallback } from 'react';
 
 const LICENSE_KEY_STORAGE = 'gumroad_license_key';
+// 旧バージョンで使用していたフラグ（改ざん可能なため現在は判定に使わない）
 const LICENSE_VERIFIED_STORAGE = 'gumroad_license_verified';
 const LICENSE_EXPIRY_STORAGE = 'gumroad_license_expiry';
+// サーバーが発行した署名付きトークン
+const LICENSE_TOKEN_STORAGE = 'gumroad_license_token';
 
 interface UseLicenseReturn {
   isVerified: boolean;
@@ -15,6 +18,52 @@ interface UseLicenseReturn {
   clearLicense: () => void;
 }
 
+function readStorage(key: string): string | null {
+  try {
+    return localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStorage(key: string, value: string | null): void {
+  try {
+    if (value === null) {
+      localStorage.removeItem(key);
+    } else {
+      localStorage.setItem(key, value);
+    }
+  } catch {
+    // ストレージが使えない環境では無視
+  }
+}
+
+interface VerifyResponse {
+  success: boolean;
+  message?: string;
+  expiryDate?: string;
+  token?: string;
+}
+
+async function requestVerify(key: string): Promise<VerifyResponse> {
+  const response = await fetch('/api/license/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ licenseKey: key }),
+  });
+  return response.json();
+}
+
+async function requestSession(token: string): Promise<{ valid: boolean; expiryDate?: string | null }> {
+  const response = await fetch('/api/license/session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token }),
+  });
+  if (!response.ok) return { valid: false };
+  return response.json();
+}
+
 export function useLicense(): UseLicenseReturn {
   const [isVerified, setIsVerified] = useState(false);
   const [licenseKey, setLicenseKey] = useState<string | null>(null);
@@ -22,46 +71,71 @@ export function useLicense(): UseLicenseReturn {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 初期化時にローカルストレージから読み込み
-  useEffect(() => {
-    const storedKey = localStorage.getItem(LICENSE_KEY_STORAGE);
-    const storedVerified = localStorage.getItem(LICENSE_VERIFIED_STORAGE);
-    const storedExpiry = localStorage.getItem(LICENSE_EXPIRY_STORAGE);
-
-    if (storedKey && storedVerified === 'true') {
-      setLicenseKey(storedKey);
-      setIsVerified(true);
-      setExpiryDate(storedExpiry);
-    }
-    setIsLoading(false);
+  const applyVerified = useCallback((key: string, token: string, expiry?: string | null) => {
+    writeStorage(LICENSE_KEY_STORAGE, key);
+    writeStorage(LICENSE_TOKEN_STORAGE, token);
+    writeStorage(LICENSE_EXPIRY_STORAGE, expiry ?? null);
+    writeStorage(LICENSE_VERIFIED_STORAGE, null);
+    setLicenseKey(key);
+    setExpiryDate(expiry ?? null);
+    setIsVerified(true);
   }, []);
 
+  // 初期化時に保存済みトークンをサーバーで検証
+  // トークンがない・期限切れの場合は保存済みキーで自動的に再認証する（旧バージョンからの移行を含む）
+  useEffect(() => {
+    let cancelled = false;
+
+    const restore = async () => {
+      const storedKey = readStorage(LICENSE_KEY_STORAGE);
+      const storedToken = readStorage(LICENSE_TOKEN_STORAGE);
+
+      if (!storedKey) return;
+
+      try {
+        if (storedToken) {
+          const session = await requestSession(storedToken);
+          if (cancelled) return;
+          if (session.valid) {
+            setLicenseKey(storedKey);
+            setExpiryDate(session.expiryDate ?? null);
+            setIsVerified(true);
+            return;
+          }
+        }
+
+        const data = await requestVerify(storedKey);
+        if (cancelled) return;
+        if (data.success && data.token) {
+          applyVerified(storedKey, data.token, data.expiryDate);
+        } else {
+          writeStorage(LICENSE_TOKEN_STORAGE, null);
+          writeStorage(LICENSE_VERIFIED_STORAGE, null);
+        }
+      } catch (err) {
+        console.error('License restore error:', err);
+      }
+    };
+
+    restore().finally(() => {
+      if (!cancelled) setIsLoading(false);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [applyVerified]);
+
   // ライセンスキーを検証
+  // isLoading は初期復元専用（ここで立てると全画面が「読み込み中」扱いになるため変更しない）
   const verifyLicense = useCallback(async (key: string): Promise<boolean> => {
-    setIsLoading(true);
     setError(null);
 
     try {
-      const response = await fetch('/api/license/verify', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ licenseKey: key }),
-      });
+      const data = await requestVerify(key);
 
-      const data = await response.json();
-
-      if (data.success) {
-        // ローカルストレージに保存
-        localStorage.setItem(LICENSE_KEY_STORAGE, key);
-        localStorage.setItem(LICENSE_VERIFIED_STORAGE, 'true');
-        if (data.expiryDate) {
-          localStorage.setItem(LICENSE_EXPIRY_STORAGE, data.expiryDate);
-          setExpiryDate(data.expiryDate);
-        }
-        setLicenseKey(key);
-        setIsVerified(true);
+      if (data.success && data.token) {
+        applyVerified(key, data.token, data.expiryDate);
         return true;
       } else {
         setError(data.message || 'ライセンスキーが正しくありません');
@@ -71,16 +145,15 @@ export function useLicense(): UseLicenseReturn {
       console.error('License verification error:', err);
       setError('検証中にエラーが発生しました');
       return false;
-    } finally {
-      setIsLoading(false);
     }
-  }, []);
+  }, [applyVerified]);
 
   // ライセンスをクリア
   const clearLicense = useCallback(() => {
-    localStorage.removeItem(LICENSE_KEY_STORAGE);
-    localStorage.removeItem(LICENSE_VERIFIED_STORAGE);
-    localStorage.removeItem(LICENSE_EXPIRY_STORAGE);
+    writeStorage(LICENSE_KEY_STORAGE, null);
+    writeStorage(LICENSE_VERIFIED_STORAGE, null);
+    writeStorage(LICENSE_EXPIRY_STORAGE, null);
+    writeStorage(LICENSE_TOKEN_STORAGE, null);
     setLicenseKey(null);
     setIsVerified(false);
     setExpiryDate(null);

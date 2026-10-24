@@ -71,12 +71,6 @@ export async function verifyGumroadLicense(
   try {
     const trimmedKey = licenseKey.trim();
 
-    // Debug logging for request
-    console.log('=== Gumroad License Verification Request ===');
-    console.log('Product ID:', productId);
-    console.log('License Key:', trimmedKey);
-    console.log('License Key Length:', trimmedKey.length);
-
     const response = await fetch('https://api.gumroad.com/v2/licenses/verify', {
       method: 'POST',
       headers: {
@@ -89,11 +83,6 @@ export async function verifyGumroadLicense(
     });
 
     const data: GumroadLicenseResponse = await response.json();
-
-    // Debug logging for response
-    console.log('=== Gumroad License Verification Response ===');
-    console.log('Response Status:', response.status);
-    console.log('Response Data:', JSON.stringify(data, null, 2));
 
     if (data.success) {
       // 返金済みまたは紛争中の場合は無効
@@ -124,14 +113,15 @@ export async function verifyGumroadLicense(
         isExpired: false,
       };
     } else {
-      console.error('Gumroad Verification Failed:', JSON.stringify(data, null, 2));
+      // ライセンスキーや購入者情報はログに残さない
+      console.warn('Gumroad verification failed:', { status: response.status, message: data.message });
       return {
         success: false,
         message: data.message || 'ライセンスキーが正しくありません',
       };
     }
   } catch (error) {
-    console.error('Gumroad API error:', error);
+    console.error('Gumroad API error:', error instanceof Error ? error.message : error);
     return {
       success: false,
       message: '検証中にエラーが発生しました',

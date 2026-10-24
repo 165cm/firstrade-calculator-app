@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { useLicense } from '@/hooks/useLicense';
+import { useLicenseContext } from '@/contexts/LicenseContext';
 
 interface Props {
   onClick: () => void;
@@ -19,7 +19,7 @@ const GUMROAD_PRODUCT_URL = process.env.NEXT_PUBLIC_GUMROAD_PRODUCT_URL || '';
 const ANNOUNCEMENT_MODE = process.env.NEXT_PUBLIC_ANNOUNCEMENT_MODE === 'true';
 
 export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode = false, bypassLicense = false }: Props) {
-  const { isVerified, verifyLicense, clearLicense, expiryDate, isLoading: isLicenseLoading } = useLicense();
+  const { isVerified, verifyLicense, expiryDate, isLoading: isLicenseLoading } = useLicenseContext();
   const [isOpen, setIsOpen] = useState(false);
   const [licenseKey, setLicenseKey] = useState('');
   const [error, setError] = useState('');

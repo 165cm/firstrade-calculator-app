@@ -1,7 +1,8 @@
-// src/app/api/exchange-rates/route.ts の修正
+// src/app/api/exchange-rates/route.ts
 import { NextRequest, NextResponse } from 'next/server';
 import { executeJob } from '@/services/exchangeService/job';
 import { NotificationService } from '@/services/exchangeService/notification';
+import { requireCronAuth } from '@/lib/cronAuth';
 
 export async function GET() {
   return NextResponse.json({
@@ -11,15 +12,13 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
+  // 実行元の検証（User-Agent は偽装可能なため共有シークレットで認証）
+  const authError = requireCronAuth(request);
+  if (authError) return authError;
+
   const notificationService = new NotificationService();
 
   try {
-    // 実行元の検証
-    const userAgent = request.headers.get('user-agent') || '';
-    if (!userAgent.includes('Google-Cloud-Scheduler')) {
-      throw new Error('不正なアクセスです');
-    }
-
     await executeJob();
 
     return NextResponse.json({
@@ -32,9 +31,11 @@ export async function POST(request: NextRequest) {
       await notificationService.notifyError(error);
     }
 
+    console.error('為替レート更新エラー:', error instanceof Error ? error.message : error);
+
     return NextResponse.json({
       success: false,
-      error: error instanceof Error ? error.message : '更新処理に失敗しました',
+      error: '更新処理に失敗しました',
       timestamp: new Date().toISOString()
     }, { status: 500 });
   }
