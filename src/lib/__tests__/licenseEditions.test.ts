@@ -1,4 +1,4 @@
-import { expiryToTime, isExpired, getGumroadProducts, findCouponCode } from '@/lib/licenseEditions';
+import { expiryToTime, isExpired, isInvalidExpiry, getGumroadProducts, findCouponCode, INVALID_EXPIRY } from '@/lib/licenseEditions';
 
 describe('license expiry', () => {
   it('treats the expiry date as the end of the day in JST', () => {
@@ -7,6 +7,14 @@ describe('license expiry', () => {
     expect(isExpired('2026-12-31', Date.parse('2026-12-31T15:00:00Z'))).toBe(true);
     expect(isExpired(null)).toBe(false);
   });
+
+  it.each(['2026-13-31', '2026-02-31', '2026/12/31', 'tomorrow'])(
+    'treats an invalid setting %p as a misconfiguration, not as unlimited',
+    expiry => {
+      expect(isInvalidExpiry(expiry)).toBe(true);
+      expect(isExpired(expiry, Date.parse('2030-01-01T00:00:00Z'))).toBe(true);
+    }
+  );
 });
 
 describe('license configuration', () => {
@@ -34,5 +42,12 @@ describe('license configuration', () => {
     expect(findCouponCode(' note2026 ')).toEqual({ code: 'Note2026', expiry: '2027-12-31' });
     expect(findCouponCode('free')).toEqual({ code: 'FREE', expiry: null });
     expect(findCouponCode('other')).toBeNull();
+  });
+
+  it('keeps an invalid coupon expiry distinguishable from no expiry', () => {
+    const error = jest.spyOn(console, 'error').mockImplementation(() => {});
+    process.env.LICENSE_COUPON_CODES = 'BAD:2026-13-31';
+    expect(findCouponCode('BAD')).toEqual({ code: 'BAD', expiry: INVALID_EXPIRY });
+    error.mockRestore();
   });
 });
