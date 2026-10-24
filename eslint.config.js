@@ -45,6 +45,13 @@ const config = [
     }
   },
   {
+    // CommonJS のスクリプトでは require を許可
+    files: ['**/*.cjs'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off'
+    }
+  },
+  {
     files: ['**/__tests__/**/*.[jt]s?(x)', '**/?(*.)+(spec|test).[jt]s?(x)'],
     ...jestPlugin.configs['flat/recommended'],
     rules: {

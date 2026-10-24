@@ -1,12 +1,6 @@
 // next.config.ts
 const nextConfig = {
   output: 'standalone',
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   headers: async () => [
     {
       source: '/service-worker.js',

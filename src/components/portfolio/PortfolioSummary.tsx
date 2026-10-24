@@ -182,8 +182,8 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary, children }
                       ))}
                     </Pie>
                     <Tooltip
-                      formatter={(value: number, name: string, props: any) => {
-                        if (props.payload.type === 'target') return [`${value.toFixed(1)}%`, `${name} (目標)`];
+                      formatter={(value: number, name: string, item) => {
+                        if (item.payload?.type === 'target') return [`${value.toFixed(1)}%`, `${name} (目標)`];
                         return [`$${value.toFixed(0)}`, name];
                       }}
                     />

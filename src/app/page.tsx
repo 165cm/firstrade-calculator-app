@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Download, TrendingUp, Smartphone, Zap, ShieldCheck, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Globe, Lock } from 'lucide-react';
-import { ChatSupport } from '@/components/common/ChatSupport';
 import { PURCHASE_URL } from '@/config/license';
 
 // キャッシュを無効化し、常に最新のコンテンツを表示
