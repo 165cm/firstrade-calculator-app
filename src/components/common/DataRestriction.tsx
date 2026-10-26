@@ -3,6 +3,7 @@
 
 import React from 'react';
 import { PURCHASE_URL } from '@/config/license';
+import { trackEvent } from '@/lib/analytics';
 
 interface DataRestrictionProps {
     isLicensed: boolean;
@@ -53,6 +54,7 @@ export function DataRestriction({
                         href={productUrl}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={() => trackEvent('cta_purchase_click', { placement: 'data_restriction' })}
                         className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
                     >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

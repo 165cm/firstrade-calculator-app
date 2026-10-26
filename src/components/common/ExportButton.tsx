@@ -275,6 +275,8 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
                 href={purchaseUrl}
                 target="_blank"
                 rel="noopener noreferrer"
+                // 割引コードそのものは送らず、入力の有無だけを記録する
+                onClick={() => trackEvent('cta_purchase_click', { placement: 'export_dialog', has_discount: !!discountCode.trim() })}
                 className="inline-flex items-center justify-center w-full px-4 py-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all shadow-md hover:shadow-lg"
               >
                 <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">

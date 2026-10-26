@@ -4,6 +4,7 @@
 import type { ReactNode } from 'react';
 import { Lock } from 'lucide-react';
 import { PURCHASE_URL } from '@/config/license';
+import { trackEvent } from '@/lib/analytics';
 
 /**
  * ライセンス未認証のときに金額をぼかして表示する
@@ -41,6 +42,7 @@ export function LockedAmountNotice({ children }: { children?: ReactNode }) {
         href={PURCHASE_URL}
         target="_blank"
         rel="noopener noreferrer"
+        onClick={() => trackEvent('cta_purchase_click', { placement: 'locked_amount' })}
         className="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
       >
         ライセンスを購入

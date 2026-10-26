@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { PURCHASE_URL } from '@/config/license';
 import { PRODUCT_NAME } from '@/config/license';
+import { trackEvent } from '@/lib/analytics';
 
 export default function Navigation() {
   const pathname = usePathname();
@@ -62,6 +63,7 @@ export default function Navigation() {
                 href={PURCHASE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent('cta_purchase_click', { placement: 'nav' })}
                 className="bg-amber-400 text-blue-900 hover:bg-amber-300 px-4 py-2 rounded-md text-sm font-bold transition-colors shadow-sm flex items-center gap-2"
               >
                 <span>購入</span>
@@ -118,6 +120,7 @@ export default function Navigation() {
                 href={PURCHASE_URL}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackEvent('cta_purchase_click', { placement: 'nav_mobile' })}
                 className="block w-full text-center bg-amber-400 text-blue-900 hover:bg-amber-300 px-4 py-2 rounded-md text-base font-bold transition-colors shadow-sm flex items-center justify-center gap-2"
               >
                 <span>ライセンス購入</span>
