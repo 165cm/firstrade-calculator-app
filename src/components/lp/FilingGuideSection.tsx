@@ -63,7 +63,8 @@ export function FilingGuideSection() {
 
         <p className="max-w-4xl mx-auto mt-6 text-xs text-slate-500 leading-relaxed">
           ※ FirstScopeは申告の基礎資料を作るツールです。課税方式の選択や具体的な記入方法は、国税庁の案内または税理士にご確認ください。
-          Form 1042-Sが申告期限に間に合わない場合の進め方は、<a href="/faq" className="underline hover:text-slate-300">よくある質問</a>で解説しています。
+          詳しい使い方は<a href="/guide/filing" className="underline hover:text-slate-300">確定申告での使い方</a>、
+          Form 1042-Sが申告期限に間に合わない場合の進め方は<a href="/faq" className="underline hover:text-slate-300">よくある質問</a>で解説しています。
         </p>
       </div>
     </section>

@@ -1,6 +1,7 @@
 // src/components/dividend/DividendSummary.tsx
 'use client';
 import React, { useMemo } from 'react';
+import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
   Accordion,
@@ -384,6 +385,11 @@ export function DividendSummary({ data, isDemo = false }: Props) {
             )}
           </div>
         </div>
+        <p className="mt-3 text-sm">
+          <Link href="/guide/filing" className="text-indigo-700 hover:underline">
+            この数字を確定申告のどこで使うか →
+          </Link>
+        </p>
         {isJpyTotalLocked && (
           <div className="mt-3">
             <LockedAmountNotice>

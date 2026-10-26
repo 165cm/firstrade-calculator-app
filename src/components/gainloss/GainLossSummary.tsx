@@ -1,6 +1,7 @@
 // src/components/gainloss/GainLossSummary.tsx
 'use client';
 import React from 'react';
+import Link from 'next/link';
 import type { GainLossSummary, SymbolSummary, TradeDetail } from '@/types/gainloss';
 import { HelpTooltip } from '@/components/common/Tooltip';
 import { formatJPY, formatUSD, formatExchangeRate } from '@/utils/common/formatters';
@@ -126,6 +127,11 @@ const GainLossSummaryView: React.FC<Props> = ({ summary, isDemo = false }) => {
         </div>
         <p className="mt-3 text-xs text-gray-500">
           ※ 損益は日本方式（売却額 − 取得額、Wash Sale調整なし）で計算しています。米国方式の損益はCSVエクスポートで確認できます。
+        </p>
+        <p className="mt-3 text-sm">
+          <Link href="/guide/filing" className="text-indigo-700 hover:underline">
+            この数字を確定申告のどこで使うか →
+          </Link>
         </p>
         {isJpyTotalLocked && (
           <div className="mt-3">
