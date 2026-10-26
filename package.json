@@ -29,7 +29,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "lucide-react": "^0.473.0",
-    "next": "15.5.21",
+    "next": "15.5.28",
     "papaparse": "^5.5.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
@@ -54,7 +54,7 @@
     "@types/react-dom": "^19",
     "dependency-cruiser": "^16.9.0",
     "eslint": "^9",
-    "eslint-config-next": "15.5.21",
+    "eslint-config-next": "15.5.28",
     "eslint-plugin-jest": "^28.11.0",
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
@@ -71,11 +71,13 @@
     "flatted": ">=3.4.2",
     "picomatch": ">=4.0.4",
     "http-proxy-agent": ">=7.0.0",
-    "brace-expansion": "2.1.0",
-    "protobufjs": ">=8.0.2",
+    "brace-expansion": "2.1.7",
+    "protobufjs": ">=8.6.6",
     "@protobufjs/utf8": ">=1.1.1",
-    "fast-uri": ">=3.1.2",
+    "fast-uri": ">=3.1.9",
     "postcss": "$postcss",
-    "sharp": ">=0.35.0"
+    "sharp": ">=0.35.5",
+    "postcss-selector-parser": ">=7.1.6",
+    "uuid": ">=11.1.1"
   }
 }
