@@ -15,8 +15,10 @@ import type {
 import { getExchangeRate, getDefaultRateUsedDates, clearDefaultRateTracking, DEFAULT_RATE } from '@/data/exchangeRates';
 import { HelpTooltip } from '@/components/common/Tooltip';
 import { Footer } from '@/components/common/Footer';
+import { trackEvent } from '@/lib/analytics';
 
 const STORAGE_KEY = 'dividend_data';
+const DEMO_FLAG_KEY = STORAGE_KEY + '_isDemoData';
 
 export default function DividendPage() {
   const [error, setError] = useState<string | null>(null);
@@ -33,20 +35,38 @@ export default function DividendPage() {
   const [isDemoData, setIsDemoData] = useState(false);
 
   // 初回マウント時にlocalStorageからデータを復元
+  // LPの「デモで体験」（?demo=1）から来た場合は、保存済みデータがなければデモデータを読み込む
   useEffect(() => {
+    let hasStoredData = false;
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored);
         setDividendData(parsed);
         setHasCachedData(true);
+        setIsDemoData(localStorage.getItem(DEMO_FLAG_KEY) === 'true');
+        hasStoredData = true;
       }
     } catch (e) {
       console.error('Failed to restore dividend data from localStorage:', e);
     }
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('demo') === '1') {
+      window.history.replaceState(null, '', window.location.pathname);
+      if (!hasStoredData) {
+        trackEvent('demo_start', { placement: 'lp' });
+        handleDividendData(DEMO_DIVIDEND_DATA, true);
+      }
+    }
   }, []);
 
-  const handleDividendData = async (rawData: RawDividendData[]) => {
+  // isDemo: デモデータの場合のみ true（自分のCSVを読み込んだら必ずデモ扱いを解除する）
+  const handleDividendData = async (rawData: RawDividendData[], isDemo = false) => {
+    setIsDemoData(isDemo);
+    if (!isDemo) {
+      trackEvent('csv_upload', { page: 'dividend' });
+    }
     setIsLoading(true);
     setError(null);
 
@@ -111,6 +131,7 @@ export default function DividendPage() {
       // localStorageに保存
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(processedData));
+        localStorage.setItem(DEMO_FLAG_KEY, isDemo ? 'true' : 'false');
       } catch (e) {
         console.error('Failed to save dividend data to localStorage:', e);
       }
@@ -127,6 +148,7 @@ export default function DividendPage() {
 
   const handleClearCache = () => {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(DEMO_FLAG_KEY);
     setDividendData({
       dividends: [],
       interest: [],
@@ -142,19 +164,18 @@ export default function DividendPage() {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+      <div className="w-full min-w-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
         {/* Page Header */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">配当金明細</h1>
             <p className="text-sm text-slate-500 mt-1">FirstradeのCSVから配当・利子収入を集計し、確定申告用の円換算データを作成</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {!hasData && (
               <button
                 onClick={() => {
-                  handleDividendData(DEMO_DIVIDEND_DATA);
-                  setIsDemoData(true);
+                  handleDividendData(DEMO_DIVIDEND_DATA, true);
                 }}
                 className="bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium text-blue-700 shadow-sm border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-2"
               >
@@ -217,7 +238,7 @@ export default function DividendPage() {
           {!hasData && (
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
               <DividendFileUploader
-                onUpload={handleDividendData}
+                onUpload={(data) => handleDividendData(data)}
                 onError={setError}
               />
             </div>
@@ -231,7 +252,7 @@ export default function DividendPage() {
 
           {!isLoading && hasData && (
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-              <DividendSummary data={dividendData} />
+              <DividendSummary data={dividendData} isDemo={isDemoData} />
             </div>
           )}
         </div>

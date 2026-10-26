@@ -1,7 +1,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Download, TrendingUp, Smartphone, Zap, ShieldCheck, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Globe, Lock } from 'lucide-react';
-import { PURCHASE_URL } from '@/config/license';
+import { Download, TrendingUp, Smartphone, Zap, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Lock, Gift } from 'lucide-react';
+import { CURRENT_EDITION, RETURNING_USER_NOTICE } from '@/config/license';
+import { CtaButtons } from '@/components/lp/CtaButtons';
+import { MobileStickyCta } from '@/components/lp/MobileStickyCta';
+import { ComparisonSection } from '@/components/lp/ComparisonSection';
+import { FilingGuideSection } from '@/components/lp/FilingGuideSection';
+import { TrustSection } from '@/components/lp/TrustSection';
+import { LpFaqSection } from '@/components/lp/LpFaqSection';
 
 // キャッシュを無効化し、常に最新のコンテンツを表示
 export const dynamic = 'force-dynamic';
@@ -9,7 +15,7 @@ export const revalidate = 0;
 
 export default function Home() {
   return (
-    <div className="flex flex-col min-h-screen font-sans selection:bg-blue-100 selection:text-blue-900">
+    <div className="flex flex-col min-h-screen font-sans selection:bg-blue-100 selection:text-blue-900 overflow-x-clip">
       {/* Hero Section */}
       <section className="relative overflow-hidden bg-navy-900 text-white min-h-[90vh] flex items-center justify-center py-20">
         {/* Background Effects */}
@@ -24,109 +30,86 @@ export default function Home() {
           <div className="max-w-4xl mx-auto flex flex-col items-center">
 
             {/* Badge */}
-            <div className="animate-fade-up opacity-0 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-brand-200 backdrop-blur-md mb-8 hover:border-brand-500/50 hover:bg-white/10 transition-colors duration-300">
+            <div className="animate-fade-up opacity-0 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-brand-200 backdrop-blur-md mb-8">
               <span className="flex h-1.5 w-1.5 rounded-full bg-accent-teal shadow-[0_0_8px_rgba(45,212,191,0.8)] animate-pulse"></span>
-              <span className="tracking-widest uppercase">2025年版リリース</span>
+              <span className="tracking-widest">{CURRENT_EDITION.label}・Firstrade専用</span>
             </div>
 
             {/* Headline */}
-            <h1 className="animate-fade-up opacity-0 [animation-delay:100ms] text-4xl sm:text-6xl lg:text-7xl font-heading font-extrabold tracking-tight mb-6 leading-[1.2]">
-              Firstradeの確定申告を<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-white to-accent-teal drop-shadow-sm">
-                効率化・サポートする
+            <h1 className="animate-fade-up opacity-0 [animation-delay:100ms] text-[2.1rem] leading-[1.3] sm:text-6xl lg:text-7xl font-heading font-extrabold tracking-tight mb-6 sm:leading-[1.2]">
+              <span className="inline-block">Firstradeの確定申告、</span><br />
+              <span className="inline-block text-transparent bg-clip-text bg-gradient-to-r from-brand-300 via-white to-accent-teal drop-shadow-sm">
+                CSVを入れるだけ。
               </span>
             </h1>
 
             {/* Subheadline */}
-            <p className="animate-fade-up opacity-0 [animation-delay:200ms] text-lg sm:text-xl text-slate-400 mb-10 max-w-2xl leading-relaxed font-light tracking-wide">
-              為替レートの確認、日本円への換算、年間取引の集計...<br className="hidden sm:block" />
-              面倒な計算と集計を自動化して、最短ルートで完了。<br />
-              もうExcelと格闘する必要はありません。
+            <p className="animate-fade-up opacity-0 [animation-delay:200ms] text-base sm:text-xl text-slate-300 mb-8 max-w-2xl leading-relaxed font-light tracking-wide">
+              <span className="inline-block">配当金も売却損益も、</span><span className="inline-block">取引日ごとの為替レートで</span><br className="hidden sm:block" />
+              <strong className="inline-block font-semibold text-white">日本円に自動換算・年間集計</strong>。<br />
+              <span className="inline-block">年に何十回もの為替計算と</span><span className="inline-block">Excel作業から解放されます。</span>
             </p>
 
             {/* CTA Buttons */}
-            <div className="animate-fade-up opacity-0 [animation-delay:300ms] flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <a
-                href={PURCHASE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-navy-900 bg-white rounded-full hover:bg-brand-50 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:-translate-y-0.5 overflow-hidden"
-              >
-                <span className="relative z-10 flex items-center">
-                  今すぐ購入する
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
-              </a>
-              <Link
-                href="/dividend"
-                className="inline-flex items-center justify-center px-8 py-4 text-base font-medium text-slate-300 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-white transition-all backdrop-blur-md hover:-translate-y-0.5"
-              >
-                無料で試す
-              </Link>
-            </div>
+            <CtaButtons placement="hero" className="animate-fade-up opacity-0 [animation-delay:300ms]" />
 
-            {/* Scroll Indicator */}
-            <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-slate-500/50">
-              <div className="w-[1px] h-12 bg-gradient-to-b from-transparent via-slate-500 to-transparent"></div>
+            {/* Trust points */}
+            <ul className="animate-fade-up opacity-0 [animation-delay:400ms] mt-8 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-6 text-left sm:text-center text-sm text-slate-300">
+              <li className="flex sm:flex-col items-center gap-2 sm:gap-1">
+                <CreditCard className="h-4 w-4 text-accent-teal flex-shrink-0" />
+                <span>{CURRENT_EDITION.price}（{CURRENT_EDITION.priceJpyApprox}）<br className="hidden sm:block" />{CURRENT_EDITION.validUntil}まで追加料金なし</span>
+              </li>
+              <li className="flex sm:flex-col items-center gap-2 sm:gap-1">
+                <Lock className="h-4 w-4 text-accent-teal flex-shrink-0" />
+                <span>CSVはサーバーに送信せず<br className="hidden sm:block" />ブラウザ内で計算</span>
+              </li>
+              <li className="flex sm:flex-col items-center gap-2 sm:gap-1">
+                <CheckCircle2 className="h-4 w-4 text-accent-teal flex-shrink-0" />
+                <span>無料でデモ・計算結果の<br className="hidden sm:block" />一部表示まで試せる</span>
+              </li>
+            </ul>
+
+            {/* Product screenshot */}
+            <div className="animate-fade-up opacity-0 [animation-delay:500ms] mt-12 w-full max-w-3xl rounded-2xl border border-white/10 bg-white/5 p-2 shadow-2xl shadow-black/40">
+              <Image
+                src="/images/dividend.png"
+                alt="配当金明細の画面（取引日ごとに日本円へ換算し、月次・年間で集計）"
+                width={1280}
+                height={800}
+                priority
+                className="w-full h-auto rounded-xl"
+                sizes="(max-width: 768px) 100vw, 768px"
+              />
             </div>
 
           </div>
         </div>
       </section>
 
-      {/* Campaign Section - Letter Style */}
-      <section className="relative bg-stone-50 py-12 sm:py-16 z-20">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-2xl mx-auto">
-            {/* Letter card */}
-            <div className="relative bg-white rounded-sm px-8 py-10 sm:px-14 sm:py-14 shadow-[0_2px_20px_rgba(0,0,0,0.06)] border border-stone-200/80"
-              style={{ fontFamily: "'Noto Serif JP', serif" }}
-            >
-              {/* Top decorative line */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-px bg-stone-300" />
-
-              <p className="text-stone-400 text-xs tracking-[0.25em] text-center mb-8">
-                2025年版をご検討中の皆さまへ
+      {/* Returning User Notice */}
+      {RETURNING_USER_NOTICE && (
+        <section className="relative bg-stone-50 py-6 z-20">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-3xl mx-auto flex items-start gap-3 rounded-2xl border border-stone-200 bg-white px-5 py-4 shadow-sm">
+              <Gift className="h-5 w-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-stone-700 leading-relaxed">
+                <strong className="text-stone-900">{RETURNING_USER_NOTICE.title}</strong>
+                <span className="mx-1">：</span>
+                {RETURNING_USER_NOTICE.body}
               </p>
-
-              <div className="text-stone-700 text-[15px] sm:text-base leading-[2] tracking-wide text-center space-y-6">
-                <p>
-                  おかげさまで、FirstScopeは今年<br className="sm:hidden" />多くの方にご利用いただき、<br />
-                  次年度の開発を支える基盤が<br className="sm:hidden" />整ってまいりました。
-                </p>
-                <p>
-                  その感謝を形にするため、<br /><br className="sm:hidden" /><strong className="text-stone-900">2025年版をご購入いただいた方だけの<br className="sm:hidden" />限定特典</strong>として、<br />
-                  次回以降のアップデート版で使える<br className="sm:hidden" /><strong className="text-stone-900">50%OFFクーポン</strong>をお届けします。
-                </p>
-                <p className="text-stone-500 text-sm leading-[1.9]">
-                  今年ご購入いただければ、<br className="sm:hidden" />来年以降もずっとお得に。<br />
-                  早期にお選びくださった方への、<br className="sm:hidden" />ささやかな恩返しです。
-                </p>
-                <p className="text-stone-400 text-xs leading-relaxed">
-                  ※クーポンは次回版の発売時に<br className="sm:hidden" />Gumroadにご登録のメールアドレスへお届けします。<br />
-                  ※すでにご購入済みの方にも<br className="sm:hidden" />適用させていただきます。
-                </p>
-              </div>
-
-              {/* Bottom decorative line */}
-              <div className="mt-10 flex items-center justify-center gap-3">
-                <div className="w-8 h-px bg-stone-300" />
-                <span className="text-stone-300 text-xs">✦</span>
-                <div className="w-8 h-px bg-stone-300" />
-              </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Problem Section */}
-      <section className="relative py-32 bg-navy-800 overflow-hidden">
+      <section className="relative py-20 sm:py-32 bg-navy-800 overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-500/5 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent-teal/5 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-20">
             <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-white mb-6 tracking-tight">
               なぜFirstradeの確定申告は<br />こんなに面倒なのか？
             </h2>
@@ -136,7 +119,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 max-w-6xl mx-auto">
+          <p className="md:hidden mb-2 text-right text-xs text-slate-500">横にスワイプ →</p>
+          <div className="-mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 md:mx-auto md:px-0 md:pb-0 md:overflow-visible md:grid [&>*]:w-[85%] [&>*]:flex-shrink-0 [&>*]:snap-center md:[&>*]:w-auto md:grid-cols-3 md:gap-10 max-w-6xl">
             <ProblemCard
               icon={<Database className="w-8 h-8" />}
               title="特定口座がない"
@@ -158,12 +142,12 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="relative py-32 bg-navy-900 border-t border-white/5">
+      <section className="relative py-20 sm:py-32 bg-navy-900 border-t border-white/5">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-20">
             <span className="text-accent-teal font-bold tracking-wider uppercase text-xs mb-3 block opacity-80">Features</span>
             <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-white mb-6 tracking-tight">
-              FirstScopeで解決できること
+              <span className="inline-block">FirstScopeで</span><span className="inline-block">解決できること</span>
             </h2>
             <p className="text-lg text-slate-400 leading-relaxed font-light">
               面倒な単純作業はツールに任せて、<br className="sm:hidden" />
@@ -171,7 +155,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <p className="md:hidden mb-2 text-right text-xs text-slate-500">横にスワイプ →</p>
+          <div className="-mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 md:mx-auto md:px-0 md:pb-0 md:overflow-visible md:grid [&>*]:w-[85%] [&>*]:flex-shrink-0 [&>*]:snap-center md:[&>*]:w-auto md:grid-cols-2 md:gap-6 max-w-5xl">
             <FeatureCard
               icon={<Download className="h-6 w-6 text-brand-400" />}
               title="配当金明細"
@@ -197,114 +182,27 @@ export default function Home() {
               imageSrc="/images/portfolio.png"
             />
           </div>
-        </div>
-      </section>
 
-      {/* Data Source Section */}
-      <section className="relative py-24 bg-navy-800 overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-5xl mx-auto bg-navy-900/50 rounded-3xl p-8 sm:p-12 border border-white/5 backdrop-blur-sm relative overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl" />
-
-            <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
-              <div className="flex-shrink-0">
-                <div className="w-20 h-20 bg-gradient-to-br from-brand-600 to-navy-900 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-900/20 border border-white/10">
-                  <Database className="h-9 w-9 text-white" />
-                </div>
-              </div>
-              <div className="flex-1 text-center md:text-left">
-                <h3 className="text-2xl font-bold text-white mb-4 tracking-tight font-heading">
-                  Frankfurter APIを採用
-                </h3>
-                <p className="text-slate-400 mb-6 leading-relaxed font-light">
-                  <strong className="text-white font-semibold bg-white/10 px-1 py-0.5 rounded mx-1">欧州中央銀行(ECB)</strong>公表の為替レートを使用。<br className="hidden sm:block" />
-                  オープンソースAPI「Frankfurter」により、透明性と信頼性を担保しています。
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 flex-1">
-                    <ShieldCheck className="w-5 h-5 text-brand-400 flex-shrink-0" />
-                    <div>
-                      <span className="block font-bold text-white text-sm">公的データ</span>
-                      <span className="text-xs text-slate-400">ECB公式レートを使用</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 flex-1">
-                    <CheckCircle2 className="w-5 h-5 text-brand-400 flex-shrink-0" />
-                    <div>
-                      <span className="block font-bold text-white text-sm">透明性・検証可能</span>
-                      <span className="text-xs text-slate-400">ソースが明確で誰でも確認可能</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="mt-16 flex flex-col items-center gap-3">
+            <p className="text-sm text-slate-400">まずはデモデータで、実際の計算画面を確認できます</p>
+            <CtaButtons placement="mid_features" />
           </div>
         </div>
       </section>
 
-      {/* Payment Security Section */}
-      <section className="relative py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-brand-500/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-accent-teal/5 rounded-full blur-3xl pointer-events-none" />
+      {/* How to use in filing */}
+      <FilingGuideSection />
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex flex-col md:flex-row items-center gap-12">
-              <div className="flex-1">
-                <span className="text-accent-teal font-bold tracking-wider uppercase text-xs mb-3 block opacity-80">Security</span>
-                <h2 className="text-3xl font-heading font-extrabold text-white mb-6 tracking-tight">
-                  決済は<span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-accent-teal">Gumroad</span>で安全に。
-                </h2>
-                <p className="text-lg text-slate-400 mb-8 leading-relaxed font-light">
-                  世界中のクリエイターが利用するプラットフォーム「Gumroad」を採用。<br />
-                  カード情報は当サイトには一切保存されません。
-                </p>
+      {/* Comparison */}
+      <ComparisonSection />
 
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-brand-500/10 rounded-lg text-brand-400 border border-brand-500/20">
-                      <Globe className="w-5 h-5" />
-                    </div>
-                    <p className="text-sm text-slate-300">世界クラスの信頼性あるプラットフォーム</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-accent-teal/10 rounded-lg text-accent-teal border border-accent-teal/20">
-                      <Lock className="w-5 h-5" />
-                    </div>
-                    <p className="text-sm text-slate-300">高度な暗号化通信で保護された決済</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-1 w-full max-w-md">
-                <div className="bg-navy-800 rounded-3xl p-8 text-white shadow-2xl shadow-black/50 relative overflow-hidden border border-white/5">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl" />
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent-teal/10 rounded-full blur-2xl" />
-
-                  <div className="relative z-10 flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-sm border border-white/10">
-                      <CreditCard className="w-8 h-8 text-accent-teal" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-2 font-heading">Secure Payment</h3>
-                    <p className="text-slate-500 text-sm mb-6">Powered by Gumroad</p>
-
-                    <div className="w-full bg-white/5 rounded-xl p-3 border border-white/5 flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
-                      <span className="text-sm font-medium text-slate-300">256-bit SSL Encryption</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Trust: data handling, exchange rates, payment */}
+      <TrustSection />
 
       {/* Can/Cannot Section */}
-      <section className="relative py-24 bg-navy-800 overflow-hidden">
+      <section className="relative py-16 sm:py-24 bg-navy-800 overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
             <h2 className="text-3xl font-heading font-extrabold text-white mb-6 tracking-tight">できること / できないこと</h2>
             <p className="text-slate-400 font-light">
               FirstScopeは「確定申告の補助」に特化したツールです。<br className="hidden sm:block" />
@@ -349,12 +247,12 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
+      <section className="relative py-16 sm:py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-brand-500/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-accent-teal/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
             <h2 className="text-3xl font-heading font-extrabold text-white mb-4 tracking-tight">
               ユーザーの声
             </h2>
@@ -372,11 +270,15 @@ export default function Home() {
               role="神奈川県・自営業"
             />
           </div>
+
+          <div className="mt-16 flex justify-center">
+            <CtaButtons placement="mid_testimonials" />
+          </div>
         </div>
       </section>
 
       {/* Developer Story Section */}
-      <section className="relative py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
+      <section className="relative py-16 sm:py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center gap-4 mb-8">
@@ -403,11 +305,13 @@ export default function Home() {
                   「この悩みを抱えているのは、私一人ではない」
                 </p>
                 <p>
-                  そう気づき、プログラミング初心者の私がAIと共に5日間缶詰めになって開発したのが、このツールです。<br />
-                  プロのような高度なシステムではないかもしれませんが、同じ悩みを持つ個人投資家として、「とにかく簡単に、憂鬱な作業を解消したい」という一心で作りました。
+                  そう気づき、同じFirstradeユーザーとして、自分の申告にも使うために作ったのがこのツールです。
                 </p>
                 <p>
-                  まずはこの面倒な確定申告という壁を、ツールを使ってサクッと乗り越えていきましょう！
+                  公開後は利用者の方から寄せられた声をもとに、計算ロジックの見直しを重ね、自動テストで計算結果を検証しながら毎年改良を続けています。
+                </p>
+                <p>
+                  面倒な確定申告の壁は、ツールに任せてサクッと乗り越えていきましょう！
                 </p>
               </div>
               <div className="mt-8 flex items-center justify-end gap-4 border-t border-white/5 pt-6">
@@ -431,11 +335,11 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="relative py-24 bg-navy-800 overflow-hidden">
+      <section className="relative py-16 sm:py-24 bg-navy-800 overflow-hidden">
         <div className="absolute inset-0 bg-[url('/images/grid.svg')] opacity-5 pointer-events-none" />
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
             <h2 className="text-3xl font-heading font-extrabold text-white mb-6 tracking-tight">使い方は、驚くほど簡単</h2>
             <p className="text-slate-400 font-light">
               複雑な設定は一切不要。3ステップで計算が完了します。
@@ -465,8 +369,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <LpFaqSection />
+
       {/* Footer CTA Section */}
-      <section className="relative py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
+      <section className="relative py-16 sm:py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
         <div className="absolute inset-0 z-0 noise-bg opacity-30 mix-blend-soft-light pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-500/10 rounded-full blur-[120px] pointer-events-none animate-pulse-slow" />
 
@@ -481,31 +388,15 @@ export default function Home() {
               大切な時間を守りましょう。
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-5 justify-center">
-              <a
-                href={PURCHASE_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative inline-flex items-center justify-center px-8 py-4 text-base font-bold text-navy-900 bg-white rounded-full hover:bg-brand-50 transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:-translate-y-0.5 overflow-hidden"
-              >
-                <span className="relative z-10 flex items-center">
-                  今すぐ購入する
-                  <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-                </span>
-              </a>
-              <Link
-                href="/dividend"
-                className="inline-flex items-center justify-center px-8 py-4 text-base font-medium text-slate-300 bg-white/5 border border-white/10 rounded-full hover:bg-white/10 hover:text-white transition-all backdrop-blur-md hover:-translate-y-0.5"
-              >
-                無料で試す
-              </Link>
+            <div className="flex justify-center">
+              <CtaButtons placement="footer" />
             </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-8 bg-navy-900/80 text-slate-400 text-center text-sm border-t border-white/5 mt-auto">
+      <footer className="py-8 pb-28 md:pb-8 bg-navy-900/80 text-slate-400 text-center text-sm border-t border-white/5 mt-auto">
         <div className="container mx-auto px-4">
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-8">
             <Link href="/" className="font-bold text-white hover:text-slate-300 transition-colors">
@@ -545,10 +436,12 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-4 text-slate-500 text-xs text-center font-light">
-            <p>© 2025 Nomad Family. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} Nomad Family. All rights reserved.</p>
           </div>
         </div>
       </footer>
+
+      <MobileStickyCta />
     </div>
   );
 }
@@ -558,7 +451,7 @@ function ProblemCard({ icon, title, description, isHighlight }: { icon: React.Re
     <div className={`
       relative p-8 rounded-3xl border transition-all duration-300 group
       ${isHighlight
-        ? 'bg-brand-900/20 border-brand-500/30 shadow-[0_0_30px_rgba(14,165,233,0.15)] z-10 sm:-translate-y-4'
+        ? 'bg-brand-900/20 border-brand-500/30 shadow-[0_0_30px_rgba(14,165,233,0.15)] z-10 md:-translate-y-4'
         : 'bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/10'
       }
     `}>

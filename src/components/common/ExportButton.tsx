@@ -5,6 +5,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useLicenseContext } from '@/contexts/LicenseContext';
 import { CURRENT_EDITION, PURCHASE_URL } from '@/config/license';
+import { trackEvent } from '@/lib/analytics';
 
 interface Props {
   onClick: () => void;
@@ -60,7 +61,7 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
 
     return (
       <div className="flex items-center gap-3">
-        <div className="text-xs text-right">
+        <div className="text-xs text-right whitespace-nowrap">
           {isVerified ? (
             <>
               <div className="text-green-600 font-semibold">✓ 認証済み</div>
@@ -151,7 +152,10 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
   return (
     <>
       <Button
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          trackEvent('export_dialog_open');
+          setIsOpen(true);
+        }}
         disabled={disabled}
         className={`${disabled ? 'bg-slate-300 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
       >
@@ -183,7 +187,7 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
                 <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                 </svg>
-                確定申告用データの出力
+                確定申告に使う円換算の合計の表示とCSV出力
               </li>
               <li className="flex items-center">
                 <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -220,7 +224,7 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
               onKeyDown={handleKeyDown}
               placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"
               disabled={isVerifying}
-              className="w-full text-center font-mono text-base py-6 uppercase"
+              className="text-center font-mono text-base py-3 uppercase"
             />
 
             <div className="flex items-center gap-3 text-xs text-gray-400">

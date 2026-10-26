@@ -24,7 +24,7 @@ const TermSummaryRow: React.FC<{
     colorClass: string;
 }> = ({ label, term, colorClass }) => (
     <tr className={`border-b ${colorClass}`}>
-        <td className="py-2 px-2 font-medium text-sm">{label}</td>
+        <td className="py-2 px-2 font-medium text-sm whitespace-nowrap">{label}</td>
         <td className="py-2 px-2 text-right text-sm">{formatUSD(term.salesProceeds)}</td>
         <td className="py-2 px-2 text-right text-sm">{formatUSD(term.adjustedCost)}</td>
         <td className={`py-2 px-2 text-right text-sm font-bold ${term.netGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
@@ -150,7 +150,7 @@ export const GainLossSummaryComponent: React.FC<Props> = ({ summary }) => {
                         <table className="w-full text-sm">
                             <thead>
                                 <tr className="border-b-2 text-gray-500 text-xs">
-                                    <th className="py-1.5 px-2 text-left">区分</th>
+                                    <th className="py-1.5 px-2 text-left whitespace-nowrap">区分</th>
                                     <th className="py-1.5 px-2 text-right">売却収入</th>
                                     <th className="py-1.5 px-2 text-right">取得費</th>
                                     <th className="py-1.5 px-2 text-right">純損益(USD)</th>

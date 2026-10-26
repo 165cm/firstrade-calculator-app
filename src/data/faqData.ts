@@ -1,4 +1,5 @@
 // src/data/faqData.ts
+import { CURRENT_EDITION } from '@/config/license';
 // チャットサポート用のFAQデータ
 
 export interface FAQItem {
@@ -24,7 +25,7 @@ export const FAQ_DATA: FAQItem[] = [
         id: 'getting-started-2',
         category: 'はじめに',
         question: '無料で使える機能はありますか？',
-        answer: 'はい、すべての機能（配当金、売却損益、シミュレーター、ポートフォリオ）を無料でお試しいただけます。\n\n画面上で計算結果やグラフを確認することは無料版でも可能です。\n\nCSVファイルのエクスポート機能を利用する場合のみ、有料ライセンスが必要になります。',
+        answer: 'はい。デモデータを使えば、すべての機能（配当金、売却損益、シミュレーター、ポートフォリオ）を無料でお試しいただけます。\n\nご自身のCSVを読み込んだ場合も、ドル建ての年間合計と明細の一部を画面で確認できます。\n\n確定申告に使う円換算の合計、すべての明細の表示、CSVファイルのエクスポートには有料ライセンスが必要です。',
         keywords: ['無料', '試す', 'お試し', 'タダ', 'フリー', '体験']
     },
     {
@@ -67,7 +68,7 @@ export const FAQ_DATA: FAQItem[] = [
         id: 'exchange-1',
         category: '為替レート',
         question: '為替レートはどこから取得していますか？',
-        answer: '欧州中央銀行（ECB）が公表する為替レートを使用しています。\n\nFrankfurter APIというオープンソースサービスを通じて取得しており、信頼性と透明性が担保されています。\n\n税務調査時にも「ECBの公式レートを使用」と説明できます。',
+        answer: '欧州中央銀行（ECB）が公表する為替レートを使用しています。\n\nFrankfurter APIというオープンソースサービスを通じて取得しており、取得元が明確で誰でも確認できます。換算に使ったレートはCSVにも出力されます。\n\nなお、国税庁が原則とするのはTTM（仲値）です。ECBの参照レートとの差は通常わずかですが、金額の大きい取引はTTMでのご確認をおすすめします。',
         keywords: ['為替', 'レート', 'どこ', '取得', 'ECB', 'Frankfurter', '信頼性']
     },
     {
@@ -99,7 +100,7 @@ export const FAQ_DATA: FAQItem[] = [
         id: 'license-1',
         category: 'ライセンス',
         question: 'ライセンスの価格と有効期限は？',
-        answer: 'ライセンスはGumroadにて販売しています。\n\n2025年版ライセンス:\n- 有効期限: 2026年末まで\n- 詳細な価格はGumroadのページでご確認ください\n\n「購入」ボタンからGumroadへ移動できます。',
+        answer: `ライセンスはGumroadにて販売しています。\n\n${CURRENT_EDITION.label}ライセンス:\n- 価格: ${CURRENT_EDITION.price}（${CURRENT_EDITION.priceJpyApprox}）\n- 有効期限: ${CURRENT_EDITION.validUntil}末まで\n\n「購入」ボタンからGumroadへ移動できます。`,
         keywords: ['価格', '料金', '値段', 'いくら', '有効期限', 'ライセンス']
     },
     {

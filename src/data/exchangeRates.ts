@@ -74,10 +74,12 @@ function shiftQuarter(year: number, quarter: number, delta: number): { year: num
 }
 
 async function fetchQuarterData(year: number, quarter: number): Promise<QuarterData | null> {
-  // ファイルパスの候補（current -> historical の順で試行）
+  // ファイルパスの候補（historical -> current の順で試行）
+  // 更新スクリプトは両方に書き込むが、過去の四半期は historical にしかないことがあるため先に試す
+  // （存在しないパスへのアクセスはブラウザのコンソールに 404 として表示される）
   const pathCandidates = [
-    `/data/current/${year}Q${quarter}.json`,
-    `/data/historical/${year}/Q${quarter}.json`
+    `/data/historical/${year}/Q${quarter}.json`,
+    `/data/current/${year}Q${quarter}.json`
   ];
 
   let transientError = false;

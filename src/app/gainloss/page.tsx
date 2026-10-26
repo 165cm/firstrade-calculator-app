@@ -16,6 +16,7 @@ import { calculateGainLossSummary, summarizeTrades } from '@/utils/gainloss/calc
 import { getDefaultRateUsedDates, clearDefaultRateTracking, DEFAULT_RATE } from '@/data/exchangeRates';
 import { HelpTooltip } from '@/components/common/Tooltip';
 import { Footer } from '@/components/common/Footer';
+import { trackEvent } from '@/lib/analytics';
 
 const STORAGE_KEY = 'gainloss_data';
 
@@ -60,6 +61,9 @@ export default function GainLossPage() {
       // デモデータかどうか判定
       const isDemo = data === DEMO_GAINLOSS_DATA;
       setIsDemoData(isDemo);
+      if (!isDemo) {
+        trackEvent('csv_upload', { page: 'gainloss' });
+      }
 
       const total = data.length;
 
@@ -127,14 +131,14 @@ export default function GainLossPage() {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+      <div className="w-full min-w-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
         {/* Page Header */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">売却損益</h1>
             <p className="text-sm text-slate-500 mt-1">FirstradeのCSVから株式売却益を計算し、確定申告用の円換算レポートを作成</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {!summary && (
               <button
                 onClick={() => handleUpload(DEMO_GAINLOSS_DATA)}
@@ -285,7 +289,7 @@ export default function GainLossPage() {
 
           {!isLoading && summary && (
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-              <GainLossSummary summary={summary} />
+              <GainLossSummary summary={summary} isDemo={isDemoData} />
             </div>
           )}
         </div>
