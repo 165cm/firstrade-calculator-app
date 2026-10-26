@@ -6,15 +6,18 @@ import { HelpTooltip } from '@/components/common/Tooltip';
 import { formatJPY, formatUSD, formatExchangeRate } from '@/utils/common/formatters';
 import { useLicenseContext } from '@/contexts/LicenseContext';
 import { DataRestriction, restrictItems } from '@/components/common/DataRestriction';
+import { LockedAmount, LockedAmountNotice } from '@/components/common/LockedAmount';
 
 const VISIBLE_COUNT = 3; // 未認証時の表示件数（データが少ない場合のフォールバック）
 const VISIBLE_RATIO = 0.5; // 未認証時の表示割合（50%）
 
 interface Props {
   summary: GainLossSummary;
+  /** デモデータの場合は円換算の合計も含めてすべて表示する */
+  isDemo?: boolean;
 }
 
-const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
+const GainLossSummaryView: React.FC<Props> = ({ summary, isDemo = false }) => {
   const { isVerified, isLoading } = useLicenseContext();
 
   // 平均為替レートの計算
@@ -59,6 +62,8 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
 
   // ライセンス状態に応じて表示する銘柄を制限（データの半分を表示）
   const isLicensed = isLoading ? true : isVerified; // ローディング中は全件表示
+  // 確定申告に書き写す円換算の合計は、ライセンス認証後（またはデモデータ）のみ表示する
+  const isJpyTotalLocked = !isLicensed && !isDemo;
   const totalSymbols = summary.symbolSummary.length;
   const visibleCount = Math.max(VISIBLE_COUNT, Math.ceil(totalSymbols * VISIBLE_RATIO));
   const visibleSymbols = restrictItems(summary.symbolSummary, isLicensed, visibleCount);
@@ -95,16 +100,25 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
           <div className="p-3 bg-gray-50 rounded">
             <p className="text-xs text-gray-600">日本円換算損益</p>
             <p className="text-xl font-bold">
-              {formatJPY(summary.totalGainLossJPY)}
-              <span className="text-xs ml-2 font-normal">
-                ({Math.round(gainLossRateJPY)}%)
-              </span>
+              <LockedAmount locked={isJpyTotalLocked}>
+                {formatJPY(summary.totalGainLossJPY)}
+                <span className="text-xs ml-2 font-normal">
+                  ({Math.round(gainLossRateJPY)}%)
+                </span>
+              </LockedAmount>
             </p>
           </div>
         </div>
         <p className="mt-3 text-xs text-gray-500">
           ※ 損益は日本方式（売却額 − 取得額、Wash Sale調整なし）で計算しています。米国方式の損益はCSVエクスポートで確認できます。
         </p>
+        {isJpyTotalLocked && (
+          <div className="mt-3">
+            <LockedAmountNotice>
+              確定申告に使う<strong>円換算の損益合計</strong>は、ライセンス認証後に表示されます。ドル建ての損益と銘柄別の一部は無料で確認できます。
+            </LockedAmountNotice>
+          </div>
+        )}
       </div>
 
       {/* 銘柄別実績（詳細付き） */}

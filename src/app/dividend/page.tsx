@@ -18,6 +18,7 @@ import { Footer } from '@/components/common/Footer';
 import { trackEvent } from '@/lib/analytics';
 
 const STORAGE_KEY = 'dividend_data';
+const DEMO_FLAG_KEY = STORAGE_KEY + '_isDemoData';
 
 export default function DividendPage() {
   const [error, setError] = useState<string | null>(null);
@@ -43,6 +44,7 @@ export default function DividendPage() {
         const parsed = JSON.parse(stored);
         setDividendData(parsed);
         setHasCachedData(true);
+        setIsDemoData(localStorage.getItem(DEMO_FLAG_KEY) === 'true');
         hasStoredData = true;
       }
     } catch (e) {
@@ -54,13 +56,17 @@ export default function DividendPage() {
       window.history.replaceState(null, '', window.location.pathname);
       if (!hasStoredData) {
         trackEvent('demo_start', { placement: 'lp' });
-        handleDividendData(DEMO_DIVIDEND_DATA);
-        setIsDemoData(true);
+        handleDividendData(DEMO_DIVIDEND_DATA, true);
       }
     }
   }, []);
 
-  const handleDividendData = async (rawData: RawDividendData[]) => {
+  // isDemo: デモデータの場合のみ true（自分のCSVを読み込んだら必ずデモ扱いを解除する）
+  const handleDividendData = async (rawData: RawDividendData[], isDemo = false) => {
+    setIsDemoData(isDemo);
+    if (!isDemo) {
+      trackEvent('csv_upload', { page: 'dividend' });
+    }
     setIsLoading(true);
     setError(null);
 
@@ -125,6 +131,7 @@ export default function DividendPage() {
       // localStorageに保存
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(processedData));
+        localStorage.setItem(DEMO_FLAG_KEY, isDemo ? 'true' : 'false');
       } catch (e) {
         console.error('Failed to save dividend data to localStorage:', e);
       }
@@ -141,6 +148,7 @@ export default function DividendPage() {
 
   const handleClearCache = () => {
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(DEMO_FLAG_KEY);
     setDividendData({
       dividends: [],
       interest: [],
@@ -167,8 +175,7 @@ export default function DividendPage() {
             {!hasData && (
               <button
                 onClick={() => {
-                  handleDividendData(DEMO_DIVIDEND_DATA);
-                  setIsDemoData(true);
+                  handleDividendData(DEMO_DIVIDEND_DATA, true);
                 }}
                 className="bg-blue-50 px-4 py-2 rounded-lg text-sm font-medium text-blue-700 shadow-sm border border-blue-100 hover:bg-blue-100 transition-colors flex items-center gap-2"
               >
@@ -231,7 +238,7 @@ export default function DividendPage() {
           {!hasData && (
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
               <DividendFileUploader
-                onUpload={handleDividendData}
+                onUpload={(data) => handleDividendData(data)}
                 onError={setError}
               />
             </div>
@@ -245,7 +252,7 @@ export default function DividendPage() {
 
           {!isLoading && hasData && (
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-              <DividendSummary data={dividendData} />
+              <DividendSummary data={dividendData} isDemo={isDemoData} />
             </div>
           )}
         </div>

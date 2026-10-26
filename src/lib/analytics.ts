@@ -14,6 +14,7 @@ export type AnalyticsEvent =
   | 'cta_purchase_click'
   | 'cta_demo_click'
   | 'demo_start'
+  | 'csv_upload'
   | 'export_dialog_open'
   | 'license_verified';
 

@@ -16,6 +16,7 @@ import { calculateGainLossSummary, summarizeTrades } from '@/utils/gainloss/calc
 import { getDefaultRateUsedDates, clearDefaultRateTracking, DEFAULT_RATE } from '@/data/exchangeRates';
 import { HelpTooltip } from '@/components/common/Tooltip';
 import { Footer } from '@/components/common/Footer';
+import { trackEvent } from '@/lib/analytics';
 
 const STORAGE_KEY = 'gainloss_data';
 
@@ -60,6 +61,9 @@ export default function GainLossPage() {
       // デモデータかどうか判定
       const isDemo = data === DEMO_GAINLOSS_DATA;
       setIsDemoData(isDemo);
+      if (!isDemo) {
+        trackEvent('csv_upload', { page: 'gainloss' });
+      }
 
       const total = data.length;
 
@@ -285,7 +289,7 @@ export default function GainLossPage() {
 
           {!isLoading && summary && (
             <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-4">
-              <GainLossSummary summary={summary} />
+              <GainLossSummary summary={summary} isDemo={isDemoData} />
             </div>
           )}
         </div>

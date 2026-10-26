@@ -18,12 +18,15 @@ import type {
 import { calculateTotalWithholding, extractWithholdingAmount } from '@/utils/withholding';
 import { useLicenseContext } from '@/contexts/LicenseContext';
 import { DataRestriction } from '@/components/common/DataRestriction';
+import { LockedAmount, LockedAmountNotice } from '@/components/common/LockedAmount';
 
 const VISIBLE_MONTHS = 3; // 未認証時の表示月数（データが少ない場合のフォールバック）
 const VISIBLE_RATIO = 0.5; // 未認証時の表示割合（50%）
 
 interface Props {
   data: ProcessedDividendData;
+  /** デモデータの場合は円換算の合計も含めてすべて表示する */
+  isDemo?: boolean;
 }
 
 // 月次集計カードのコンポーネント
@@ -73,11 +76,12 @@ const MonthlyTotalCard = ({
 };
 
 // サマリーカードの部分を修正
-const SummaryCard = ({ title, amountUSD, amountJPY, color }: {
+const SummaryCard = ({ title, amountUSD, amountJPY, color, isJpyLocked = false }: {
   title: string;
   amountUSD: number;
   amountJPY: number;
   color: string;
+  isJpyLocked?: boolean;
 }) => (
   <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4 w-full">
     <h3 className="text-xs font-semibold text-gray-500 mb-2">{title}</h3>
@@ -86,7 +90,7 @@ const SummaryCard = ({ title, amountUSD, amountJPY, color }: {
         ${Math.floor(amountUSD).toLocaleString()}
       </p>
       <p className="text-lg text-gray-600 text-right">
-        ¥{Math.floor(amountJPY).toLocaleString()}
+        <LockedAmount locked={isJpyLocked}>¥{Math.floor(amountJPY).toLocaleString()}</LockedAmount>
       </p>
     </div>
   </div>
@@ -138,9 +142,11 @@ export async function processDividendData(records: DividendRecord[]): Promise<Pr
   }
 }
 
-export function DividendSummary({ data }: Props) {
+export function DividendSummary({ data, isDemo = false }: Props) {
   const { isVerified, isLoading } = useLicenseContext();
   const isLicensed = isLoading ? true : isVerified;
+  // 確定申告に書き写す円換算の合計は、ライセンス認証後（またはデモデータ）のみ表示する
+  const isJpyTotalLocked = !isLicensed && !isDemo;
 
 
   // 年間・月間の集計
@@ -305,7 +311,7 @@ export function DividendSummary({ data }: Props) {
               ${Math.floor(summary.total.usd).toLocaleString()}
             </p>
             <p className="text-lg text-gray-700">
-              ¥{Math.floor(summary.total.jpy).toLocaleString()}
+              <LockedAmount locked={isJpyTotalLocked}>¥{Math.floor(summary.total.jpy).toLocaleString()}</LockedAmount>
             </p>
           </div>
           <div className="bg-white rounded p-3 shadow-sm border border-red-100">
@@ -317,10 +323,15 @@ export function DividendSummary({ data }: Props) {
               ${Math.floor(Math.abs(summary.withholding.usd)).toLocaleString()}
             </p>
             <p className="text-lg text-gray-700">
-              ¥{Math.floor(Math.abs(summary.withholding.jpy)).toLocaleString()}
+              <LockedAmount locked={isJpyTotalLocked} placeholder="¥000,000">¥{Math.floor(Math.abs(summary.withholding.jpy)).toLocaleString()}</LockedAmount>
             </p>
           </div>
         </div>
+        {isJpyTotalLocked && (
+          <div className="mt-3">
+            <LockedAmountNotice />
+          </div>
+        )}
       </div>
 
       {/* サマリーカード（詳細表示） */}
@@ -330,12 +341,14 @@ export function DividendSummary({ data }: Props) {
           amountUSD={summary.dividend.usd}
           amountJPY={summary.dividend.jpy}
           color="text-indigo-600"
+          isJpyLocked={isJpyTotalLocked}
         />
         <SummaryCard
           title="年間利子"
           amountUSD={summary.interest.usd}
           amountJPY={summary.interest.jpy}
           color="text-indigo-600"
+          isJpyLocked={isJpyTotalLocked}
         />
       </div>
 
@@ -350,7 +363,7 @@ export function DividendSummary({ data }: Props) {
                 ${Math.floor(summary.monthly.usd).toLocaleString()}
               </p>
               <p className="text-sm text-gray-600">
-                ¥{Math.floor(summary.monthly.jpy).toLocaleString()}
+                <LockedAmount locked={isJpyTotalLocked} placeholder="¥00,000">¥{Math.floor(summary.monthly.jpy).toLocaleString()}</LockedAmount>
               </p>
             </div>
           </div>
