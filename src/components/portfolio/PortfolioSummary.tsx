@@ -70,44 +70,44 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary, children }
       <Card>
         <CardContent className="py-3">
           {/* 指標グリッド */}
-          <div className="grid grid-cols-6 gap-2 text-center">
-            <div>
-              <div className="text-[10px] text-gray-500">銘柄</div>
-              <div className="text-lg font-bold">{portfolio.holdings.length}</div>
+          <div className="grid grid-cols-1 sm:grid-cols-6 sm:gap-2 sm:text-center divide-y divide-gray-100 sm:divide-y-0">
+            <div className="flex items-center justify-between py-1.5 sm:block sm:py-0">
+              <div className="text-xs sm:text-[10px] text-gray-500">銘柄</div>
+              <div className="text-base sm:text-lg font-bold">{portfolio.holdings.length}</div>
             </div>
-            <div>
-              <div className="text-[10px] text-gray-500">時価総額</div>
-              <div className="text-lg font-bold">${(portfolio.totalValue / 1000).toFixed(1)}k</div>
+            <div className="flex items-center justify-between py-1.5 sm:block sm:py-0">
+              <div className="text-xs sm:text-[10px] text-gray-500">時価総額</div>
+              <div className="text-base sm:text-lg font-bold">${(portfolio.totalValue / 1000).toFixed(1)}k</div>
             </div>
-            <div>
-              <div className="text-[10px] text-gray-500 flex items-center justify-center gap-0.5">
+            <div className="flex items-center justify-between py-1.5 sm:block sm:py-0">
+              <div className="text-xs sm:text-[10px] text-gray-500 flex items-center sm:justify-center gap-0.5">
                 含み損益<HelpTooltip text="(時価-取得費)/取得費" />
               </div>
-              <div className={`text-lg font-bold ${portfolio.totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className={`text-base sm:text-lg font-bold ${portfolio.totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                 {gainLossPercent >= 0 ? '+' : ''}{gainLossPercent.toFixed(1)}%
               </div>
             </div>
-            <div>
-              <div className="text-[10px] text-gray-500 flex items-center justify-center gap-0.5">
+            <div className="flex items-center justify-between py-1.5 sm:block sm:py-0">
+              <div className="text-xs sm:text-[10px] text-gray-500 flex items-center sm:justify-center gap-0.5">
                 分散<HelpTooltip text="銘柄×5+セクター×10 (max100)" />
               </div>
-              <div className={`text-lg font-bold ${riskIndicators.diversificationScore >= 60 ? 'text-green-600' : riskIndicators.diversificationScore >= 40 ? 'text-yellow-600' : 'text-red-600'}`}>
+              <div className={`text-base sm:text-lg font-bold ${riskIndicators.diversificationScore >= 60 ? 'text-green-600' : riskIndicators.diversificationScore >= 40 ? 'text-yellow-600' : 'text-red-600'}`}>
                 {riskIndicators.diversificationScore}
               </div>
             </div>
-            <div>
-              <div className="text-[10px] text-gray-500 flex items-center justify-center gap-0.5">
+            <div className="flex items-center justify-between py-1.5 sm:block sm:py-0">
+              <div className="text-xs sm:text-[10px] text-gray-500 flex items-center sm:justify-center gap-0.5">
                 集中度<HelpTooltip text="最大銘柄比率(15%以下推奨)" />
               </div>
-              <div className={`text-lg font-bold ${riskIndicators.concentrationRisk > 25 ? 'text-red-600' : riskIndicators.concentrationRisk > 15 ? 'text-yellow-600' : 'text-green-600'}`}>
+              <div className={`text-base sm:text-lg font-bold ${riskIndicators.concentrationRisk > 25 ? 'text-red-600' : riskIndicators.concentrationRisk > 15 ? 'text-yellow-600' : 'text-green-600'}`}>
                 {riskIndicators.concentrationRisk.toFixed(0)}%
               </div>
             </div>
-            <div>
-              <div className="text-[10px] text-gray-500 flex items-center justify-center gap-0.5">
+            <div className="flex items-center justify-between py-1.5 sm:block sm:py-0">
+              <div className="text-xs sm:text-[10px] text-gray-500 flex items-center sm:justify-center gap-0.5">
                 セクター<HelpTooltip text="最大セクター比率(40%以下推奨)" />
               </div>
-              <div className={`text-lg font-bold ${riskIndicators.sectorConcentration > 40 ? 'text-yellow-600' : 'text-green-600'}`}>
+              <div className={`text-base sm:text-lg font-bold ${riskIndicators.sectorConcentration > 40 ? 'text-yellow-600' : 'text-green-600'}`}>
                 {riskIndicators.sectorConcentration.toFixed(0)}%
               </div>
             </div>
@@ -197,7 +197,7 @@ export const PortfolioSummaryComponent: React.FC<Props> = ({ summary, children }
                       {status.currentPercent.toFixed(0)}%
                     </span>
                     <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                    <span className="text-gray-700">{status.name}</span>
+                    <span className="text-gray-700 whitespace-nowrap">{status.name}</span>
                     <span className="text-gray-400 text-[10px]">({status.targetPercent}%)</span>
                   </div>
                 ))}
