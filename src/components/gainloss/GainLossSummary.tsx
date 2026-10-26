@@ -3,7 +3,7 @@
 import React from 'react';
 import type { GainLossSummary, SymbolSummary, TradeDetail } from '@/types/gainloss';
 import { HelpTooltip } from '@/components/common/Tooltip';
-import { formatJPY, formatExchangeRate } from '@/utils/common/formatters';
+import { formatJPY, formatUSD, formatExchangeRate } from '@/utils/common/formatters';
 import { useLicenseContext } from '@/contexts/LicenseContext';
 import { DataRestriction, restrictItems } from '@/components/common/DataRestriction';
 
@@ -70,11 +70,11 @@ const GainLossSummaryView: React.FC<Props> = ({ summary }) => {
       </div>
       {/* 損益サマリー（変更なし） */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-100 p-4">
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="p-3 bg-gray-50 rounded">
             <p className="text-xs text-gray-600">米ドル建て損益</p>
             <p className="text-xl font-bold">
-              ${summary.totalGainLossUSD.toFixed(2)}
+              {formatUSD(summary.totalGainLossUSD)}
               <span className="text-xs ml-2 font-normal">
                 ({Math.round(gainLossRateUSD)}%)
               </span>
@@ -153,23 +153,23 @@ const SymbolDetailsSection: React.FC<{
     <div className="mb-3 border rounded-lg overflow-hidden">
       {/* 銘柄サマリー行 */}
       <div
-        className="p-3 bg-gray-50 flex items-center justify-between cursor-pointer hover:bg-gray-100"
+        className="p-3 bg-gray-50 flex flex-wrap items-center justify-between gap-y-2 cursor-pointer hover:bg-gray-100"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center space-x-4">
           <span className="font-bold">{symbolData.symbol}</span>
-          <span className="text-xs text-gray-600">取引回数: {symbolData.trades.length}</span>
+          <span className="text-xs text-gray-600 whitespace-nowrap">取引回数: {symbolData.trades.length}</span>
         </div>
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center gap-4 sm:gap-6 ml-auto">
           <div className="text-right">
-            <div className="text-xs text-gray-600">米ドル建て</div>
+            <div className="text-xs text-gray-600 whitespace-nowrap">米ドル建て</div>
             <div className={`text-sm font-semibold ${symbolData.gainLossUSD >= 0 ? "text-green-600" : "text-red-600"}`}>
-              ${symbolData.gainLossUSD.toFixed(2)}
+              {formatUSD(symbolData.gainLossUSD)}
             </div>
           </div>
           <div className="text-right">
-            <div className="text-xs text-gray-600">円換算</div>
-            <div className={`text-sm font-semibold ${totalGainLossJPY >= 0 ? "text-green-600" : "text-red-600"}`}>
+            <div className="text-xs text-gray-600 whitespace-nowrap">円換算</div>
+            <div className={`text-sm font-semibold whitespace-nowrap ${totalGainLossJPY >= 0 ? "text-green-600" : "text-red-600"}`}>
               {formatJPY(totalGainLossJPY)}
               <span className="text-xs ml-1 font-normal text-gray-500">
                 ({Math.round(totalGainLossRateJPY)}%)

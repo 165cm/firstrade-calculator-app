@@ -43,7 +43,7 @@ export function Footer() {
                     </div>
                 </div>
                 <div className="mt-4 text-slate-400 text-xs">
-                    <p>© 2025 Nomad Family. All rights reserved.</p>
+                    <p>© {new Date().getFullYear()} Nomad Family. All rights reserved.</p>
                 </div>
             </div>
         </footer>

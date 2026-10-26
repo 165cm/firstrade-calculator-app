@@ -156,14 +156,14 @@ export default function DividendPage() {
 
   return (
     <>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
+      <div className="w-full min-w-0 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1">
         {/* Page Header */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">配当金明細</h1>
             <p className="text-sm text-slate-500 mt-1">FirstradeのCSVから配当・利子収入を集計し、確定申告用の円換算データを作成</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap items-center gap-3">
             {!hasData && (
               <button
                 onClick={() => {

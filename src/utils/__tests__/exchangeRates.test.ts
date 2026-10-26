@@ -56,11 +56,28 @@ describe('getExchangeRate', () => {
 
   it('does not cache a transient HTTP failure as missing data', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
-    fetchMock.mockImplementationOnce(async () => ({ ok: false, status: 503 }) as Response);
-    // 1回目: current が 503、historical が 404 → 一時エラーとしてデフォルト値（利用者に警告される）
+    // historical は 404（ファイルなし）、current だけ1回目に 503 を返す
+    let failedOnce = false;
+    const defaultImpl = fetchMock.getMockImplementation()!;
+    fetchMock.mockImplementation(async (path: string) => {
+      if (path === '/data/current/2026Q4.json' && !failedOnce) {
+        failedOnce = true;
+        return { ok: false, status: 503 } as Response;
+      }
+      return defaultImpl(path);
+    });
+    // 1回目: 一時エラーとしてデフォルト値（利用者に警告される）
     expect(await getExchangeRate('2026-10-05')).toBe(DEFAULT_RATE);
     expect(getDefaultRateUsedDates()).toEqual(['2026-10-05']);
     // 2回目: 復旧後は同じ日付でも正しいレートを取得できる（代替値をキャッシュしない）
+    expect(await getExchangeRate('2026-10-05')).toBe(152);
+    fetchMock.mockImplementation(defaultImpl);
+  });
+
+  it('falls back to the other path when the first one fails temporarily', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    // historical が 503 でも current から取得できればそのレートを使う
+    fetchMock.mockImplementationOnce(async () => ({ ok: false, status: 503 }) as Response);
     expect(await getExchangeRate('2026-10-05')).toBe(152);
   });
 });

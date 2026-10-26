@@ -61,7 +61,7 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
 
     return (
       <div className="flex items-center gap-3">
-        <div className="text-xs text-right">
+        <div className="text-xs text-right whitespace-nowrap">
           {isVerified ? (
             <>
               <div className="text-green-600 font-semibold">✓ 認証済み</div>
@@ -224,7 +224,7 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
               onKeyDown={handleKeyDown}
               placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"
               disabled={isVerifying}
-              className="w-full text-center font-mono text-base py-6 uppercase"
+              className="text-center font-mono text-base py-3 uppercase"
             />
 
             <div className="flex items-center gap-3 text-xs text-gray-400">

@@ -48,22 +48,22 @@ const MonthlyTotalCard = ({
     <div className="flex justify-between items-center w-full py-2 px-2">
       <div className="flex items-center space-x-2">
         <span className="text-sm font-semibold text-gray-700 min-w-[2rem]">{Number(month)}月</span>
-        <span className="text-xs text-gray-400">({recordCount}件)</span>
+        <span className="hidden sm:inline text-xs text-gray-400">({recordCount}件)</span>
       </div>
-      <div className="flex items-center space-x-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">配当所得</span>
+      <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <span className="text-xs text-gray-500 whitespace-nowrap">配当所得</span>
           <span className="text-sm font-semibold text-gray-900 tabular-nums">
             ${totalIncome.toFixed(2)}
           </span>
         </div>
         {withholding !== 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-500">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="text-xs text-gray-500 whitespace-nowrap">
               源泉徴収
             </span>
             <span className="text-sm font-semibold text-red-600 tabular-nums">
-              ${withholding.toFixed(2)}
+              {withholding < 0 ? '-' : ''}${Math.abs(withholding).toFixed(2)}
             </span>
           </div>
         )}
