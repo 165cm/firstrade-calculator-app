@@ -1,9 +1,13 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Download, TrendingUp, Smartphone, Zap, ShieldCheck, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Globe, Lock, Gift } from 'lucide-react';
+import { Download, TrendingUp, Smartphone, Zap, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Lock, Gift } from 'lucide-react';
 import { CURRENT_EDITION, RETURNING_USER_NOTICE } from '@/config/license';
 import { CtaButtons } from '@/components/lp/CtaButtons';
 import { MobileStickyCta } from '@/components/lp/MobileStickyCta';
+import { ComparisonSection } from '@/components/lp/ComparisonSection';
+import { FilingGuideSection } from '@/components/lp/FilingGuideSection';
+import { TrustSection } from '@/components/lp/TrustSection';
+import { LpFaqSection } from '@/components/lp/LpFaqSection';
 
 // キャッシュを無効化し、常に最新のコンテンツを表示
 export const dynamic = 'force-dynamic';
@@ -99,13 +103,13 @@ export default function Home() {
       )}
 
       {/* Problem Section */}
-      <section className="relative py-32 bg-navy-800 overflow-hidden">
+      <section className="relative py-20 sm:py-32 bg-navy-800 overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-brand-500/5 rounded-full blur-[100px] pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-accent-teal/5 rounded-full blur-[100px] pointer-events-none" />
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-20">
             <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-white mb-6 tracking-tight">
               なぜFirstradeの確定申告は<br />こんなに面倒なのか？
             </h2>
@@ -115,7 +119,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 max-w-6xl mx-auto">
+          <p className="md:hidden mb-2 text-right text-xs text-slate-500">横にスワイプ →</p>
+          <div className="-mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 md:mx-auto md:px-0 md:pb-0 md:overflow-visible md:grid [&>*]:w-[85%] [&>*]:flex-shrink-0 [&>*]:snap-center md:[&>*]:w-auto md:grid-cols-3 md:gap-10 max-w-6xl">
             <ProblemCard
               icon={<Database className="w-8 h-8" />}
               title="特定口座がない"
@@ -137,12 +142,12 @@ export default function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="relative py-32 bg-navy-900 border-t border-white/5">
+      <section className="relative py-20 sm:py-32 bg-navy-900 border-t border-white/5">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-20">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-20">
             <span className="text-accent-teal font-bold tracking-wider uppercase text-xs mb-3 block opacity-80">Features</span>
             <h2 className="text-3xl sm:text-4xl font-heading font-extrabold text-white mb-6 tracking-tight">
-              FirstScopeで解決できること
+              <span className="inline-block">FirstScopeで</span><span className="inline-block">解決できること</span>
             </h2>
             <p className="text-lg text-slate-400 leading-relaxed font-light">
               面倒な単純作業はツールに任せて、<br className="sm:hidden" />
@@ -150,7 +155,8 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <p className="md:hidden mb-2 text-right text-xs text-slate-500">横にスワイプ →</p>
+          <div className="-mx-4 px-4 flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 md:mx-auto md:px-0 md:pb-0 md:overflow-visible md:grid [&>*]:w-[85%] [&>*]:flex-shrink-0 [&>*]:snap-center md:[&>*]:w-auto md:grid-cols-2 md:gap-6 max-w-5xl">
             <FeatureCard
               icon={<Download className="h-6 w-6 text-brand-400" />}
               title="配当金明細"
@@ -184,111 +190,19 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Data Source Section */}
-      <section className="relative py-24 bg-navy-800 overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-5xl mx-auto bg-navy-900/50 rounded-3xl p-8 sm:p-12 border border-white/5 backdrop-blur-sm relative overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-brand-500/10 rounded-full blur-3xl" />
+      {/* How to use in filing */}
+      <FilingGuideSection />
 
-            <div className="flex flex-col md:flex-row items-center gap-10 relative z-10">
-              <div className="flex-shrink-0">
-                <div className="w-20 h-20 bg-gradient-to-br from-brand-600 to-navy-900 rounded-2xl flex items-center justify-center shadow-lg shadow-brand-900/20 border border-white/10">
-                  <Database className="h-9 w-9 text-white" />
-                </div>
-              </div>
-              <div className="flex-1 text-center md:text-left">
-                <h3 className="text-2xl font-bold text-white mb-4 tracking-tight font-heading">
-                  Frankfurter APIを採用
-                </h3>
-                <p className="text-slate-400 mb-6 leading-relaxed font-light">
-                  <strong className="text-white font-semibold bg-white/10 px-1 py-0.5 rounded mx-1">欧州中央銀行(ECB)</strong>公表の為替レートを使用。<br className="hidden sm:block" />
-                  オープンソースAPI「Frankfurter」により、透明性と信頼性を担保しています。
-                </p>
+      {/* Comparison */}
+      <ComparisonSection />
 
-                <div className="flex flex-col sm:flex-row gap-4">
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 flex-1">
-                    <ShieldCheck className="w-5 h-5 text-brand-400 flex-shrink-0" />
-                    <div>
-                      <span className="block font-bold text-white text-sm">公的データ</span>
-                      <span className="text-xs text-slate-400">ECB公式レートを使用</span>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5 flex-1">
-                    <CheckCircle2 className="w-5 h-5 text-brand-400 flex-shrink-0" />
-                    <div>
-                      <span className="block font-bold text-white text-sm">透明性・検証可能</span>
-                      <span className="text-xs text-slate-400">ソースが明確で誰でも確認可能</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Payment Security Section */}
-      <section className="relative py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
-        <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-brand-500/5 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-96 h-96 bg-accent-teal/5 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="max-w-5xl mx-auto">
-            <div className="flex flex-col md:flex-row items-center gap-12">
-              <div className="flex-1">
-                <span className="text-accent-teal font-bold tracking-wider uppercase text-xs mb-3 block opacity-80">Security</span>
-                <h2 className="text-3xl font-heading font-extrabold text-white mb-6 tracking-tight">
-                  決済は<span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-300 to-accent-teal">Gumroad</span>で安全に。
-                </h2>
-                <p className="text-lg text-slate-400 mb-8 leading-relaxed font-light">
-                  世界中のクリエイターが利用するプラットフォーム「Gumroad」を採用。<br />
-                  カード情報は当サイトには一切保存されません。
-                </p>
-
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-brand-500/10 rounded-lg text-brand-400 border border-brand-500/20">
-                      <Globe className="w-5 h-5" />
-                    </div>
-                    <p className="text-sm text-slate-300">世界クラスの信頼性あるプラットフォーム</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-accent-teal/10 rounded-lg text-accent-teal border border-accent-teal/20">
-                      <Lock className="w-5 h-5" />
-                    </div>
-                    <p className="text-sm text-slate-300">高度な暗号化通信で保護された決済</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-1 w-full max-w-md">
-                <div className="bg-navy-800 rounded-3xl p-8 text-white shadow-2xl shadow-black/50 relative overflow-hidden border border-white/5">
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full blur-2xl" />
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-accent-teal/10 rounded-full blur-2xl" />
-
-                  <div className="relative z-10 flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-sm border border-white/10">
-                      <CreditCard className="w-8 h-8 text-accent-teal" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-2 font-heading">Secure Payment</h3>
-                    <p className="text-slate-500 text-sm mb-6">Powered by Gumroad</p>
-
-                    <div className="w-full bg-white/5 rounded-xl p-3 border border-white/5 flex items-center gap-3">
-                      <div className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)] animate-pulse" />
-                      <span className="text-sm font-medium text-slate-300">256-bit SSL Encryption</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* Trust: data handling, exchange rates, payment */}
+      <TrustSection />
 
       {/* Can/Cannot Section */}
-      <section className="relative py-24 bg-navy-800 overflow-hidden">
+      <section className="relative py-16 sm:py-24 bg-navy-800 overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
             <h2 className="text-3xl font-heading font-extrabold text-white mb-6 tracking-tight">できること / できないこと</h2>
             <p className="text-slate-400 font-light">
               FirstScopeは「確定申告の補助」に特化したツールです。<br className="hidden sm:block" />
@@ -333,12 +247,12 @@ export default function Home() {
       </section>
 
       {/* Testimonials Section */}
-      <section className="relative py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
+      <section className="relative py-16 sm:py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
         <div className="absolute top-0 right-0 -mr-20 -mt-20 w-80 h-80 bg-brand-500/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-accent-teal/5 rounded-full blur-3xl pointer-events-none" />
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
             <h2 className="text-3xl font-heading font-extrabold text-white mb-4 tracking-tight">
               ユーザーの声
             </h2>
@@ -364,7 +278,7 @@ export default function Home() {
       </section>
 
       {/* Developer Story Section */}
-      <section className="relative py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
+      <section className="relative py-16 sm:py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center gap-4 mb-8">
@@ -391,11 +305,13 @@ export default function Home() {
                   「この悩みを抱えているのは、私一人ではない」
                 </p>
                 <p>
-                  そう気づき、プログラミング初心者の私がAIと共に5日間缶詰めになって開発したのが、このツールです。<br />
-                  プロのような高度なシステムではないかもしれませんが、同じ悩みを持つ個人投資家として、「とにかく簡単に、憂鬱な作業を解消したい」という一心で作りました。
+                  そう気づき、同じFirstradeユーザーとして、自分の申告にも使うために作ったのがこのツールです。
                 </p>
                 <p>
-                  まずはこの面倒な確定申告という壁を、ツールを使ってサクッと乗り越えていきましょう！
+                  公開後は利用者の方から寄せられた声をもとに、計算ロジックの見直しを重ね、自動テストで計算結果を検証しながら毎年改良を続けています。
+                </p>
+                <p>
+                  面倒な確定申告の壁は、ツールに任せてサクッと乗り越えていきましょう！
                 </p>
               </div>
               <div className="mt-8 flex items-center justify-end gap-4 border-t border-white/5 pt-6">
@@ -419,11 +335,11 @@ export default function Home() {
       </section>
 
       {/* How It Works Section */}
-      <section className="relative py-24 bg-navy-800 overflow-hidden">
+      <section className="relative py-16 sm:py-24 bg-navy-800 overflow-hidden">
         <div className="absolute inset-0 bg-[url('/images/grid.svg')] opacity-5 pointer-events-none" />
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
             <h2 className="text-3xl font-heading font-extrabold text-white mb-6 tracking-tight">使い方は、驚くほど簡単</h2>
             <p className="text-slate-400 font-light">
               複雑な設定は一切不要。3ステップで計算が完了します。
@@ -453,8 +369,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <LpFaqSection />
+
       {/* Footer CTA Section */}
-      <section className="relative py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
+      <section className="relative py-16 sm:py-24 bg-navy-900 border-t border-white/5 overflow-hidden">
         <div className="absolute inset-0 z-0 noise-bg opacity-30 mix-blend-soft-light pointer-events-none" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-500/10 rounded-full blur-[120px] pointer-events-none animate-pulse-slow" />
 
@@ -532,7 +451,7 @@ function ProblemCard({ icon, title, description, isHighlight }: { icon: React.Re
     <div className={`
       relative p-8 rounded-3xl border transition-all duration-300 group
       ${isHighlight
-        ? 'bg-brand-900/20 border-brand-500/30 shadow-[0_0_30px_rgba(14,165,233,0.15)] z-10 sm:-translate-y-4'
+        ? 'bg-brand-900/20 border-brand-500/30 shadow-[0_0_30px_rgba(14,165,233,0.15)] z-10 md:-translate-y-4'
         : 'bg-white/5 border-white/5 hover:border-white/10 hover:bg-white/10'
       }
     `}>
