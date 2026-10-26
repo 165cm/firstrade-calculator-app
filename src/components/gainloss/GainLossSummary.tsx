@@ -68,6 +68,15 @@ const GainLossSummaryView: React.FC<Props> = ({ summary, isDemo = false }) => {
   const visibleCount = Math.max(VISIBLE_COUNT, Math.ceil(totalSymbols * VISIBLE_RATIO));
   const visibleSymbols = restrictItems(summary.symbolSummary, isLicensed, visibleCount);
 
+  // 未認証時：無料表示している銘柄の円換算損益の小計（購入後のイメージを伝えるため）
+  // ※ すべての銘柄が表示される場合は合計と同じになるため出さない
+  const freePreview = isJpyTotalLocked && visibleSymbols.length < totalSymbols
+    ? {
+      count: visibleSymbols.length,
+      gainLossJpy: visibleSymbols.reduce((sum, s) => sum + calculateSymbolGainLossJPY(s.trades).gainLoss, 0),
+    }
+    : null;
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -107,6 +116,12 @@ const GainLossSummaryView: React.FC<Props> = ({ summary, isDemo = false }) => {
                 </span>
               </LockedAmount>
             </p>
+            {freePreview && (
+              <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5 text-sm text-indigo-700">
+                <span className="text-xs">うち表示中の{freePreview.count}銘柄</span>
+                <span className="font-semibold tabular-nums">{formatJPY(freePreview.gainLossJpy)}</span>
+              </p>
+            )}
           </div>
         </div>
         <p className="mt-3 text-xs text-gray-500">
@@ -115,7 +130,11 @@ const GainLossSummaryView: React.FC<Props> = ({ summary, isDemo = false }) => {
         {isJpyTotalLocked && (
           <div className="mt-3">
             <LockedAmountNotice>
-              確定申告に使う<strong>円換算の損益合計</strong>は、ライセンス認証後に表示されます。ドル建ての損益と銘柄別の一部は無料で確認できます。
+              {freePreview ? (
+                <>無料版では<strong>{freePreview.count}銘柄分</strong>の円換算損益を表示しています。確定申告に使う<strong>損益合計</strong>と残りの銘柄は、ライセンス認証後に表示されます。</>
+              ) : (
+                <>確定申告に使う<strong>円換算の損益合計</strong>は、ライセンス認証後に表示されます。ドル建ての損益と銘柄別の一部は無料で確認できます。</>
+              )}
             </LockedAmountNotice>
           </div>
         )}
@@ -135,10 +154,12 @@ const GainLossSummaryView: React.FC<Props> = ({ summary, isDemo = false }) => {
             totalCount={summary.symbolSummary.length}
           >
             <div className="space-y-3">
-              {visibleSymbols.map((symbolData) => (
+              {visibleSymbols.map((symbolData, index) => (
                 <SymbolDetailsSection
-                  key={symbolData.symbol}
+                  key={`${symbolData.symbol}-${isJpyTotalLocked ? 'preview' : 'full'}`}
                   symbolData={symbolData}
+                  // 未認証時は最初の銘柄を開いておき、取引ごとの円換算を見せる
+                  defaultExpanded={isJpyTotalLocked && index === 0}
                 />
               ))}
             </div>
@@ -149,18 +170,25 @@ const GainLossSummaryView: React.FC<Props> = ({ summary, isDemo = false }) => {
   );
 };
 
+// 銘柄の円換算損益（取引ごとのレートで換算）
+function calculateSymbolGainLossJPY(trades: TradeDetail[]) {
+  const proceeds = trades.reduce((sum, trade) => sum + (trade.proceeds * trade.saleRate), 0);
+  const cost = trades.reduce((sum, trade) => sum + (trade.cost * trade.purchaseRate), 0);
+  return { proceeds, cost, gainLoss: proceeds - cost };
+}
+
 const SymbolDetailsSection: React.FC<{
   symbolData: SymbolSummary;
-}> = ({ symbolData }) => {
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  defaultExpanded?: boolean;
+}> = ({ symbolData, defaultExpanded = false }) => {
+  const [isExpanded, setIsExpanded] = React.useState(defaultExpanded);
 
   // 銘柄全体の合計を計算
-  const totalProceedsJPY = symbolData.trades.reduce((sum, trade) =>
-    sum + (trade.proceeds * trade.saleRate), 0);
-  const totalCostJPY = symbolData.trades.reduce((sum, trade) =>
-    sum + (trade.cost * trade.purchaseRate), 0);
-
-  const totalGainLossJPY = totalProceedsJPY - totalCostJPY;
+  const {
+    proceeds: totalProceedsJPY,
+    cost: totalCostJPY,
+    gainLoss: totalGainLossJPY,
+  } = calculateSymbolGainLossJPY(symbolData.trades);
   const totalGainLossRateJPY = totalCostJPY !== 0 ? ((totalProceedsJPY / totalCostJPY) - 1) * 100 : 0;
 
   return (

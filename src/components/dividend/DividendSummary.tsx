@@ -75,6 +75,15 @@ const MonthlyTotalCard = ({
   );
 };
 
+// 未認証時に、無料表示分の円換算小計を示す行
+const FreePreviewLine = ({ label, amountJpy }: { label: string; amountJpy: number }) => (
+  <p className="mt-1 flex flex-wrap items-baseline gap-x-1.5 text-sm text-indigo-700">
+    <span className="text-xs">うち{label}分</span>
+    <span className="font-semibold tabular-nums">¥{Math.floor(Math.abs(amountJpy)).toLocaleString()}</span>
+    <span className="text-xs text-gray-500">（無料で表示中）</span>
+  </p>
+);
+
 // サマリーカードの部分を修正
 const SummaryCard = ({ title, amountUSD, amountJPY, color, isJpyLocked = false }: {
   title: string;
@@ -95,6 +104,14 @@ const SummaryCard = ({ title, amountUSD, amountJPY, color, isJpyLocked = false }
     </div>
   </div>
 );
+
+// 月の一覧を「1〜6月」「2・5・8月」のような表記にする
+const formatMonthLabel = (months: string[]) => {
+  const nums = months.map(Number);
+  const isConsecutive = nums.every((n, i) => i === 0 || n === nums[i - 1] + 1);
+  if (nums.length >= 2 && isConsecutive) return `${nums[0]}〜${nums[nums.length - 1]}月`;
+  return `${nums.join('・')}月`;
+};
 
 const groupRecordsByMonth = (records: ConvertedDividendRecord[]) => {
   const monthlyGroups = new Map<string, ConvertedDividendRecord[]>();
@@ -186,6 +203,38 @@ export function DividendSummary({ data, isDemo = false }: Props) {
     };
   }, [data]);
 
+  // データがある月のリスト（明細アコーディオン用）
+  const monthsWithData = useMemo(() => {
+    const dividendsByMonth = groupRecordsByMonth(data.dividends);
+    const interestByMonth = groupRecordsByMonth(data.interest);
+    return Array.from({ length: 12 }, (_, i) => {
+      const month = String(i + 1).padStart(2, '0');
+      const monthlyDividends = dividendsByMonth.get(month) || [];
+      const monthlyInterest = interestByMonth.get(month) || [];
+      const recordCount = monthlyDividends.length + monthlyInterest.length;
+      return { month, monthlyDividends, monthlyInterest, recordCount };
+    }).filter(m => m.recordCount > 0);
+  }, [data]);
+
+  const totalMonths = monthsWithData.length;
+  const visibleCount = Math.max(VISIBLE_MONTHS, Math.ceil(totalMonths * VISIBLE_RATIO));
+  const visibleMonths = isLicensed ? monthsWithData : monthsWithData.slice(0, visibleCount);
+
+  // 未認証時：明細で無料表示している月の円換算の小計（購入後のイメージを伝えるため）
+  // ※ すべての月が表示される場合は年間合計と同じになるため出さない
+  const freePreview = useMemo(() => {
+    if (!isJpyTotalLocked || visibleMonths.length >= totalMonths) return null;
+    const months = new Set(visibleMonths.map(m => m.month));
+    const inVisibleMonths = (r: ConvertedDividendRecord) => months.has(r.TradeDate.substring(5, 7));
+    const incomeJpy = [...data.dividends, ...data.interest]
+      .filter(inVisibleMonths)
+      .reduce((sum, r) => sum + r.amountJPY, 0);
+    const withholdingJpy = calculateTotalWithholding(
+      [...data.dividends, ...data.interest, ...data.other].filter(inVisibleMonths)
+    ).jpy;
+    return { label: formatMonthLabel([...months]), incomeJpy, withholdingJpy };
+  }, [data, isJpyTotalLocked, visibleMonths, totalMonths]);
+
   // 月次データの更新
   const monthlyData = useMemo(() => {
     const monthly = new Map<string, {
@@ -246,19 +295,19 @@ export function DividendSummary({ data, isDemo = false }: Props) {
         <table className="min-w-full text-xs">
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-2 sm:px-3 py-2 whitespace-nowrap text-left font-medium text-gray-500 uppercase tracking-wider">
                 支払日
               </th>
-              <th className="px-3 py-2 text-left font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-2 sm:px-3 py-2 whitespace-nowrap text-left font-medium text-gray-500 uppercase tracking-wider">
                 銘柄
               </th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-2 sm:px-3 py-2 whitespace-nowrap text-right font-medium text-gray-500 uppercase tracking-wider">
                 USD
               </th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-2 sm:px-3 py-2 whitespace-nowrap text-right font-medium text-gray-500 uppercase tracking-wider">
                 レート
               </th>
-              <th className="px-3 py-2 text-right font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-2 sm:px-3 py-2 whitespace-nowrap text-right font-medium text-gray-500 uppercase tracking-wider">
                 円換算
               </th>
             </tr>
@@ -269,19 +318,21 @@ export function DividendSummary({ data, isDemo = false }: Props) {
               .map((record, index) => (
                 <tr key={`${record.Symbol}-${record.TradeDate}-${index}`}
                   className="hover:bg-gray-50">
-                  <td className="px-3 py-2 whitespace-nowrap text-gray-900">
-                    {record.TradeDate}
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap text-gray-900">
+                    {/* スマホでは年を省いて、円換算の列まで1画面に収める */}
+                    <span className="sm:hidden">{record.TradeDate.substring(5)}</span>
+                    <span className="hidden sm:inline">{record.TradeDate}</span>
                   </td>
-                  <td className="px-3 py-2 whitespace-nowrap font-medium text-gray-900">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap font-medium text-gray-900">
                     {record.Symbol}
                   </td>
-                  <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap text-right text-gray-900">
                     ${record.Amount.toFixed(2)}
                   </td>
-                  <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap text-right text-gray-900">
                     ¥{record.exchangeRate.toFixed(2)}
                   </td>
-                  <td className="px-3 py-2 whitespace-nowrap text-right text-gray-900">
+                  <td className="px-2 sm:px-3 py-2 whitespace-nowrap text-right font-semibold text-indigo-700">
                     ¥{Math.round(record.amountJPY).toLocaleString()}
                   </td>
                 </tr>
@@ -313,6 +364,9 @@ export function DividendSummary({ data, isDemo = false }: Props) {
             <p className="text-lg text-gray-700">
               <LockedAmount locked={isJpyTotalLocked}>¥{Math.floor(summary.total.jpy).toLocaleString()}</LockedAmount>
             </p>
+            {freePreview && (
+              <FreePreviewLine label={freePreview.label} amountJpy={freePreview.incomeJpy} />
+            )}
           </div>
           <div className="bg-white rounded p-3 shadow-sm border border-red-100">
             <p className="text-xs text-gray-600 mb-1">
@@ -325,11 +379,18 @@ export function DividendSummary({ data, isDemo = false }: Props) {
             <p className="text-lg text-gray-700">
               <LockedAmount locked={isJpyTotalLocked} placeholder="¥000,000">¥{Math.floor(Math.abs(summary.withholding.jpy)).toLocaleString()}</LockedAmount>
             </p>
+            {freePreview && (
+              <FreePreviewLine label={freePreview.label} amountJpy={freePreview.withholdingJpy} />
+            )}
           </div>
         </div>
         {isJpyTotalLocked && (
           <div className="mt-3">
-            <LockedAmountNotice />
+            <LockedAmountNotice>
+              {freePreview ? (
+                <>無料版では<strong>{freePreview.label}分</strong>の円換算を表示しています。確定申告に使う<strong>年間合計</strong>と残りの月は、ライセンス認証後に表示されます。</>
+              ) : undefined}
+            </LockedAmountNotice>
           </div>
         )}
       </div>
@@ -424,71 +485,59 @@ export function DividendSummary({ data, isDemo = false }: Props) {
 
       {/* 明細アコーディオン */}
       <div className="bg-white rounded-lg shadow-sm border border-slate-100">
-        {(() => {
-          // データがある月のリストを作成
-          const monthsWithData = Array.from({ length: 12 }, (_, i) => {
-            const month = String(i + 1).padStart(2, '0');
-            const monthlyDividends = groupRecordsByMonth(data.dividends).get(month) || [];
-            const monthlyInterest = groupRecordsByMonth(data.interest).get(month) || [];
-            const recordCount = monthlyDividends.length + monthlyInterest.length;
-            return { month, monthlyDividends, monthlyInterest, recordCount };
-          }).filter(m => m.recordCount > 0);
+        <DataRestriction
+          isLicensed={isLicensed}
+          visibleCount={visibleCount}
+          totalCount={totalMonths}
+        >
+          {/* 未認証時は最初の月を開いておき、取引ごとの円換算を見せる */}
+          <Accordion
+            type="single"
+            key={isJpyTotalLocked ? 'preview' : 'full'}
+            defaultValue={isJpyTotalLocked ? visibleMonths[0]?.month : undefined}
+          >
+            {visibleMonths.map(({ month, monthlyDividends, monthlyInterest, recordCount }) => {
+              // 配当と利子の合計を計算
+              const monthlyTotal = {
+                dividend: monthlyDividends.reduce((sum, r) => sum + r.Amount, 0),
+                interest: monthlyInterest.reduce((sum, r) => sum + r.Amount, 0),
+                withholding: 0
+              };
 
-          const totalMonths = monthsWithData.length;
-          const visibleCount = Math.max(VISIBLE_MONTHS, Math.ceil(totalMonths * VISIBLE_RATIO));
-          const visibleMonths = isLicensed ? monthsWithData : monthsWithData.slice(0, visibleCount);
+              // 源泉徴収額を計算
+              [...monthlyDividends, ...monthlyInterest].forEach(record => {
+                const withholdingAmount = extractWithholdingAmount(record);
+                if (withholdingAmount) {
+                  monthlyTotal.withholding -= withholdingAmount;
+                }
+              });
 
-          return (
-            <DataRestriction
-              isLicensed={isLicensed}
-              visibleCount={visibleCount}
-              totalCount={totalMonths}
-            >
-              <Accordion type="single">
-                {visibleMonths.map(({ month, monthlyDividends, monthlyInterest, recordCount }) => {
-                  // 配当と利子の合計を計算
-                  const monthlyTotal = {
-                    dividend: monthlyDividends.reduce((sum, r) => sum + r.Amount, 0),
-                    interest: monthlyInterest.reduce((sum, r) => sum + r.Amount, 0),
-                    withholding: 0
-                  };
-
-                  // 源泉徴収額を計算
-                  [...monthlyDividends, ...monthlyInterest].forEach(record => {
-                    const withholdingAmount = extractWithholdingAmount(record);
-                    if (withholdingAmount) {
-                      monthlyTotal.withholding -= withholdingAmount;
-                    }
-                  });
-
-                  return (
-                    <AccordionItem key={month} value={month}>
-                      <AccordionTrigger className="w-full hover:no-underline py-2">
-                        <MonthlyTotalCard
-                          data={monthlyTotal}
-                          month={month}
-                          recordCount={recordCount}
-                        />
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        {monthlyDividends.length > 0 && (
-                          <div className="px-2 pb-2">
-                            {renderTable(monthlyDividends)}
-                          </div>
-                        )}
-                        {monthlyInterest.length > 0 && (
-                          <div className="px-2 pb-2">
-                            {renderTable(monthlyInterest)}
-                          </div>
-                        )}
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
-            </DataRestriction>
-          );
-        })()}
+              return (
+                <AccordionItem key={month} value={month}>
+                  <AccordionTrigger className="w-full hover:no-underline py-2">
+                    <MonthlyTotalCard
+                      data={monthlyTotal}
+                      month={month}
+                      recordCount={recordCount}
+                    />
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    {monthlyDividends.length > 0 && (
+                      <div className="px-2 pb-2">
+                        {renderTable(monthlyDividends)}
+                      </div>
+                    )}
+                    {monthlyInterest.length > 0 && (
+                      <div className="px-2 pb-2">
+                        {renderTable(monthlyInterest)}
+                      </div>
+                    )}
+                  </AccordionContent>
+                </AccordionItem>
+              );
+            })}
+          </Accordion>
+        </DataRestriction>
       </div>
     </div>
   );
