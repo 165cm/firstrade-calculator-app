@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { CURRENT_EDITION, DEMO_URL, PURCHASE_URL } from '@/config/license';
+import { CURRENT_EDITION, DEMO_URL, IS_ON_SALE, PURCHASE_URL, SALES_NOTICE } from '@/config/license';
 import { TrackedLink } from './TrackedLink';
 
 // ファーストビューを過ぎたら表示する（px）
@@ -26,6 +26,20 @@ export function MobileStickyCta() {
       aria-hidden={!isVisible}
       className={`md:hidden fixed inset-x-0 bottom-0 z-50 border-t border-white/10 bg-navy-900/95 backdrop-blur-md px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] transition-transform duration-300 ${isVisible ? 'translate-y-0' : 'translate-y-full'}`}
     >
+      {!IS_ON_SALE ? (
+        // 販売前は発売予定とデモのボタンだけを表示する
+        <div className="space-y-2">
+          {SALES_NOTICE && <p className="text-center text-xs text-slate-300">{SALES_NOTICE.short}</p>}
+          <TrackedLink
+            href={DEMO_URL}
+            event="cta_demo_click"
+            placement="sticky"
+            className="flex w-full items-center justify-center rounded-full bg-white py-3 text-sm font-bold text-navy-900"
+          >
+            デモで30秒体験（登録不要）
+          </TrackedLink>
+        </div>
+      ) : (
       <div className="flex gap-3">
         <TrackedLink
           href={DEMO_URL}
@@ -44,6 +58,7 @@ export function MobileStickyCta() {
           {CURRENT_EDITION.price}で購入する
         </TrackedLink>
       </div>
+      )}
     </div>
   );
 }

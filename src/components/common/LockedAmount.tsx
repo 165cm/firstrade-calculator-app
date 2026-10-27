@@ -3,7 +3,7 @@
 
 import type { ReactNode } from 'react';
 import { Lock } from 'lucide-react';
-import { PURCHASE_URL } from '@/config/license';
+import { IS_ON_SALE, PURCHASE_URL, SALES_NOTICE } from '@/config/license';
 import { trackEvent } from '@/lib/analytics';
 
 /**
@@ -38,15 +38,23 @@ export function LockedAmountNotice({ children }: { children?: ReactNode }) {
         )}
         <span className="block text-xs text-amber-700 mt-1">認証は「CSVエクスポート」ボタンから行えます。</span>
       </p>
-      <a
-        href={PURCHASE_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={() => trackEvent('cta_purchase_click', { placement: 'locked_amount' })}
-        className="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-      >
-        ライセンスを購入
-      </a>
+      {IS_ON_SALE ? (
+        <a
+          href={PURCHASE_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={() => trackEvent('cta_purchase_click', { placement: 'locked_amount' })}
+          className="inline-flex items-center justify-center whitespace-nowrap rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+        >
+          ライセンスを購入
+        </a>
+      ) : (
+        SALES_NOTICE && (
+          <span className="inline-flex items-center justify-center rounded-md border border-amber-300 bg-white px-3 py-2 text-xs font-medium text-amber-900">
+            {SALES_NOTICE.short}
+          </span>
+        )
+      )}
     </div>
   );
 }

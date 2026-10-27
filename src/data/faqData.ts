@@ -1,5 +1,5 @@
 // src/data/faqData.ts
-import { CURRENT_EDITION } from '@/config/license';
+import { CURRENT_EDITION, IS_ON_SALE, SALES_NOTICE } from '@/config/license';
 // チャットサポート用のFAQデータ
 
 export interface FAQItem {
@@ -100,7 +100,9 @@ export const FAQ_DATA: FAQItem[] = [
         id: 'license-1',
         category: 'ライセンス',
         question: 'ライセンスの価格と有効期限は？',
-        answer: `ライセンスはGumroadにて販売しています。\n\n${CURRENT_EDITION.label}ライセンス:\n- 価格: ${CURRENT_EDITION.price}（${CURRENT_EDITION.priceJpyApprox}）\n- 有効期限: ${CURRENT_EDITION.validUntil}末まで\n\n「購入」ボタンからGumroadへ移動できます。`,
+        answer: IS_ON_SALE || !SALES_NOTICE
+          ? `ライセンスはGumroadにて販売しています。\n\n${CURRENT_EDITION.label}ライセンス:\n- 価格: ${CURRENT_EDITION.price}（${CURRENT_EDITION.priceJpyApprox}）\n- 有効期限: ${CURRENT_EDITION.validUntil}末まで\n\n「購入」ボタンからGumroadへ移動できます。`
+          : `ライセンスはGumroadにて販売しています。\n\n${SALES_NOTICE.long}`,
         keywords: ['価格', '料金', '値段', 'いくら', '有効期限', 'ライセンス']
     },
     {

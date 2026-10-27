@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Download, TrendingUp, Smartphone, Zap, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Lock, Gift } from 'lucide-react';
-import { CURRENT_EDITION, RETURNING_USER_NOTICE } from '@/config/license';
+import { CURRENT_EDITION, IS_ON_SALE, RETURNING_USER_NOTICE, UPCOMING_EDITION } from '@/config/license';
 import { CtaButtons } from '@/components/lp/CtaButtons';
 import { MobileStickyCta } from '@/components/lp/MobileStickyCta';
 import { ComparisonSection } from '@/components/lp/ComparisonSection';
@@ -32,7 +32,7 @@ export default function Home() {
             {/* Badge */}
             <div className="animate-fade-up opacity-0 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-brand-200 backdrop-blur-md mb-8">
               <span className="flex h-1.5 w-1.5 rounded-full bg-accent-teal shadow-[0_0_8px_rgba(45,212,191,0.8)] animate-pulse"></span>
-              <span className="tracking-widest">{CURRENT_EDITION.label}・Firstrade専用</span>
+              <span className="tracking-widest">{IS_ON_SALE ? CURRENT_EDITION.label : `${UPCOMING_EDITION.label} 準備中`}・Firstrade専用</span>
             </div>
 
             {/* Headline */}
@@ -57,7 +57,11 @@ export default function Home() {
             <ul className="animate-fade-up opacity-0 [animation-delay:400ms] mt-8 grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-6 text-left sm:text-center text-sm text-slate-300">
               <li className="flex sm:flex-col items-center gap-2 sm:gap-1">
                 <CreditCard className="h-4 w-4 text-accent-teal flex-shrink-0" />
-                <span>{CURRENT_EDITION.price}（{CURRENT_EDITION.priceJpyApprox}）<br className="hidden sm:block" />{CURRENT_EDITION.validUntil}まで追加料金なし</span>
+                {IS_ON_SALE ? (
+                  <span>{CURRENT_EDITION.price}（{CURRENT_EDITION.priceJpyApprox}）<br className="hidden sm:block" />{CURRENT_EDITION.validUntil}まで追加料金なし</span>
+                ) : (
+                  <span>{UPCOMING_EDITION.label}は{CURRENT_EDITION.price}予定<br className="hidden sm:block" /><span className="sm:hidden">（</span>{UPCOMING_EDITION.validUntil}まで追加料金なし<span className="sm:hidden">）</span></span>
+                )}
               </li>
               <li className="flex sm:flex-col items-center gap-2 sm:gap-1">
                 <Lock className="h-4 w-4 text-accent-teal flex-shrink-0" />

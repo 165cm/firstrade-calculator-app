@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import Navigation from '@/components/Navigation';
 import ClientLayout from '@/components/ClientLayout';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
-import { CURRENT_EDITION, PRODUCT_NAME } from '@/config/license';
+import { CURRENT_EDITION, IS_ON_SALE, PRODUCT_NAME } from '@/config/license';
 
 const BASE_URL = 'https://firstrade.nomadkazoku.com';
 
@@ -126,6 +126,7 @@ export default function RootLayout({
                     '@type': 'Offer',
                     price: CURRENT_EDITION.priceValue,
                     priceCurrency: 'USD',
+                    availability: IS_ON_SALE ? 'https://schema.org/InStock' : 'https://schema.org/PreOrder',
                     description: `${CURRENT_EDITION.label}（${CURRENT_EDITION.validUntil}まで利用可）`,
                   },
                   description: 'Firstrade証券の確定申告をサポートするツール。配当金明細、売却損益計算、ポートフォリオ分析機能を提供。',

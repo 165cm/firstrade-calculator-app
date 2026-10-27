@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useLicenseContext } from '@/contexts/LicenseContext';
-import { CURRENT_EDITION, PURCHASE_URL } from '@/config/license';
+import { CURRENT_EDITION, IS_EXPORT_PURCHASE_OPEN, PURCHASE_URL, SALES_NOTICE } from '@/config/license';
 import { trackEvent } from '@/lib/analytics';
 
 interface Props {
@@ -252,8 +252,15 @@ export function ExportButton({ onClick, disabled = false, ignoreAnnouncementMode
             )}
           </div>
 
+          {/* 販売前の案内 */}
+          {!IS_EXPORT_PURCHASE_OPEN && SALES_NOTICE && (
+            <div className="pt-4 border-t mt-4 rounded-lg bg-indigo-50 p-3 text-sm leading-relaxed text-indigo-900">
+              {SALES_NOTICE.long}
+            </div>
+          )}
+
           {/* 購入リンク */}
-          {purchaseUrl && (
+          {IS_EXPORT_PURCHASE_OPEN && purchaseUrl && (
             <div className="text-center pt-2 border-t mt-4">
               <div className="mb-4">
                 <label htmlFor="discount-code-input" className="block text-sm font-medium text-gray-700 mb-1 text-left">
