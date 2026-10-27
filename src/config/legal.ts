@@ -10,11 +10,11 @@ export const DISCLOSE_ON_REQUEST = 'ご請求があれば、遅滞なく電子�
 /** 事業者の情報（サービス共通） */
 export const OPERATOR = {
   /** 販売事業者（屋号） */
-  businessName: 'Nomad Family',
+  businessName: 'ぱぱぞん',
   /** 所在地の表示（詳細な住所は請求時に開示） */
   location: '東京都',
   /** 問い合わせ用のメールアドレス */
-  email: 'TODO@example.com',
+  email: 'papazon.service.desk@outlook.jp',
   /** 問い合わせフォーム */
   contactUrl: 'https://majestic-gateway-e4a.notion.site/2d3e8c4088938053a31df1916c843dd0?pvs=105',
 } as const;
@@ -32,6 +32,8 @@ export interface ExternalService {
 /** サービス固有の情報 */
 export const SERVICE_LEGAL = {
   serviceName: 'FirstScope',
+  /** 問い合わせメールの件名の先頭（共用アドレスでサービスごとに仕分けるため） */
+  mailSubjectTag: '[FirstScope]',
   siteUrl: 'https://firstrade.nomadkazoku.com',
   /** プライバシーポリシーの制定日・改定日 */
   privacyEstablished: '2026年10月27日',
@@ -101,3 +103,6 @@ export const SERVICE_LEGAL = {
     },
   ] satisfies ExternalService[],
 } as const;
+
+/** 問い合わせ用のmailtoリンク（件名にサービス名を入れ、受信側で仕分けられるようにする） */
+export const CONTACT_MAILTO = `mailto:${OPERATOR.email}?subject=${encodeURIComponent(`${SERVICE_LEGAL.mailSubjectTag} お問い合わせ`)}`;

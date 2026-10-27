@@ -1,6 +1,6 @@
 // src/app/legal/page.tsx
 import type { Metadata } from 'next';
-import { DISCLOSE_ON_REQUEST, OPERATOR, SERVICE_LEGAL } from '@/config/legal';
+import { CONTACT_MAILTO, DISCLOSE_ON_REQUEST, OPERATOR, SERVICE_LEGAL } from '@/config/legal';
 import { ExtLink, LegalLayout, LegalTable } from '@/components/legal/LegalLayout';
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export default function LegalPage() {
     { label: '運営責任者', value: DISCLOSE_ON_REQUEST },
     { label: '所在地', value: <>{OPERATOR.location}<br />詳細な住所は、{DISCLOSE_ON_REQUEST}</> },
     { label: '電話番号', value: <>{DISCLOSE_ON_REQUEST}<br />お問い合わせは、メールまたはお問い合わせフォームでお願いします。</> },
-    { label: 'メールアドレス', value: <a href={`mailto:${OPERATOR.email}`} className="text-blue-600 hover:underline break-all">{OPERATOR.email}</a> },
+    { label: 'メールアドレス', value: <a href={CONTACT_MAILTO} className="text-blue-600 hover:underline break-all">{OPERATOR.email}</a> },
     { label: 'お問い合わせ', value: <ExtLink href={OPERATOR.contactUrl}>お問い合わせフォーム</ExtLink> },
     { label: '販売URL', value: <ExtLink href={SERVICE_LEGAL.siteUrl}>{SERVICE_LEGAL.siteUrl}</ExtLink> },
     { label: '販売価格', value: SERVICE_LEGAL.price },
@@ -48,7 +48,7 @@ export default function LegalPage() {
     <LegalLayout title="特定商取引法に基づく表記">
       <LegalTable rows={rows} />
       <p className="text-xs text-slate-500">
-        運営責任者の氏名・住所・電話番号は、特定商取引法に基づき、ご請求があった場合に遅滞なく電子メールで開示します。上記のメールアドレスまでご連絡ください。
+        運営責任者の氏名・住所・電話番号は、特定商取引法に基づき、ご請求があった場合に遅滞なく電子メールで開示します。上記のメールアドレスまで、件名に「[FirstScope]」を付けてご連絡ください。
       </p>
     </LegalLayout>
   );

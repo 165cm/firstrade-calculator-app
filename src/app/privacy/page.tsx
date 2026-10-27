@@ -1,6 +1,6 @@
 // src/app/privacy/page.tsx
 import type { Metadata } from 'next';
-import { OPERATOR, SERVICE_LEGAL } from '@/config/legal';
+import { CONTACT_MAILTO, OPERATOR, SERVICE_LEGAL } from '@/config/legal';
 import { ExtLink, LegalLayout, LegalSection } from '@/components/legal/LegalLayout';
 
 export const metadata: Metadata = {
@@ -129,7 +129,7 @@ export default function PrivacyPage() {
         <p>
           {OPERATOR.businessName}
           <br />
-          メールアドレス：<a href={`mailto:${OPERATOR.email}`} className="text-blue-600 hover:underline break-all">{OPERATOR.email}</a>
+          メールアドレス：<a href={CONTACT_MAILTO} className="text-blue-600 hover:underline break-all">{OPERATOR.email}</a>
           <br />
           <ExtLink href={OPERATOR.contactUrl}>お問い合わせフォーム</ExtLink>
         </p>
