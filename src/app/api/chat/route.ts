@@ -2,7 +2,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextRequest, NextResponse } from 'next/server';
 import { createRateLimiter, getClientIP } from '@/lib/rateLimit';
-import { CURRENT_EDITION } from '@/config/license';
+import { CURRENT_EDITION, SALES_NOTICE } from '@/config/license';
 
 // =============================================
 // セキュリティ設定
@@ -116,7 +116,7 @@ FirstScopeは以下の4つの機能を持つ非公式ツールです：
 【ライセンス】
 - Gumroadで販売
 - ${CURRENT_EDITION.label}は${CURRENT_EDITION.validUntil}末まで有効
-- ライセンスキーまたは招待コードは、CSVエクスポート画面の各入力欄に入力して認証する
+${SALES_NOTICE ? `- 販売状況: ${SALES_NOTICE.long}\n` : ''}- ライセンスキーまたは招待コードは、CSVエクスポート画面の各入力欄に入力して認証する
 - 配当金明細の計算は無料で試用可能
 - CSVエクスポートは有料機能
 

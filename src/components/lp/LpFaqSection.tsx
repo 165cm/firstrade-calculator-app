@@ -1,7 +1,7 @@
 // src/components/lp/LpFaqSection.tsx
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
-import { CURRENT_EDITION } from '@/config/license';
+import { CURRENT_EDITION, IS_ON_SALE, UPCOMING_EDITION } from '@/config/license';
 
 const FAQS: { question: string; answer: string }[] = [
   {
@@ -31,7 +31,9 @@ const FAQS: { question: string; answer: string }[] = [
   },
   {
     question: 'ライセンスの有効期限は？',
-    answer: `${CURRENT_EDITION.label}は${CURRENT_EDITION.validUntil}末までご利用いただけます。購入時の${CURRENT_EDITION.price}以外に追加料金はかかりません。`,
+    answer: IS_ON_SALE
+      ? `${CURRENT_EDITION.label}は${CURRENT_EDITION.validUntil}末までご利用いただけます。購入時の${CURRENT_EDITION.price}以外に追加料金はかかりません。`
+      : `${UPCOMING_EDITION.label}は${UPCOMING_EDITION.releaseDate}発売予定で、${UPCOMING_EDITION.validUntil}末までご利用いただけます。購入時の${CURRENT_EDITION.price}以外に追加料金はかかりません。`,
   },
 ];
 

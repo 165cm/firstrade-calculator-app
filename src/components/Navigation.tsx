@@ -4,7 +4,7 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useState } from 'react';
-import { PURCHASE_URL } from '@/config/license';
+import { IS_ON_SALE, PURCHASE_URL } from '@/config/license';
 import { PRODUCT_NAME } from '@/config/license';
 import { trackEvent } from '@/lib/analytics';
 
@@ -58,6 +58,7 @@ export default function Navigation() {
 
           {/* User & Auth & Mobile Toggle */}
           <div className="flex items-center gap-4">
+            {IS_ON_SALE && (
             <div className="hidden md:flex items-center gap-3">
               <a
                 href={PURCHASE_URL}
@@ -72,6 +73,7 @@ export default function Navigation() {
                 </svg>
               </a>
             </div>
+            )}
 
             {/* Mobile menu button */}
             <div className="md:hidden flex items-center">
@@ -115,6 +117,7 @@ export default function Navigation() {
                 </Link>
               );
             })}
+            {IS_ON_SALE && (
             <div className="pt-4 pb-2 border-t border-white/10 px-3 space-y-3">
               <a
                 href={PURCHASE_URL}
@@ -129,6 +132,7 @@ export default function Navigation() {
                 </svg>
               </a>
             </div>
+            )}
           </div>
         </div>
       )}

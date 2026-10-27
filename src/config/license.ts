@@ -18,6 +18,48 @@ export const CURRENT_EDITION = {
   priceValue: '25',
 } as const;
 
+/**
+ * 販売状態（年度版の切り替え時期に書き換える）
+ * - preparing: 次の年度版の準備中。サイト全体で購入ボタンを止め、発売予定を案内する
+ * - presale:   前年版の購入者向けの先行販売中。エクスポート画面（割引コード欄つき）からのみ購入できる
+ * - on_sale:   一般販売中
+ *
+ * 先行販売に切り替えるときは、CURRENT_EDITION も新しい年度版に書き換える
+ */
+export type SalesStatus = 'preparing' | 'presale' | 'on_sale';
+export const SALES_STATUS = 'preparing' as SalesStatus;
+
+/** 準備中・先行販売中に案内する次の年度版 */
+export const UPCOMING_EDITION = {
+  label: '2026年版',
+  /** 有効期限の表示 */
+  validUntil: '2027年12月',
+  /** 前年版の購入者向けの先行販売の時期 */
+  presaleDate: '2027年1月中旬',
+  /** 一般販売の開始日 */
+  releaseDate: '2027年2月1日',
+} as const;
+
+/** サイト全体（LP・ナビ・アプリ内の案内）で購入ボタンを出すか */
+export const IS_ON_SALE = SALES_STATUS === 'on_sale';
+
+/** エクスポート画面から購入できるか（先行販売中は、メールで案内したリピーターがここから購入する） */
+export const IS_EXPORT_PURCHASE_OPEN = SALES_STATUS !== 'preparing';
+
+/** 購入ボタンの代わりに表示する案内（一般販売中は null） */
+export const SALES_NOTICE: { short: string; long: string } | null =
+  SALES_STATUS === 'preparing'
+    ? {
+      short: `${UPCOMING_EDITION.label}は${UPCOMING_EDITION.releaseDate}発売予定`,
+      long: `${UPCOMING_EDITION.label}は${UPCOMING_EDITION.releaseDate}に発売予定です。前年版をご購入の方は、${UPCOMING_EDITION.presaleDate}から先行してご購入いただけます（Gumroadご登録のメールアドレスにご案内します）。`,
+    }
+    : SALES_STATUS === 'presale'
+      ? {
+        short: `${UPCOMING_EDITION.label}は${UPCOMING_EDITION.releaseDate}から一般販売`,
+        long: `${UPCOMING_EDITION.label}は${UPCOMING_EDITION.releaseDate}から一般販売します。前年版をご購入の方は、お届けしたメールのご案内から先行してご購入いただけます。`,
+      }
+      : null;
+
 /** 製品名（例: FirstScope 2025） */
 export const PRODUCT_NAME = `FirstScope ${CURRENT_EDITION.year}`;
 
@@ -27,7 +69,7 @@ export const PRODUCT_NAME = `FirstScope ${CURRENT_EDITION.year}`;
  */
 export const RETURNING_USER_NOTICE: { title: string; body: string } | null = {
   title: '2025年版をご購入の方へ',
-  body: '次回版（2026年版）で使える50%OFFクーポンを、発売時にGumroadご登録のメールアドレスへお届けします。',
+  body: '2026年版は、一般販売に先がけて2027年1月中旬から先行してご購入いただけます。50%OFFクーポンとあわせて、Gumroadご登録のメールアドレスへご案内します。',
 };
 
 /** 購入ページ（Gumroad）のURL。環境変数 NEXT_PUBLIC_GUMROAD_PRODUCT_URL があればそちらを優先 */

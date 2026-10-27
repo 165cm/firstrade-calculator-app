@@ -2,7 +2,7 @@
 'use client';
 
 import React from 'react';
-import { PURCHASE_URL } from '@/config/license';
+import { IS_ON_SALE, PURCHASE_URL, SALES_NOTICE } from '@/config/license';
 import { trackEvent } from '@/lib/analytics';
 
 interface DataRestrictionProps {
@@ -50,18 +50,24 @@ export function DataRestriction({
                     <p className="text-sm text-slate-500 mb-3">
                         ライセンスを認証すると、すべてのデータを表示・CSVエクスポートできます
                     </p>
-                    <a
-                        href={productUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={() => trackEvent('cta_purchase_click', { placement: 'data_restriction' })}
-                        className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-                        </svg>
-                        ライセンスを購入
-                    </a>
+                    {IS_ON_SALE ? (
+                        <a
+                            href={productUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={() => trackEvent('cta_purchase_click', { placement: 'data_restriction' })}
+                            className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                            </svg>
+                            ライセンスを購入
+                        </a>
+                    ) : (
+                        SALES_NOTICE && (
+                            <p className="text-sm font-medium text-indigo-700">{SALES_NOTICE.short}</p>
+                        )
+                    )}
                 </div>
             </div>
         </div>
