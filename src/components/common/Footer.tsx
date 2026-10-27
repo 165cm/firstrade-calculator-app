@@ -10,22 +10,12 @@ export function Footer() {
                         FirstScope
                     </Link>
                     <div className="flex gap-6 text-xs font-medium">
-                        <a
-                            href="https://www.nomadkazoku.com/legal/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-slate-700 transition-colors"
-                        >
+                        <Link href="/legal" className="hover:text-slate-700 transition-colors">
                             特定商取引法に基づく表記
-                        </a>
-                        <a
-                            href="https://www.nomadkazoku.com/privacy-policy/"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="hover:text-slate-700 transition-colors"
-                        >
+                        </Link>
+                        <Link href="/privacy" className="hover:text-slate-700 transition-colors">
                             プライバシーポリシー
-                        </a>
+                        </Link>
                         <Link
                             href="/faq"
                             className="hover:text-slate-700 transition-colors"
