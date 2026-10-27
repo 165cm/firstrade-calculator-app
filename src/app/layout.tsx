@@ -5,6 +5,7 @@ import Navigation from '@/components/Navigation';
 import ClientLayout from '@/components/ClientLayout';
 import { GoogleAnalytics } from '@/components/analytics/GoogleAnalytics';
 import { CURRENT_EDITION, IS_ON_SALE, PRODUCT_NAME } from '@/config/license';
+import { OPERATOR } from '@/config/legal';
 
 const BASE_URL = 'https://firstrade.nomadkazoku.com';
 
@@ -16,9 +17,9 @@ export const metadata: Metadata = {
   },
   description: 'Firstrade証券の確定申告を効率化。配当金・売却損益の自動計算、為替レート自動取得、CSVエクスポート機能を提供するプロフェッショナル分析ツール。',
   keywords: ['Firstrade', '確定申告', '配当金', '売却損益', '為替レート', 'ECB', 'ポートフォリオ', '米国株', '外国税額控除'],
-  authors: [{ name: 'Nomad Family' }],
-  creator: 'Nomad Family',
-  publisher: 'Nomad Family',
+  authors: [{ name: OPERATOR.businessName }],
+  creator: OPERATOR.businessName,
+  publisher: OPERATOR.businessName,
   robots: {
     index: true,
     follow: true,
@@ -110,7 +111,7 @@ export default function RootLayout({
                 {
                   '@type': 'Organization',
                   '@id': `${BASE_URL}/#organization`,
-                  name: 'Nomad Family',
+                  name: OPERATOR.businessName,
                   url: 'https://www.nomadkazoku.com',
                   logo: {
                     '@type': 'ImageObject',

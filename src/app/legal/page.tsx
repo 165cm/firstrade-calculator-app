@@ -1,7 +1,7 @@
 // src/app/legal/page.tsx
 import type { Metadata } from 'next';
-import { CONTACT_MAILTO, DISCLOSE_ON_REQUEST, OPERATOR, SERVICE_LEGAL } from '@/config/legal';
-import { ExtLink, LegalLayout, LegalTable } from '@/components/legal/LegalLayout';
+import { CONTACT_MAILTO, COPYRIGHT_NOTICE, DISCLOSE_ON_REQUEST, OPERATOR, SERVICE_LEGAL } from '@/config/legal';
+import { ExtLink, LegalLayout, LegalSection, LegalTable } from '@/components/legal/LegalLayout';
 
 export const metadata: Metadata = {
   title: '特定商取引法に基づく表記',
@@ -50,6 +50,16 @@ export default function LegalPage() {
       <p className="text-xs text-slate-500">
         運営責任者の氏名・住所・電話番号は、特定商取引法に基づき、ご請求があった場合に遅滞なく電子メールで開示します。上記のメールアドレスまで、件名に「[FirstScope]」を付けてご連絡ください。
       </p>
+
+      <LegalSection title="免責事項">
+        <ul className="list-disc pl-5 space-y-2">
+          {SERVICE_LEGAL.disclaimers.map(text => <li key={text}>{text}</li>)}
+        </ul>
+      </LegalSection>
+
+      <LegalSection title="著作権">
+        {COPYRIGHT_NOTICE.map(text => <p key={text}>{text}</p>)}
+      </LegalSection>
     </LegalLayout>
   );
 }
