@@ -43,7 +43,7 @@ export const FAQ_DATA: FAQItem[] = [
         id: 'csv-1',
         category: 'CSVファイル',
         question: 'CSVファイルはどこからダウンロードできますか？',
-        answer: 'Firstradeにログイン後、以下の場所からダウンロードできます：\n\n配当金CSV:\nAccounts → Tax Center → Dividend Income → Download CSV\n\n売却損益CSV:\nAccounts → Tax Center → Gain/Loss → Download CSV\n\n年度を選択してからダウンロードしてください。',
+        answer: 'Firstradeにログイン後、以下の場所からダウンロードできます：\n\n配当金CSV:\nAccounts → Tax Center → Download Account Information → 「Excel CSV files」を選び、期間を確定申告する年の1月1日〜12月31日にしてDOWNLOAD\n\n売却損益CSV:\nAccounts → Gain/Loss → 確定申告する年が表示されていることを確認して「Download CSV」\n\n画面つきの手順は[CSVのダウンロード方法](/guide/csv)をご覧ください。',
         keywords: ['CSV', 'ダウンロード', '取得', 'どこ', 'Firstrade', 'Tax Center']
     },
     {
@@ -214,7 +214,7 @@ export const FAQ_DATA: FAQItem[] = [
         id: 'tax-1042s-2',
         category: '確定申告（1042-S）',
         question: '1042-S未着の場合の「最短申告フロー」を教えてください',
-        answer: 'FirstScopeのデータを使って一度申告し、1042-S到着後に確認する2ステップでの対応をおすすめします。\n\n【STEP A: 3月15日までに申告する（目安15分）】\n1. FirstScopeで「資本返還（Return of Capital）」を除いた受取合計（USD）を確認\n2. 源泉徴収合計（USD）を国税庁のTTBレートで円換算\n3. 上記を外国税額控除の暫定値として申告書に記入し、期限内に提出\n\n【STEP B: 1042-S到着後に確認する（目安10分）】\n4. FirstScopeの源泉徴収合計と1042-Sの「Box 10（Total withholding credit）」を比較\n5. 差額がある場合は修正申告が必要か判断する（判断方法は別のFAQを参照）\n\n※外国税額控除の正式な根拠書類はForm 1042-Sです。FirstScopeのデータは暫定値としてご活用ください。',
+        answer: 'FirstScopeのデータを使って一度申告し、1042-S到着後に確認する2ステップでの対応をおすすめします。\n\n【STEP A: 3月15日までに申告する（目安15分）】\n1. FirstScopeで「資本返還（Return of Capital）」を除いた受取合計（USD）を確認\n2. 源泉徴収合計を円換算（原則は支払日ごとのTTM（仲値）。FirstScopeの円換算額はECBの参照レートによる近似値です）\n3. 上記を外国税額控除の暫定値として申告書に記入し、期限内に提出\n\n【STEP B: 1042-S到着後に確認する（目安10分）】\n4. FirstScopeの源泉徴収合計と1042-Sの「Box 10（Total withholding credit）」を比較\n5. 差額がある場合は修正申告が必要か判断する（判断方法は別のFAQを参照）\n\n※外国税額控除の正式な根拠書類はForm 1042-Sです。FirstScopeのデータは暫定値としてご活用ください。',
         keywords: ['最短', 'フロー', '未着', '申告方法', '手順', 'ステップ']
     },
     {

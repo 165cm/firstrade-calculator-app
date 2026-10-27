@@ -5,6 +5,7 @@ import Papa from 'papaparse';
 import type { RawDividendData } from '@/types/dividend';
 import { cleanNumber } from '@/utils/common/numberUtils';
 import { logger } from '@/utils/common/logger';
+import Link from 'next/link';
 import { HelpTooltip } from '@/components/common/Tooltip';
 
 interface Props {
@@ -127,8 +128,8 @@ export const DividendFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
                 <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                <span>CSVの入手方法</span>
-                <HelpTooltip text="Firstrade管理画面 ＞ Tax Center ＞ Download Account Information から期間を指定してダウンロードしてください。" />
+                <Link href="/guide/csv" className="underline underline-offset-2">CSVの入手方法</Link>
+                <HelpTooltip text="Firstrade ＞ Accounts ＞ Tax Center ＞ Download Account Information で「Excel CSV files」を選び、期間を確定申告する年の1月1日〜12月31日にしてダウンロードしてください。" />
               </div>
             </div>
           </div>

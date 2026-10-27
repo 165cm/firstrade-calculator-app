@@ -4,6 +4,7 @@ import { useDropzone } from 'react-dropzone';
 import Papa, { ParseResult, ParseConfig } from 'papaparse';
 import { preprocessCsv } from '@/utils/gainloss/preprocessCsv';
 import type { RawGainLossData } from '@/types/gainloss';
+import Link from 'next/link';
 import { HelpTooltip } from '@/components/common/Tooltip';
 import { cleanNumber } from '@/utils/common/numberUtils';
 
@@ -138,8 +139,8 @@ export const GainLossFileUploader: React.FC<Props> = ({ onUpload, onError }) => 
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>CSVの入手方法</span>
-              <HelpTooltip text="Firstrade管理画面 ＞ Gain/Loss ＞ Download CSV から該当年のデータをダウンロードしてください。" />
+              <Link href="/guide/csv" className="underline underline-offset-2">CSVの入手方法</Link>
+              <HelpTooltip text="Firstrade ＞ Accounts ＞ Gain/Loss で確定申告する年が表示されていることを確認し、右上の「Download CSV」からダウンロードしてください。" />
             </div>
           </div>
         </div>

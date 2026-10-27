@@ -1,6 +1,7 @@
 // src/components/dividend/DividendSummary.tsx
 'use client';
 import React, { useMemo } from 'react';
+import Link from 'next/link';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
   Accordion,
@@ -203,6 +204,12 @@ export function DividendSummary({ data, isDemo = false }: Props) {
     };
   }, [data]);
 
+  // 複数の年のデータが含まれているか（月別の集計が年をまたいで合算されるため注意を出す）
+  const years = useMemo(() => {
+    const set = new Set([...data.dividends, ...data.interest].map(r => r.TradeDate.substring(0, 4)));
+    return [...set].sort();
+  }, [data]);
+
   // データがある月のリスト（明細アコーディオン用）
   const monthsWithData = useMemo(() => {
     const dividendsByMonth = groupRecordsByMonth(data.dividends);
@@ -349,6 +356,18 @@ export function DividendSummary({ data, isDemo = false }: Props) {
         <h3 className="text-lg font-semibold">配当金明細</h3>
       </div>
 
+      {years.length > 1 && (
+        <div className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm leading-relaxed text-amber-900">
+          <p className="font-semibold">
+            {years.join('年・')}年のデータが含まれています
+          </p>
+          <p className="mt-1">
+            年間の合計と月別の集計は、複数の年を合算した金額になっています。確定申告には、対象の年の1月1日〜12月31日でダウンロードし直したCSVを使ってください。
+            <Link href="/guide/csv" className="ml-1 text-indigo-700 underline">ダウンロード方法</Link>
+          </p>
+        </div>
+      )}
+
       {/* 確定申告用の重要情報を強調 */}
       <div className="bg-gradient-to-r from-red-50 to-orange-50 border border-red-200 rounded-lg p-4">
         <div className="flex items-center mb-3">
@@ -384,6 +403,11 @@ export function DividendSummary({ data, isDemo = false }: Props) {
             )}
           </div>
         </div>
+        <p className="mt-3 text-sm">
+          <Link href="/guide/filing" className="text-indigo-700 hover:underline">
+            この数字を確定申告のどこで使うか →
+          </Link>
+        </p>
         {isJpyTotalLocked && (
           <div className="mt-3">
             <LockedAmountNotice>
