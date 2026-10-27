@@ -1,5 +1,6 @@
 // src/components/common/Footer.tsx
 import Link from 'next/link';
+import { OPERATOR } from '@/config/legal';
 
 export function Footer() {
     return (
@@ -33,7 +34,7 @@ export function Footer() {
                     </div>
                 </div>
                 <div className="mt-4 text-slate-400 text-xs">
-                    <p>© {new Date().getFullYear()} Nomad Family. All rights reserved.</p>
+                    <p>© {new Date().getFullYear()} {OPERATOR.businessName}. All rights reserved.</p>
                 </div>
             </div>
         </footer>

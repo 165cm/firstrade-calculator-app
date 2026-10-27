@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { OPERATOR } from '@/config/legal';
 import Image from 'next/image';
 import { Download, TrendingUp, Smartphone, Zap, CheckCircle2, XCircle, Database, Quote, AlertTriangle, CreditCard, Lock, Gift } from 'lucide-react';
 import { CURRENT_EDITION, IS_ON_SALE, RETURNING_USER_NOTICE, UPCOMING_EDITION } from '@/config/license';
@@ -430,7 +431,7 @@ export default function Home() {
             </div>
           </div>
           <div className="mt-4 text-slate-500 text-xs text-center font-light">
-            <p>© {new Date().getFullYear()} Nomad Family. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} {OPERATOR.businessName}. All rights reserved.</p>
           </div>
         </div>
       </footer>
