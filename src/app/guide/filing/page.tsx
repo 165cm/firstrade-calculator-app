@@ -15,7 +15,8 @@ const NTA_LINKS = {
   keisan: 'https://www.keisan.nta.go.jp/',
   dividend: 'https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1330.htm',
   foreignTaxCredit: 'https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1240.htm',
-  stock: 'https://www.nta.go.jp/taxes/shiraberu/taxanswer/joto-sanrin/1463.htm',
+  // 記載例は年度ごとにURLが変わるため、毎年確認する
+  stock: 'https://www.nta.go.jp/taxes/shiraberu/shinkoku/tebiki/2024/kisairei/kabushiki/index.htm',
 };
 
 function ExtLink({ href, children }: { href: string; children: ReactNode }) {
@@ -171,7 +172,7 @@ export default function FilingGuidePage() {
               海外の証券会社の口座は、国内の証券会社の「特定口座」にあたる仕組みがないため、自分で計算して申告します。
             </p>
             <p>
-              詳しくは国税庁の<ExtLink href={NTA_LINKS.stock}>株式の譲渡に関する解説</ExtLink>をご覧ください。
+              詳しくは国税庁の<ExtLink href={NTA_LINKS.stock}>株式等の譲渡所得の記載例</ExtLink>をご覧ください。
             </p>
           </div>
           <div className="mt-4">

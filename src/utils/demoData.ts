@@ -24,11 +24,11 @@ TLT	100	93.00	+0.15	+15.00	9300.00	98.00	9800.00	-500.00	-5.10%
 // Based on official data format provided by user (2025 style)
 // NKE, BKCH examples included. Dates shifted to 2025/2024 relevant periods.
 export const DEMO_DIVIDEND_DATA: RawDividendData[] = [
-    // 1月 (2025 - matching user snippet)
-    { TradeDate: '2025-01-02', Symbol: 'NKE', Description: 'NIKE INC CLASS B COM CASH DIV  ON 13.35050 SHS REC 12/02/24 PAY 01/02/25 NON-RES TAX WITHHELD  $0.53', Amount: 5.34, RecordType: 'Dividend', Action: 'DIVIDEND' },
-    { TradeDate: '2025-01-07', Symbol: 'BKCH', Description: 'GLOBAL X FDS GLOBAL X BLOCKCHAIN ETF CASH DIV  ON 0.47564 SHS REC 12/30/24 PAY 01/07/25 NON-QUALIFIED DIVIDEND AMOUNT INCLUDED ON 2024-1099', Amount: 1.79, RecordType: 'Other', Action: 'DIVIDEND' }, // Using DIVIDEND Action for calculation, RecordType matches CSV
-    { TradeDate: '2025-01-07', Symbol: 'BKCH', Description: 'GLOBAL X FDS GLOBAL X BLOCKCHAIN ETF SUBST PAY ON      61 SHS REC 12/30/24 PAY 01/07/25 IN LIEU OF DIVIDEND NON-RES TAX WITHHELD  $22.91', Amount: 229.07, RecordType: 'Dividend', Action: 'DIVIDEND' },
-    { TradeDate: '2025-01-07', Symbol: '', Description: 'INTEREST ON CREDIT BALANCE', Amount: 8.50, RecordType: 'Financial', Action: 'INTEREST' },
+    // 1月
+    { TradeDate: '2024-01-02', Symbol: 'NKE', Description: 'NIKE INC CLASS B COM CASH DIV  ON 13.35050 SHS REC 12/04/23 PAY 01/02/24 NON-RES TAX WITHHELD  $0.53', Amount: 5.34, RecordType: 'Dividend', Action: 'DIVIDEND' },
+    { TradeDate: '2024-01-08', Symbol: 'BKCH', Description: 'GLOBAL X FDS GLOBAL X BLOCKCHAIN ETF CASH DIV  ON 0.47564 SHS REC 12/29/23 PAY 01/08/24 NON-QUALIFIED DIVIDEND AMOUNT INCLUDED ON 2023-1099', Amount: 1.79, RecordType: 'Other', Action: 'DIVIDEND' }, // Using DIVIDEND Action for calculation, RecordType matches CSV
+    { TradeDate: '2024-01-08', Symbol: 'BKCH', Description: 'GLOBAL X FDS GLOBAL X BLOCKCHAIN ETF SUBST PAY ON      61 SHS REC 12/29/23 PAY 01/08/24 IN LIEU OF DIVIDEND NON-RES TAX WITHHELD  $22.91', Amount: 229.07, RecordType: 'Dividend', Action: 'DIVIDEND' },
+    { TradeDate: '2024-01-08', Symbol: '', Description: 'INTEREST ON CREDIT BALANCE', Amount: 8.50, RecordType: 'Financial', Action: 'INTEREST' },
 
     // 2月
     { TradeDate: '2024-02-15', Symbol: 'O', Description: 'REALTY INCOME CORP CASH DIV ON 100 SHS REC 02/01/24 PAY 02/15/24 NON-RES TAX WITHHELD $5.00', Amount: 50.00, RecordType: 'Dividend', Action: 'DIVIDEND' },

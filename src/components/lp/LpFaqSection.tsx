@@ -12,7 +12,7 @@ const FAQS: { question: string; answer: string }[] = [
   {
     question: 'CSVはどこからダウンロードしますか？',
     answer:
-      'Firstradeにログインし、Accounts → Tax Center から、配当は「Dividend Income」、売却損益は「Gain/Loss」の画面でダウンロードできます。年度を選んでからダウンロードしてください。',
+      'Firstradeにログインし、配当は Accounts → Tax Center → Download Account Information、売却損益は Accounts → Gain/Loss の画面からダウンロードできます。画面つきの手順は「CSVのダウンロード方法」のページで解説しています。',
   },
   {
     question: '入力したデータは安全ですか？',
